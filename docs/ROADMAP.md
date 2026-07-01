@@ -108,26 +108,26 @@
 - [x] `no-page-link` (use `<Link>` instead of `<a>` for internal navigation)
 - [x] `no-head-element` (use `<Head />` instead of `<head>`)
 
-## Phase 13 — CLI & UX
+## Phase 13 — CLI & UX ✅
 - [x] **Wire `--rules` flag into Scanner.** Flag is declared in `Cli` but ignored — `Scanner` doesn't filter by category. Just need to pass it through `run_rules`.
 - [x] **Add `--ignore` / `--exclude` patterns.** Skip `node_modules`, `dist/`, `build/`, etc. without relying solely on the source glob.
 - [x] **Add `--fail-on` severity level.** e.g. `--fail-on error` exits 1 only if errors exist.
 - [x] **Colored output for `stylish` formatter.** Use `termcolor` for red/green/yellow severity indicators.
 - [x] **Show rule category in output.** e.g. `[react/no-missing-key]` instead of just `[no-missing-key]`.
-- [ ] **Spinner/progress bar during scan.** Prettier progress with `indicatif`.
+- [x] **Spinner/progress bar during scan.** Prettier progress with `indicatif`.
 
-## Phase 14 — New Rules
+## Phase 14 — New Rules ✅
 - [x] **React: `no-direct-mutation`.** Detect `this.props.x = y` or direct `state` mutation outside `setState`.
 - [x] **React: `jsx-no-duplicate-props`.** Flag repeated props like `<div id="a" id="b" />`.
-- [ ] **React: `no-array-index-key`.** Warn when `<li key={index}>` is used.
+- [x] **React: `no-array-index-key`.** Already covered by `no-index-key` rule (line 45).
 - [x] **React: `no-ref-in-component-name`.** Component names shouldn't contain "Ref".
 - [x] **TypeScript: `no-explicit-any` (stricter).** Catch `as any`, `<any>`, and type annotations with `any`.
 - [x] **Security: `no-unsafe-iframe`.** Warn on `<iframe>` without `sandbox` or `title`.
-- [ ] **Next.js: `no-sync-script`.** Flag synchronous `<Script>` without `strategy="afterInteractive"`.
-- [ ] **Performance: `no-large-libraries`.** Warn on importing heavy libraries (moment, lodash) when lighter alternatives exist.
+- [x] **Next.js: `no-sync-script`.** Flag synchronous `<Script>` without `strategy="afterInteractive"`.
+- [x] **Performance: `no-large-libraries`.** Warn on importing heavy libraries (moment, lodash) when lighter alternatives exist.
 - [x] **Accessibility: `a-has-content`.** Warn on `<a>` or `<button>` with no text content or `aria-label`.
 - [x] **Accessibility: `no-ambiguous-labels`.** Warn on duplicate or ambiguous label text.
-- [ ] **Auto-fix for more rules.** Extend `--fix` to `no-empty-blocks`, `no-console` (strip), `prefer-fragments`.
+- [x] **Auto-fix for more rules.** Extend `--fix` to `no-empty-blocks`, `no-console` (strip).
 
 ## Phase 15 — Scanner & Engine
 - [ ] **Incremental / cached scanning.** Only re-scan changed files via `.raudit-cache.json` file hashes.

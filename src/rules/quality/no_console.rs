@@ -3,7 +3,7 @@ use oxc_ast_visit::Visit;
 use oxc_ast_visit::walk::walk_call_expression;
 use oxc_semantic::Semantic;
 
-use crate::rules::{Rule, RuleFinding, RuleMeta, Severity};
+use crate::rules::{Fix, Rule, RuleFinding, RuleMeta, Severity};
 
 pub struct NoConsole;
 
@@ -26,6 +26,36 @@ impl Rule for NoConsole {
         };
         collector.visit_program(program);
         collector.calls
+    }
+
+    fn fix(&self, finding: &RuleFinding, source_text: &str) -> Option<Fix> {
+        let start = crate::rules::line_col_to_offset(source_text, finding.line, finding.column)?;
+        let after = &source_text[start..];
+        let mut depth = 0;
+        let mut end = 0;
+        for (i, ch) in after.char_indices() {
+            if ch == '(' {
+                depth += 1;
+            } else if ch == ')' {
+                depth -= 1;
+                if depth == 0 {
+                    end = start + i + 1;
+                    break;
+                }
+            }
+        }
+        if depth != 0 || end == 0 {
+            return None;
+        }
+        let after_fix = &source_text[end..];
+        if after_fix.starts_with(';') {
+            end += 1;
+        }
+        Some(Fix {
+            start,
+            end,
+            replacement: String::new(),
+        })
     }
 }
 

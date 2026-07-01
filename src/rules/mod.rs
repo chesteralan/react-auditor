@@ -67,9 +67,9 @@ impl Violation {
 pub trait Rule: Send + Sync {
     fn meta(&self) -> &RuleMeta;
     fn run(&self, program: &Program, semantic: &Semantic, source_text: &str) -> Vec<RuleFinding>;
-    /// If this rule supports auto-fix, return the replacement for the specific finding.
+    /// If this rule supports auto-fix, return the byte span and replacement text.
     /// Default implementation returns `None` (no fix available).
-    fn fix(&self, _finding: &RuleFinding, _source_text: &str) -> Option<String> {
+    fn fix(&self, _finding: &RuleFinding, _source_text: &str) -> Option<Fix> {
         None
     }
 }
@@ -78,6 +78,12 @@ pub struct RuleFinding {
     pub line: usize,
     pub column: usize,
     pub message: String,
+}
+
+pub struct Fix {
+    pub start: usize,
+    pub end: usize,
+    pub replacement: String,
 }
 
 pub struct RuleRegistry {
@@ -225,6 +231,11 @@ impl RuleRegistry {
         self.rules.push(Box::new(nextjs::no_page_link::NoPageLink));
         self.rules
             .push(Box::new(nextjs::no_head_element::NoHeadElement));
+        self.rules
+            .push(Box::new(nextjs::no_sync_script::NoSyncScript));
+        // ── Phase 14 continued: Performance ──
+        self.rules
+            .push(Box::new(performance::no_large_libraries::NoLargeLibraries));
     }
 
     pub fn run_rules(
@@ -284,4 +295,19 @@ impl RuleRegistry {
             .find(|r| r.meta().id == rule_id)
             .map(|v| v.as_ref())
     }
+}
+
+pub fn line_col_to_offset(source: &str, line: usize, col: usize) -> Option<usize> {
+    let mut current_line = 1;
+    let mut offset = 0;
+    for (i, _) in source.char_indices() {
+        if current_line == line {
+            return Some(offset + col - 1);
+        }
+        if source.as_bytes().get(i) == Some(&b'\n') {
+            current_line += 1;
+            offset = i + 1;
+        }
+    }
+    None
 }

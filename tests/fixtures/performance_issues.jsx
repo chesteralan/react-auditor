@@ -1,4 +1,5 @@
 import React from 'react';
+import moment from 'moment';
 
 function List({ data }) {
   const sorted = data.sort();

@@ -4,6 +4,7 @@ use std::path::Path;
 use anyhow::{Context, Result};
 use globset::GlobBuilder;
 use ignore::WalkBuilder;
+use indicatif::{ProgressBar, ProgressStyle};
 use oxc_allocator::Allocator;
 use oxc_parser::Parser;
 use oxc_semantic::SemanticBuilder;
@@ -76,13 +77,23 @@ impl Scanner {
         let mut results = Vec::new();
         let total = paths.len();
 
-        if total > 1 {
-            eprintln!("Scanning {total} files...");
-        }
+        let pb = if total > 1 {
+            let bar = ProgressBar::new(total as u64);
+            bar.set_style(
+                ProgressStyle::default_bar()
+                    .template("{spinner:.green} [{bar:32.cyan/blue}] {pos}/{len}  {msg}")
+                    .unwrap()
+                    .progress_chars("=> "),
+            );
+            bar.set_message("scanning...");
+            Some(bar)
+        } else {
+            None
+        };
 
-        for (i, path_str) in paths.iter().enumerate() {
-            if total > 1 {
-                eprintln!("  [{}/{}] {}", i + 1, total, path_str);
+        for path_str in &paths {
+            if let Some(ref bar) = pb {
+                bar.set_message(path_str.to_string());
             }
 
             let path = Path::new(path_str);
@@ -95,6 +106,9 @@ impl Scanner {
             let ret = Parser::new(&allocator, &content, source_type).parse();
 
             if !ret.errors.is_empty() {
+                if let Some(ref bar) = pb {
+                    bar.inc(1);
+                }
                 continue;
             }
 
@@ -116,14 +130,15 @@ impl Scanner {
                     violations,
                 });
             }
+
+            if let Some(ref bar) = pb {
+                bar.inc(1);
+            }
         }
 
-        let violation_count: usize = results.iter().map(|r| r.violations.len()).sum();
-        if total > 1 {
-            eprintln!(
-                "Done — {violation_count} violation(s) in {} file(s).",
-                results.len()
-            );
+        if let Some(bar) = pb {
+            let v = results.iter().map(|r| r.violations.len()).sum::<usize>();
+            bar.finish_with_message(format!("{v} violation(s) in {} file(s)", results.len()));
         }
 
         Ok(results)
@@ -175,18 +190,14 @@ impl Scanner {
                 let Some(rule) = self.registry.get_rule(&v.rule_id) else {
                     continue;
                 };
-                let Some(replacement) = rule.fix(&v.to_finding(), &fixed) else {
+                let Some(fix) = rule.fix(&v.to_finding(), &fixed) else {
                     continue;
                 };
 
-                let offset = match line_col_to_offset(&fixed, v.line, v.column) {
-                    Some(o) => o,
-                    None => continue,
-                };
-
-                let var_len = fixed[offset..].find([' ', '\t', '\n', ';']).unwrap_or(3);
-                fixed.replace_range(offset..offset + var_len, &replacement);
-                total += 1;
+                if fix.end <= fixed.len() {
+                    fixed.replace_range(fix.start..fix.end, &fix.replacement);
+                    total += 1;
+                }
             }
 
             if total > 0 {
@@ -197,19 +208,4 @@ impl Scanner {
 
         Ok(total)
     }
-}
-
-fn line_col_to_offset(source: &str, line: usize, col: usize) -> Option<usize> {
-    let mut current_line = 1;
-    let mut offset = 0;
-    for (i, _) in source.char_indices() {
-        if current_line == line {
-            return Some(offset + col - 1);
-        }
-        if source.as_bytes().get(i) == Some(&b'\n') {
-            current_line += 1;
-            offset = i + 1;
-        }
-    }
-    None
 }

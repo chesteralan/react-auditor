@@ -1,4 +1,5 @@
 import Head from 'next/head';
+import Script from 'next/script';
 
 export default function Home() {
   return (
@@ -11,6 +12,7 @@ export default function Home() {
       <a href="/about">About</a>
       <a href="https://example.com">External</a>
       <a href="./contact">Contact</a>
+      <Script src="https://example.com/analytics.js" />
     </div>
   );
 }

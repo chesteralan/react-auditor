@@ -104,6 +104,10 @@ fn e2e_performance_issues_fires_rules() {
         rule_ids.contains(&"no-heavy-computation-in-render".to_string()),
         "expected no-heavy-computation-in-render"
     );
+    assert!(
+        rule_ids.contains(&"no-large-libraries".to_string()),
+        "expected no-large-libraries"
+    );
     assert!(!rule_ids.is_empty(), "expected at least one violation");
 }
 
@@ -269,6 +273,10 @@ fn e2e_nextjs_issues_fires_rules() {
         rule_ids.contains(&"no-head-element".to_string()),
         "expected no-head-element"
     );
+    assert!(
+        rule_ids.contains(&"no-sync-script".to_string()),
+        "expected no-sync-script"
+    );
     assert!(!rule_ids.is_empty(), "expected at least one violation");
 }
 
@@ -292,13 +300,14 @@ fn e2e_category_filter_limits_to_nextjs_only() {
     let rule_ids = run_scanner_filtered("nextjs_issues.jsx", vec!["nextjs".to_string()]);
     assert_eq!(
         rule_ids.len(),
-        5,
-        "expected 5 nextjs violations (2 no-page-link)"
+        6,
+        "expected 6 nextjs violations (2 no-page-link + no-sync-script)"
     );
     assert!(rule_ids.contains(&"no-img-element".to_string()));
     assert!(rule_ids.contains(&"no-script-tag-in-head".to_string()));
     assert!(rule_ids.contains(&"no-page-link".to_string()));
     assert!(rule_ids.contains(&"no-head-element".to_string()));
+    assert!(rule_ids.contains(&"no-sync-script".to_string()));
 }
 
 #[test]
@@ -326,4 +335,60 @@ fn e2e_new_rules_fires_rules() {
         "expected no-explicit-any"
     );
     assert!(!rule_ids.is_empty(), "expected at least one violation");
+}
+
+#[test]
+fn e2e_no_console_fix_strips_console_calls() {
+    let input = "function foo() {\n  console.log(\"test\");\n  return 1;\n}\n";
+    let path = std::env::temp_dir().join("_e2e_no_console_fix.jsx");
+    std::fs::write(&path, input).unwrap();
+    let scanner = Scanner::new(
+        vec![path.to_string_lossy().to_string()],
+        HashMap::new(),
+        None,
+        Vec::new(),
+    );
+    let results = scanner.scan().unwrap();
+    let mut fixed = input.to_string();
+    for result in &results {
+        for v in result.violations.iter().rev() {
+            if let Some(rule) = scanner.registry.get_rule(&v.rule_id)
+                && let Some(fix) = rule.fix(&v.to_finding(), &fixed)
+                && fix.end <= fixed.len()
+            {
+                fixed.replace_range(fix.start..fix.end, &fix.replacement);
+            }
+        }
+    }
+    let expected = "function foo() {\n  \n  return 1;\n}\n";
+    assert_eq!(fixed, expected, "console.log should be stripped");
+    let _ = std::fs::remove_file(&path);
+}
+
+#[test]
+fn e2e_no_empty_blocks_fix_removes_empty_blocks() {
+    let input = "function foo() {\n  if (true) {}\n}\n";
+    let path = std::env::temp_dir().join("_e2e_no_empty_blocks_fix.jsx");
+    std::fs::write(&path, input).unwrap();
+    let scanner = Scanner::new(
+        vec![path.to_string_lossy().to_string()],
+        HashMap::new(),
+        None,
+        Vec::new(),
+    );
+    let results = scanner.scan().unwrap();
+    let mut fixed = input.to_string();
+    for result in &results {
+        for v in result.violations.iter().rev() {
+            if let Some(rule) = scanner.registry.get_rule(&v.rule_id)
+                && let Some(fix) = rule.fix(&v.to_finding(), &fixed)
+                && fix.end <= fixed.len()
+            {
+                fixed.replace_range(fix.start..fix.end, &fix.replacement);
+            }
+        }
+    }
+    let expected = "function foo() {\n  if (true) \n}\n";
+    assert_eq!(fixed, expected, "empty block should be removed");
+    let _ = std::fs::remove_file(&path);
 }
