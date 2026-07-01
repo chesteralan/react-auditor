@@ -1,0 +1,36 @@
+name: Publish npm Package
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    environment: npm
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 22
+          registry-url: https://registry.npmjs.org
+
+      - name: Update PKG_VERSION in install.js
+        working-directory: npm
+        run: |
+          VERSION=$(node -p "require('./package.json').version")
+          sed -i "s/^const PKG_VERSION = \".*\";/const PKG_VERSION = \"$VERSION\";/" install.js
+          echo "install.js PKG_VERSION set to $VERSION"
+
+      - name: Publish to npmjs
+        working-directory: npm
+        run: npm publish --provenance --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
