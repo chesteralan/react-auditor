@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>react-auditor</title>
+  <style>
+    :root {
+      --bg: #0d1117;
+      --surface: #161b22;
+      --border: #30363d;
+      --text: #e6edf3;
+      --text-muted: #8b949e;
+      --accent: #58a6ff;
+      --green: #3fb950;
+      --orange: #d29922;
+      --red: #f85149;
+      --font: -apple-system,BlinkMacSystemFont,'Segoe UI','Noto Sans',Helvetica,Arial,sans-serif;
+      --mono: 'SFMono-Regular',Consolas,'Liberation Mono',Menlo,monospace;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: var(--font);
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+    }
+    .container { max-width: 900px; margin: 0 auto; padding: 0 24px; }
+    header {
+      padding: 64px 0 48px;
+      border-bottom: 1px solid var(--border);
+      text-align: center;
+    }
+    h1 { font-size: 3rem; font-weight: 700; letter-spacing: -0.02em; }
+    h1 span { color: var(--accent); }
+    .tagline {
+      font-size: 1.2rem;
+      color: var(--text-muted);
+      margin-top: 12px;
+      max-width: 600px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    .badges { margin-top: 20px; display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; }
+    .badge {
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: .8rem;
+      font-family: var(--mono);
+      background: var(--surface);
+      border: 1px solid var(--border);
+    }
+    .badge.green { border-color: var(--green); color: var(--green); }
+    .badge.orange { border-color: var(--orange); color: var(--orange); }
+    .badge.blue { border-color: var(--accent); color: var(--accent); }
+
+    section { padding: 48px 0; border-bottom: 1px solid var(--border); }
+    h2 { font-size: 1.5rem; margin-bottom: 20px; }
+    h2 .count {
+      font-size: 0.9rem;
+      font-weight: 400;
+      color: var(--text-muted);
+    }
+    .card-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 16px;
+    }
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 20px;
+    }
+    .card h3 { font-size: 1.1rem; margin-bottom: 8px; }
+    .card p { font-size: .9rem; color: var(--text-muted); }
+    .card .rule-count {
+      display: inline-block;
+      margin-top: 12px;
+      font-size: .8rem;
+      font-family: var(--mono);
+      color: var(--accent);
+    }
+
+    pre {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 16px 20px;
+      overflow-x: auto;
+      font-family: var(--mono);
+      font-size: .85rem;
+      line-height: 1.5;
+    }
+    code { font-family: var(--mono); }
+    .cmd { color: var(--green); }
+    .comment { color: var(--text-muted); }
+    .install-steps { display: flex; flex-direction: column; gap: 16px; }
+
+    footer {
+      text-align: center;
+      padding: 32px 0;
+      color: var(--text-muted);
+      font-size: .9rem;
+    }
+    footer a { color: var(--accent); text-decoration: none; }
+    footer a:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1><span>react</span>-auditor</h1>
+      <p class="tagline">
+        A blazing-fast Rust CLI that scans your JS/TS/React codebase for best practices,
+        quality, security, performance, and accessibility issues.
+      </p>
+      <div class="badges">
+        <span class="badge green">43 rules</span>
+        <span class="badge orange">Rust + oxc</span>
+        <span class="badge blue">MIT license</span>
+        <span class="badge">5 platforms</span>
+      </div>
+    </header>
+
+    <section>
+      <h2>Quick Install</h2>
+      <div class="install-steps">
+        <pre><span class="comment"># Via npm (recommended)</span>
+$ npm install -g react-auditor</pre>
+        <pre><span class="comment"># Via Cargo</span>
+$ cargo install react-auditor</pre>
+        <pre><span class="comment"># Scan your project</span>
+$ react-auditor</pre>
+      </div>
+    </section>
+
+    <section>
+      <h2>Rule Categories <span class="count">(43 rules total)</span></h2>
+      <div class="card-grid">
+        <div class="card">
+          <h3>Code Quality</h3>
+          <p>No unused vars, no shadowing, consistent returns, complexity caps, and more.</p>
+          <span class="rule-count">13 rules</span>
+        </div>
+        <div class="card">
+          <h3>React</h3>
+          <p>Hooks rules, missing keys, inline styles, effect deps, setState safety.</p>
+          <span class="rule-count">13 rules</span>
+        </div>
+        <div class="card">
+          <h3>TypeScript</h3>
+          <p>No any, no non-null assertions, strict null checks, explicit return types.</p>
+          <span class="rule-count">8 rules</span>
+        </div>
+        <div class="card">
+          <h3>Security</h3>
+          <p>No eval, no dangerouslySetInnerHTML, no hardcoded secrets, no script URLs.</p>
+          <span class="rule-count">6 rules</span>
+        </div>
+        <div class="card">
+          <h3>Accessibility</h3>
+          <p>img alt, button type, label associations, heading levels, valid ARIA attributes.</p>
+          <span class="rule-count">5 rules</span>
+        </div>
+        <div class="card">
+          <h3>Performance</h3>
+          <p>Prefer fragments, no bind in JSX, lazy loading, no heavy computation in render.</p>
+          <span class="rule-count">4 rules</span>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h2>Usage</h2>
+      <pre><span class="comment"># Scan with default settings</span>
+$ react-auditor
+
+<span class="comment"># Output as JSON</span>
+$ react-auditor src/ --format json
+
+<span class="comment"># Run specific categories</span>
+$ react-auditor --rules react,typescript,security
+
+<span class="comment"># Auto-fix where supported</span>
+$ react-auditor --fix
+
+<span class="comment"># Fail CI on more than 10 warnings</span>
+$ react-auditor --max-warnings 10
+
+<span class="comment"># Write JSON log</span>
+$ react-auditor --log audit.json</pre>
+    </section>
+
+    <section>
+      <h2>Pre-commit Integration</h2>
+      <p style="margin-bottom:16px;color:var(--text-muted);">
+        Add to your <code>package.json</code> for automatic linting on every commit:
+      </p>
+      <pre>{
+  <span style="color:#d2a8ff">"lint-staged"</span>: {
+    <span style="color:#d2a8ff">"*.{js,jsx,ts,tsx}"</span>: [
+      <span style="color:#a5d6ff">"react-auditor --quiet --max-warnings 0"</span>
+    ]
+  }
+}</pre>
+    </section>
+
+    <footer>
+      <p>
+        MIT &mdash; <a href="https://github.com/chesteralan/react-auditor">GitHub</a>
+        &middot; <a href="https://github.com/chesteralan/react-auditor/issues">Issues</a>
+      </p>
+    </footer>
+  </div>
+</body>
+</html>

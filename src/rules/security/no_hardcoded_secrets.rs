@@ -64,12 +64,13 @@ impl<'a> Visit<'a> for SecretCollector<'a> {
 
         let is_suspicious_name = SUSPICIOUS_NAMES.iter().any(|n| name.contains(n));
 
-        if is_suspicious_name
-            && let Some(init) = &decl.init
+        if let Some(init) = &decl.init
             && let oxc_ast::ast::Expression::StringLiteral(s) = init
         {
             let val = s.value.as_str();
-            if val.len() > 8
+
+            if is_suspicious_name
+                && val.len() > 8
                 && val
                     .chars()
                     .any(|c| c.is_ascii_punctuation() || c.is_ascii_digit())
@@ -82,14 +83,7 @@ impl<'a> Visit<'a> for SecretCollector<'a> {
                     column: col + 1,
                     message: format!("Potential hardcoded secret in `{name}`"),
                 });
-            }
-        }
-
-        if let Some(init) = &decl.init
-            && let oxc_ast::ast::Expression::StringLiteral(s) = init
-        {
-            let val = s.value.as_str();
-            if SUSPICIOUS_PATTERNS.iter().any(|p| val.starts_with(p)) {
+            } else if SUSPICIOUS_PATTERNS.iter().any(|p| val.starts_with(p)) {
                 let start = decl.span.start as usize;
                 let line = self.source[..start].lines().count().max(1);
                 let col = start - self.source[..start].rfind('\n').map(|i| i + 1).unwrap_or(0);

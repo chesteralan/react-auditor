@@ -1,6 +1,8 @@
 use oxc_ast::ast::Program;
 use oxc_ast_visit::Visit;
+use oxc_ast_visit::walk;
 use oxc_semantic::Semantic;
+use oxc_syntax::scope::ScopeFlags;
 
 use crate::rules::{Rule, RuleFinding, RuleMeta, Severity};
 
@@ -39,7 +41,7 @@ impl<'a> Visit<'a> for ComplexityCollector<'a> {
     fn visit_function(
         &mut self,
         func: &oxc_ast::ast::Function<'a>,
-        _flags: oxc_syntax::scope::ScopeFlags,
+        _flags: ScopeFlags,
     ) {
         if let Some(body) = &func.body {
             let score = count_complexity(&body.statements);
@@ -61,6 +63,7 @@ impl<'a> Visit<'a> for ComplexityCollector<'a> {
                 });
             }
         }
+        walk::walk_function(self, func, _flags);
     }
 
     fn visit_arrow_function_expression(
@@ -78,77 +81,63 @@ impl<'a> Visit<'a> for ComplexityCollector<'a> {
                 message: format!("Arrow function has complexity {score}, max {MAX_COMPLEXITY}"),
             });
         }
+        walk::walk_arrow_function_expression(self, func);
+    }
+}
+
+fn count_statement(stmt: &oxc_ast::ast::Statement) -> usize {
+    match stmt {
+        oxc_ast::ast::Statement::IfStatement(i) => {
+            let mut score = 1;
+            if i.alternate.is_some() {
+                score += 1;
+            }
+            score += count_statement(&i.consequent);
+            if let Some(alt) = &i.alternate {
+                score += count_statement(alt);
+            }
+            score
+        }
+        oxc_ast::ast::Statement::ForStatement(f) => {
+            1 + count_statement(&f.body)
+        }
+        oxc_ast::ast::Statement::ForInStatement(f) => {
+            1 + count_statement(&f.body)
+        }
+        oxc_ast::ast::Statement::ForOfStatement(f) => {
+            1 + count_statement(&f.body)
+        }
+        oxc_ast::ast::Statement::WhileStatement(w) => {
+            1 + count_statement(&w.body)
+        }
+        oxc_ast::ast::Statement::DoWhileStatement(d) => {
+            1 + count_statement(&d.body)
+        }
+        oxc_ast::ast::Statement::SwitchStatement(s) => {
+            s.cases.iter().map(|case| 1 + count_complexity(&case.consequent)).sum()
+        }
+        oxc_ast::ast::Statement::TryStatement(t) => {
+            let mut score = 0;
+            if let Some(handler) = &t.handler {
+                score += 1;
+                score += count_complexity(&handler.body.body);
+            }
+            if let Some(ref finalizer) = t.finalizer {
+                score += count_complexity(&finalizer.body);
+            }
+            score
+        }
+        oxc_ast::ast::Statement::BlockStatement(b) => {
+            count_complexity(&b.body)
+        }
+        _ => 0,
     }
 }
 
 fn count_complexity(stmts: &[oxc_ast::ast::Statement]) -> usize {
     let mut score = 1;
     for stmt in stmts {
-        match stmt {
-            oxc_ast::ast::Statement::IfStatement(i) => {
-                score += 1;
-                if i.alternate.is_some() {
-                    score += 1;
-                }
-                if let oxc_ast::ast::Statement::BlockStatement(b) = &i.consequent {
-                    score += count_complexity(&b.body);
-                }
-                if let Some(alt) = &i.alternate
-                    && let oxc_ast::ast::Statement::BlockStatement(b) = alt
-                {
-                    score += count_complexity(&b.body);
-                }
-            }
-            oxc_ast::ast::Statement::ForStatement(f) => {
-                score += 1;
-                if let oxc_ast::ast::Statement::BlockStatement(b) = &f.body {
-                    score += count_complexity(&b.body);
-                }
-            }
-            oxc_ast::ast::Statement::ForInStatement(f) => {
-                score += 1;
-                if let oxc_ast::ast::Statement::BlockStatement(b) = &f.body {
-                    score += count_complexity(&b.body);
-                }
-            }
-            oxc_ast::ast::Statement::ForOfStatement(f) => {
-                score += 1;
-                if let oxc_ast::ast::Statement::BlockStatement(b) = &f.body {
-                    score += count_complexity(&b.body);
-                }
-            }
-            oxc_ast::ast::Statement::WhileStatement(w) => {
-                score += 1;
-                if let oxc_ast::ast::Statement::BlockStatement(b) = &w.body {
-                    score += count_complexity(&b.body);
-                }
-            }
-            oxc_ast::ast::Statement::DoWhileStatement(d) => {
-                score += 1;
-                if let oxc_ast::ast::Statement::BlockStatement(b) = &d.body {
-                    score += count_complexity(&b.body);
-                }
-            }
-            oxc_ast::ast::Statement::SwitchStatement(s) => {
-                for case in &s.cases {
-                    score += 1;
-                    score += count_complexity(&case.consequent);
-                }
-            }
-            oxc_ast::ast::Statement::TryStatement(t) => {
-                if let Some(handler) = &t.handler {
-                    score += 1;
-                    score += count_complexity(&handler.body.body);
-                }
-                if let Some(finalizer) = &t.finalizer {
-                    score += count_complexity(&finalizer.body);
-                }
-            }
-            oxc_ast::ast::Statement::BlockStatement(b) => {
-                score += count_complexity(&b.body);
-            }
-            _ => {}
-        }
+        score += count_statement(stmt);
     }
     score
 }

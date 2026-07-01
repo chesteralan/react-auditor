@@ -76,7 +76,7 @@ Also supports `.rauditrc.json` and `package.json#reactAuditor`.
 | Category | Count | Rule IDs |
 |----------|-------|----------|
 | Code Quality | 13 | `no-console`, `no-empty-blocks`, `no-var`, `max-params`, `no-long-functions`, `prefer-early-return`, `no-commented-code`, `no-deep-nesting`, `no-magic-numbers`, `consistent-return`, `no-unused-vars`, `no-shadow`, `complexity` |
-| React | 13 | `no-missing-key`, `no-inline-styles`, `consistent-component-naming`, `no-index-key`, `no-inline-functions`, `prefer-function-components`, `no-unnecessary-memo`, `no-multiple-render-methods`, `no-side-effects-in-render`, `hook-rules`, `effect-deps-complete`, `no-set-state-in-effect`, `no-set-state-in-render` |
+| React | 13 | `no-missing-key`, `no-inline-styles`, `consistent-component-naming`, `no-index-key`, `no-inline-functions`, `prefer-function-components`, `no-unnecessary-memo`, `no-multiple-render-methods`, `no-side-effects-in-render`, `hook-rules`, `no-missing-deps`, `no-set-state-in-effect`, `no-set-state-in-render` |
 | TypeScript | 8 | `no-any`, `no-non-null-assertion`, `no-type-assertion`, `no-empty-interface`, `consistent-type-imports`, `explicit-return-type`, `strict-null-checks`, `prefer-interface` |
 | Security | 6 | `no-dangerously-set-innerhtml`, `no-eval`, `no-script-url`, `no-hardcoded-secrets`, `no-unsanitized-input`, `no-insecure-protocol` |
 | Performance | 5 | `prefer-fragments`, `no-bind-in-jsx`, `no-heavy-computation-in-render`, `lazy-load-components`, `no-heavy-computation-in-render` |

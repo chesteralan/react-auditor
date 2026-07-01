@@ -1,5 +1,6 @@
 use oxc_ast::ast::Program;
 use oxc_ast_visit::Visit;
+use oxc_ast_visit::walk;
 use oxc_semantic::Semantic;
 
 use crate::rules::{Rule, RuleFinding, RuleMeta, Severity};
@@ -78,7 +79,7 @@ impl<'a> Visit<'a> for HookRuleCollector<'a> {
         _flags: oxc_syntax::scope::ScopeFlags,
     ) {
         self.inside_nested_fn.push(true);
-        oxc_ast_visit::walk::walk_function(self, func, _flags);
+        walk::walk_function(self, func, _flags);
         self.inside_nested_fn.pop();
     }
 
@@ -87,19 +88,19 @@ impl<'a> Visit<'a> for HookRuleCollector<'a> {
         func: &oxc_ast::ast::ArrowFunctionExpression<'a>,
     ) {
         self.inside_nested_fn.push(true);
-        oxc_ast_visit::walk::walk_arrow_function_expression(self, func);
+        walk::walk_arrow_function_expression(self, func);
         self.inside_nested_fn.pop();
     }
 
     fn visit_if_statement(&mut self, stmt: &oxc_ast::ast::IfStatement<'a>) {
         self.inside_condition.push(true);
-        oxc_ast_visit::walk::walk_if_statement(self, stmt);
+        walk::walk_if_statement(self, stmt);
         self.inside_condition.pop();
     }
 
     fn visit_conditional_expression(&mut self, expr: &oxc_ast::ast::ConditionalExpression<'a>) {
         self.inside_condition.push(true);
-        oxc_ast_visit::walk::walk_conditional_expression(self, expr);
+        walk::walk_conditional_expression(self, expr);
         self.inside_condition.pop();
     }
 
@@ -108,46 +109,52 @@ impl<'a> Visit<'a> for HookRuleCollector<'a> {
             expr.operator,
             oxc_ast::ast::LogicalOperator::And | oxc_ast::ast::LogicalOperator::Or
         ) {
+            // Walk the left side (unconditional) first, then the right side (conditional)
+            walk::walk_expression(self, &expr.left);
             self.inside_condition.push(true);
+            walk::walk_expression(self, &expr.right);
+            self.inside_condition.pop();
+        } else {
+            walk::walk_logical_expression(self, expr);
         }
-        oxc_ast_visit::walk::walk_logical_expression(self, expr);
-        self.inside_condition.pop();
     }
 
     fn visit_for_statement(&mut self, stmt: &oxc_ast::ast::ForStatement<'a>) {
         self.inside_loop.push(true);
-        oxc_ast_visit::walk::walk_for_statement(self, stmt);
+        walk::walk_for_statement(self, stmt);
         self.inside_loop.pop();
     }
 
     fn visit_for_in_statement(&mut self, stmt: &oxc_ast::ast::ForInStatement<'a>) {
         self.inside_loop.push(true);
-        oxc_ast_visit::walk::walk_for_in_statement(self, stmt);
+        walk::walk_for_in_statement(self, stmt);
         self.inside_loop.pop();
     }
 
     fn visit_for_of_statement(&mut self, stmt: &oxc_ast::ast::ForOfStatement<'a>) {
         self.inside_loop.push(true);
-        oxc_ast_visit::walk::walk_for_of_statement(self, stmt);
+        walk::walk_for_of_statement(self, stmt);
         self.inside_loop.pop();
     }
 
     fn visit_while_statement(&mut self, stmt: &oxc_ast::ast::WhileStatement<'a>) {
         self.inside_loop.push(true);
-        oxc_ast_visit::walk::walk_while_statement(self, stmt);
+        walk::walk_while_statement(self, stmt);
         self.inside_loop.pop();
     }
 
     fn visit_do_while_statement(&mut self, stmt: &oxc_ast::ast::DoWhileStatement<'a>) {
         self.inside_loop.push(true);
-        oxc_ast_visit::walk::walk_do_while_statement(self, stmt);
+        walk::walk_do_while_statement(self, stmt);
         self.inside_loop.pop();
     }
 
     fn visit_switch_statement(&mut self, stmt: &oxc_ast::ast::SwitchStatement<'a>) {
+        // The discriminant expression is unconditional — walk it first
+        walk::walk_expression(self, &stmt.discriminant);
         self.inside_condition.push(true);
         for case in &stmt.cases {
-            oxc_ast_visit::walk::walk_switch_case(self, case);
+            walk::walk_switch_case(self, case);
         }
         self.inside_condition.pop();
     }

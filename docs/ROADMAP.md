@@ -49,7 +49,7 @@
 - [x] `no-multiple-render-methods`
 - [x] `no-side-effects-in-render`
 - [x] `hook-rules` (Rules of Hooks)
-- [x] `effect-deps-complete`
+- [x] `no-missing-deps`
 - [x] `no-set-state-in-effect`
 - [x] `no-set-state-in-render`
 

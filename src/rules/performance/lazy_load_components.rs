@@ -45,12 +45,41 @@ impl<'a> LazyCollector<'a> {
     }
 }
 
+fn filename_starts_with_uppercase(path: &str) -> bool {
+    path.rsplit('/')
+        .next()
+        .and_then(|name| name.chars().next())
+        .is_some_and(|c| c.is_ascii_uppercase())
+}
+
 impl<'a> Visit<'a> for LazyCollector<'a> {
     fn visit_import_declaration(&mut self, decl: &oxc_ast::ast::ImportDeclaration<'a>) {
         let path = decl.source.value.as_str();
-        let is_component_module =
-            path.contains('/') && path.chars().last().is_some_and(|c| c.is_ascii_uppercase());
-        if is_component_module {
+
+        // Check if any imported binding starts with uppercase (PascalCase component)
+        let has_component_binding = decl.specifiers.as_ref().is_some_and(|specifiers| {
+            specifiers.iter().any(|spec| {
+                let local_name = match spec {
+                    oxc_ast::ast::ImportDeclarationSpecifier::ImportDefaultSpecifier(s) => {
+                        Some(s.local.name.as_str())
+                    }
+                    oxc_ast::ast::ImportDeclarationSpecifier::ImportNamespaceSpecifier(s) => {
+                        Some(s.local.name.as_str())
+                    }
+                    oxc_ast::ast::ImportDeclarationSpecifier::ImportSpecifier(s) => {
+                        Some(s.local.name.as_str())
+                    }
+                };
+                local_name.is_some_and(|n| {
+                    n.chars().next().is_some_and(|c| c.is_ascii_uppercase())
+                })
+            })
+        });
+
+        // Also check if the module path filename starts with uppercase
+        let path_is_component = filename_starts_with_uppercase(path);
+
+        if has_component_binding || path_is_component {
             self.add_finding(decl.span.start as usize,
                 format!("Static import of component `{path}` — consider `React.lazy(() => import('{path}'))`"));
         }

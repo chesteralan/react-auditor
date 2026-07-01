@@ -1,5 +1,6 @@
 use oxc_ast::ast::Program;
 use oxc_ast_visit::Visit;
+use oxc_ast_visit::walk;
 use oxc_semantic::Semantic;
 use oxc_syntax::scope::ScopeFlags;
 
@@ -59,6 +60,7 @@ impl<'a> Visit<'a> for LongFnCollector<'a> {
                 });
             }
         }
+        walk::walk_function(self, func, _flags);
     }
 
     fn visit_arrow_function_expression(
@@ -76,5 +78,6 @@ impl<'a> Visit<'a> for LongFnCollector<'a> {
                 message: format!("Arrow function is {line_count} lines long (max {MAX_LINES})"),
             });
         }
+        walk::walk_arrow_function_expression(self, func);
     }
 }

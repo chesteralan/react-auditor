@@ -7,10 +7,10 @@ use crate::rules::{Rule, RuleFinding, RuleMeta, Severity};
 pub struct EffectDepsComplete;
 
 const RULE_META: RuleMeta = RuleMeta {
-    id: "effect-deps-complete",
+    id: "no-missing-deps",
     default_severity: Severity::Warning,
     category: "react",
-    description: "useEffect/useMemo/useCallback should have complete deps",
+    description: "useEffect/useMemo/useCallback should have a dependency array",
 };
 
 fn is_hook_with_deps(name: &str) -> bool {
@@ -72,22 +72,15 @@ impl<'a> Visit<'a> for DepsCollector<'a> {
             return;
         }
 
-        let last_arg = expr.arguments.last().unwrap();
-        if let oxc_ast::ast::Argument::ArrayExpression(arr) = last_arg {
-            if arr.elements.is_empty()
-                && (name == "useEffect"
-                    || name == "useLayoutEffect"
-                    || name == "useInsertionEffect")
-            {
-                self.add_finding(
-                    expr.span.start as usize,
-                    format!("`{name}` has empty deps array — likely a bug"),
-                );
-            }
-        } else {
+        if let Some(oxc_ast::ast::Argument::ArrayExpression(arr)) = expr.arguments.last()
+            && arr.elements.is_empty()
+            && (name == "useEffect"
+                || name == "useLayoutEffect"
+                || name == "useInsertionEffect")
+        {
             self.add_finding(
                 expr.span.start as usize,
-                format!("`{name}` dependency argument should be an array literal"),
+                format!("`{name}` has empty deps array — likely a bug"),
             );
         }
     }

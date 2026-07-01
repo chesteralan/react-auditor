@@ -30,7 +30,7 @@ All rules the scanner checks against, organized by category.
 |---------|-------------|
 | `use-state-immutably` | State must be updated immutably — no direct mutation |
 | `no-set-state-in-effect` | Avoid setState inside useEffect without dependency |
-| `effect-deps-complete` | useEffect/useCallback/useMemo should include all deps |
+| `no-missing-deps` | useEffect/useCallback/useMemo should include a dependency array |
 | `no-missing-key` | List items should have a `key` prop |
 | `no-index-key` | Prefer stable IDs over array index as key |
 | `no-inline-functions` | Avoid inline function definitions in JSX props |

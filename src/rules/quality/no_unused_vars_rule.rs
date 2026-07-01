@@ -30,7 +30,6 @@ impl Rule for NoUnusedVars {
             }
 
             let is_function = flags.contains(oxc_syntax::symbol::SymbolFlags::Function);
-            let is_import = name == "import" || name == "default";
 
             let mut refs = semantic.symbol_references(symbol_id);
             let has_reads = refs.any(|r| r.flags().is_read());
@@ -46,7 +45,6 @@ impl Rule for NoUnusedVars {
                     column: col + 1,
                     message: format!("`{name}` is declared but never used"),
                 });
-                let _ = is_import;
             }
         }
 
