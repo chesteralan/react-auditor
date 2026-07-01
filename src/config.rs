@@ -17,6 +17,16 @@ pub struct Config {
 
     #[serde(default)]
     pub max_warnings: Option<u32>,
+
+    /// Multi-root workspace patterns (monorepo support).
+    /// e.g. ["packages/*", "apps/*"]
+    #[serde(default)]
+    pub workspaces: Vec<String>,
+
+    /// Per-file-type rule overrides.
+    /// Key is file extension (e.g. "jsx"), value is rule_id → severity.
+    #[serde(default)]
+    pub file_types: HashMap<String, HashMap<String, String>>,
 }
 
 fn default_format() -> String {
@@ -30,6 +40,8 @@ impl Default for Config {
             log: None,
             format: "stylish".to_string(),
             max_warnings: None,
+            workspaces: Vec::new(),
+            file_types: HashMap::new(),
         }
     }
 }

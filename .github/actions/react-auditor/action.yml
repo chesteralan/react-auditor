@@ -1,0 +1,52 @@
+name: 'React Auditor'
+description: 'Run react-auditor on your codebase with problem matcher output'
+author: 'chesteralan'
+branding:
+  icon: 'check-circle'
+  color: 'blue'
+inputs:
+  args:
+    description: 'Arguments to pass to react-auditor (e.g. "src/ --fail-on error")'
+    required: false
+    default: 'src/'
+runs:
+  using: 'composite'
+  steps:
+    - uses: actions-rs/toolchain@v1
+      with:
+        toolchain: stable
+        profile: minimal
+
+    - name: Build react-auditor
+      shell: bash
+      run: cargo build --release
+
+    - name: Add problem matcher
+      shell: bash
+      run: |
+        cat <<'EOF' > "${{ github.action_path }}/problem-matcher.json"
+        {
+          "problemMatcher": [
+            {
+              "owner": "react-auditor",
+              "severity": "error",
+              "pattern": [
+                {
+                  "regexp": "^\\s+(error|warning)\\s+(\\d+):(\\d+)\\s+\\[([^/]+)/([^\\]]+)\\]\\s+(.+)$",
+                  "severity": 1,
+                  "line": 2,
+                  "column": 3,
+                  "code": 5,
+                  "message": 6
+                }
+              ]
+            }
+          ]
+        }
+        EOF
+        echo "::add-matcher::${{ github.action_path }}/problem-matcher.json"
+
+    - name: Run react-auditor
+      shell: bash
+      run: |
+        ./target/release/react-auditor ${{ inputs.args }}

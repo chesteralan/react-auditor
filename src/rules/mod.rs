@@ -49,6 +49,7 @@ pub struct Violation {
     pub line: usize,
     pub column: usize,
     pub rule_id: String,
+    pub category: String,
     pub message: String,
     pub severity: Severity,
 }
@@ -66,10 +67,15 @@ impl Violation {
 pub trait Rule: Send + Sync {
     fn meta(&self) -> &RuleMeta;
     fn run(&self, program: &Program, semantic: &Semantic, source_text: &str) -> Vec<RuleFinding>;
-    /// If this rule supports auto-fix, return the replacement for the specific finding.
+    /// If this rule supports auto-fix, return the byte span and replacement text.
     /// Default implementation returns `None` (no fix available).
-    fn fix(&self, _finding: &RuleFinding, _source_text: &str) -> Option<String> {
+    fn fix(&self, _finding: &RuleFinding, _source_text: &str) -> Option<Fix> {
         None
+    }
+
+    /// Whether this rule has auto-fix capability.
+    fn has_fix(&self) -> bool {
+        false
     }
 }
 
@@ -77,6 +83,12 @@ pub struct RuleFinding {
     pub line: usize,
     pub column: usize,
     pub message: String,
+}
+
+pub struct Fix {
+    pub start: usize,
+    pub end: usize,
+    pub replacement: String,
 }
 
 pub struct RuleRegistry {
@@ -148,6 +160,13 @@ impl RuleRegistry {
             .push(Box::new(react::no_set_state_in_effect::NoSetStateInEffect));
         self.rules
             .push(Box::new(react::no_set_state_in_render::NoSetStateInRender));
+        self.rules
+            .push(Box::new(react::no_duplicate_props::NoDuplicateProps));
+        self.rules
+            .push(Box::new(react::no_direct_mutation::NoDirectMutation));
+        self.rules.push(Box::new(
+            react::no_ref_in_component_name::NoRefInComponentName,
+        ));
         // ── Phase 6: TypeScript ──
         self.rules.push(Box::new(typescript::no_any::NoAny));
         self.rules.push(Box::new(
@@ -167,6 +186,8 @@ impl RuleRegistry {
             .push(Box::new(typescript::strict_null_checks::StrictNullChecks));
         self.rules
             .push(Box::new(typescript::prefer_interface::PreferInterface));
+        self.rules
+            .push(Box::new(typescript::no_explicit_any::NoExplicitAny));
         // ── Phase 7: Security ──
         self.rules.push(Box::new(
             security::no_dangerously_set_innerhtml::NoDangerouslySetInnerHtml,
@@ -180,6 +201,8 @@ impl RuleRegistry {
             .push(Box::new(security::no_unsanitized_input::NoUnsanitizedInput));
         self.rules
             .push(Box::new(security::no_insecure_protocol::NoInsecureProtocol));
+        self.rules
+            .push(Box::new(security::no_unsafe_iframe::NoUnsafeIframe));
         // ── Phase 8: Performance & Accessibility ──
         self.rules
             .push(Box::new(performance::prefer_fragments::PreferFragments));
@@ -200,6 +223,11 @@ impl RuleRegistry {
             .push(Box::new(performance::aria_valid::AriaValid));
         self.rules
             .push(Box::new(performance::heading_levels::HeadingLevels));
+        self.rules
+            .push(Box::new(performance::a_has_content::AHasContent));
+        self.rules.push(Box::new(
+            performance::no_ambiguous_labels::NoAmbiguousLabels,
+        ));
         // ── Phase 12: Next.js ──
         self.rules
             .push(Box::new(nextjs::no_img_element::NoImgElement));
@@ -208,6 +236,11 @@ impl RuleRegistry {
         self.rules.push(Box::new(nextjs::no_page_link::NoPageLink));
         self.rules
             .push(Box::new(nextjs::no_head_element::NoHeadElement));
+        self.rules
+            .push(Box::new(nextjs::no_sync_script::NoSyncScript));
+        // ── Phase 14 continued: Performance ──
+        self.rules
+            .push(Box::new(performance::no_large_libraries::NoLargeLibraries));
     }
 
     pub fn run_rules(
@@ -217,11 +250,19 @@ impl RuleRegistry {
         source_text: &str,
         file_path: &str,
         severity_overrides: &HashMap<String, String>,
+        category_filter: Option<&Vec<String>>,
     ) -> Vec<Violation> {
         let mut violations = Vec::new();
 
         for rule in &self.rules {
             let meta = rule.meta();
+
+            if let Some(categories) = &category_filter
+                && !categories.contains(&meta.category.to_string())
+            {
+                continue;
+            }
+
             let effective_severity = severity_overrides
                 .get(meta.id)
                 .map(|s| s.parse::<Severity>().unwrap())
@@ -239,6 +280,7 @@ impl RuleRegistry {
                     line: finding.line,
                     column: finding.column,
                     rule_id: meta.id.to_string(),
+                    category: meta.category.to_string(),
                     message: finding.message.clone(),
                     severity: effective_severity.clone(),
                 });
@@ -258,4 +300,19 @@ impl RuleRegistry {
             .find(|r| r.meta().id == rule_id)
             .map(|v| v.as_ref())
     }
+}
+
+pub fn line_col_to_offset(source: &str, line: usize, col: usize) -> Option<usize> {
+    let mut current_line = 1;
+    let mut offset = 0;
+    for (i, _) in source.char_indices() {
+        if current_line == line {
+            return Some(offset + col - 1);
+        }
+        if source.as_bytes().get(i) == Some(&b'\n') {
+            current_line += 1;
+            offset = i + 1;
+        }
+    }
+    None
 }

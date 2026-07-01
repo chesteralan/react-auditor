@@ -5,12 +5,6 @@ on:
     tags:
       - 'v*'
 
-permissions:
-  contents: write
-
-env:
-  CARGO_TERM_COLOR: always
-
 jobs:
   build:
     name: Build ${{ matrix.target }}
@@ -19,93 +13,62 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - target: x86_64-apple-darwin
-            os: macos-latest
-            suffix: ''
-          - target: aarch64-apple-darwin
-            os: macos-latest
-            suffix: ''
           - target: x86_64-unknown-linux-gnu
             os: ubuntu-latest
-            suffix: ''
-          - target: aarch64-unknown-linux-gnu
-            os: ubuntu-latest
-            suffix: ''
+            archive: tar.gz
+          - target: x86_64-apple-darwin
+            os: macos-latest
+            archive: tar.gz
+          - target: aarch64-apple-darwin
+            os: macos-latest
+            archive: tar.gz
           - target: x86_64-pc-windows-msvc
             os: windows-latest
-            suffix: '.exe'
+            archive: zip
 
     steps:
       - uses: actions/checkout@v4
 
-      - name: Install Rust toolchain
-        uses: dtolnay/rust-toolchain@stable
+      - uses: actions-rs/toolchain@v1
         with:
-          targets: ${{ matrix.target }}
+          toolchain: stable
+          target: ${{ matrix.target }}
+          profile: minimal
 
-      - name: Install aarch64 cross-compiler
-        if: matrix.target == 'aarch64-unknown-linux-gnu'
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y gcc-aarch64-linux-gnu libc6-dev-arm64-cross
-          echo "CARGO_TARGET_AARCH64_UNKNOWN_LINUX_GNU_LINKER=aarch64-linux-gnu-gcc" >> $GITHUB_ENV
+      - uses: actions-rs/cargo@v1
+        with:
+          command: build
+          args: --release --target ${{ matrix.target }}
 
-      - name: Cache dependencies
-        uses: Swatinem/rust-cache@v2
-
-      - name: Build
-        run: cargo build --release --target ${{ matrix.target }}
-
-      - name: Package binary
+      - name: Prepare archive
         shell: bash
         run: |
-          BINARY_NAME="react-auditor${{ matrix.suffix }}"
-          ARCHIVE_NAME="react-auditor-${{ matrix.target }}"
-          cp "target/${{ matrix.target }}/release/$BINARY_NAME" "$ARCHIVE_NAME"
-          echo "archive=$ARCHIVE_NAME" >> $GITHUB_ENV
+          BINARY="target/${{ matrix.target }}/release/react-auditor${{ matrix.target == 'x86_64-pc-windows-msvc' && '.exe' || '' }}"
+          ARCHIVE_NAME="react-auditor-${{ matrix.target }}-${{ github.ref_name }}${{ matrix.archive == 'zip' && '.zip' || '.tar.gz' }}"
+          if [ "${{ matrix.archive }}" = "zip" ]; then
+            cp "$BINARY" react-auditor.exe
+            7z a "$ARCHIVE_NAME" react-auditor.exe
+          else
+            cp "$BINARY" react-auditor
+            tar czf "$ARCHIVE_NAME" react-auditor
+          fi
 
       - uses: actions/upload-artifact@v4
         with:
           name: react-auditor-${{ matrix.target }}
-          path: react-auditor-${{ matrix.target }}
+          path: react-auditor-*
 
-  create-release:
-    name: Create Release
+  create_release:
     needs: build
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
-      - uses: actions/checkout@v4
-
       - uses: actions/download-artifact@v4
         with:
           pattern: react-auditor-*
           merge-multiple: true
 
-      - name: Generate checksums
-        run: sha256sum react-auditor-* > checksums.txt
-
-      - uses: softprops/action-gh-release@v2
+      - uses: softprops/action-gh-release@v1
         with:
-          files: |
-            react-auditor-*
-            checksums.txt
-          generate_release_notes: true
-
-  publish-npm:
-    name: Publish to npm
-    needs: create-release
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: npm
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 22
-          registry-url: https://registry.npmjs.org
-
-      - run: npm publish
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          files: react-auditor-*

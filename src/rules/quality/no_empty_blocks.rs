@@ -3,7 +3,7 @@ use oxc_ast_visit::Visit;
 use oxc_ast_visit::walk::walk_statement;
 use oxc_semantic::Semantic;
 
-use crate::rules::{Rule, RuleFinding, RuleMeta, Severity};
+use crate::rules::{Fix, Rule, RuleFinding, RuleMeta, Severity};
 
 pub struct NoEmptyBlocks;
 
@@ -26,6 +26,21 @@ impl Rule for NoEmptyBlocks {
         };
         collector.visit_program(program);
         collector.findings
+    }
+
+    fn has_fix(&self) -> bool {
+        true
+    }
+
+    fn fix(&self, finding: &RuleFinding, source_text: &str) -> Option<Fix> {
+        let start = crate::rules::line_col_to_offset(source_text, finding.line, finding.column)?;
+        let after = &source_text[start..];
+        let close = after.find('}')?;
+        Some(Fix {
+            start,
+            end: start + close + 1,
+            replacement: String::new(),
+        })
     }
 }
 

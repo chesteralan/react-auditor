@@ -3,7 +3,7 @@ use oxc_ast_visit::Visit;
 use oxc_ast_visit::walk::walk_variable_declaration;
 use oxc_semantic::Semantic;
 
-use crate::rules::{Rule, RuleFinding, RuleMeta, Severity};
+use crate::rules::{Fix, Rule, RuleFinding, RuleMeta, Severity};
 
 pub struct NoVar;
 
@@ -28,32 +28,30 @@ impl Rule for NoVar {
         collector.findings
     }
 
-    fn fix(&self, finding: &RuleFinding, source_text: &str) -> Option<String> {
-        let offset = line_col_to_offset(source_text, finding.line, finding.column)?;
+    fn has_fix(&self) -> bool {
+        true
+    }
+
+    fn fix(&self, finding: &RuleFinding, source_text: &str) -> Option<Fix> {
+        let offset = crate::rules::line_col_to_offset(source_text, finding.line, finding.column)?;
         let after = &source_text[offset..];
+        let var_len = after.find([' ', '\t', '\n', ';'])?;
         if after.starts_with("var ") {
-            Some("const ".to_string())
+            Some(Fix {
+                start: offset,
+                end: offset + var_len,
+                replacement: "const ".to_string(),
+            })
         } else if after.starts_with("var\t") {
-            Some("const\t".to_string())
+            Some(Fix {
+                start: offset,
+                end: offset + var_len,
+                replacement: "const\t".to_string(),
+            })
         } else {
             None
         }
     }
-}
-
-fn line_col_to_offset(source: &str, line: usize, col: usize) -> Option<usize> {
-    let mut current_line = 1;
-    let mut offset = 0;
-    for (i, _) in source.char_indices() {
-        if current_line == line {
-            return Some(offset + col - 1);
-        }
-        if source.as_bytes().get(i) == Some(&b'\n') {
-            current_line += 1;
-            offset = i + 1;
-        }
-    }
-    None
 }
 
 struct VarCollector<'a> {

@@ -11,4 +11,8 @@ function unsafeProtocol() {
   window.location.href = url;
 }
 
+function unsafeIframe() {
+  return <iframe src="https://example.com" />;
+}
+
 export default Profile;
