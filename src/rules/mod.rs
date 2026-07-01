@@ -149,6 +149,13 @@ impl RuleRegistry {
             .push(Box::new(react::no_set_state_in_effect::NoSetStateInEffect));
         self.rules
             .push(Box::new(react::no_set_state_in_render::NoSetStateInRender));
+        self.rules
+            .push(Box::new(react::no_duplicate_props::NoDuplicateProps));
+        self.rules
+            .push(Box::new(react::no_direct_mutation::NoDirectMutation));
+        self.rules.push(Box::new(
+            react::no_ref_in_component_name::NoRefInComponentName,
+        ));
         // ── Phase 6: TypeScript ──
         self.rules.push(Box::new(typescript::no_any::NoAny));
         self.rules.push(Box::new(
@@ -168,6 +175,8 @@ impl RuleRegistry {
             .push(Box::new(typescript::strict_null_checks::StrictNullChecks));
         self.rules
             .push(Box::new(typescript::prefer_interface::PreferInterface));
+        self.rules
+            .push(Box::new(typescript::no_explicit_any::NoExplicitAny));
         // ── Phase 7: Security ──
         self.rules.push(Box::new(
             security::no_dangerously_set_innerhtml::NoDangerouslySetInnerHtml,
@@ -181,6 +190,8 @@ impl RuleRegistry {
             .push(Box::new(security::no_unsanitized_input::NoUnsanitizedInput));
         self.rules
             .push(Box::new(security::no_insecure_protocol::NoInsecureProtocol));
+        self.rules
+            .push(Box::new(security::no_unsafe_iframe::NoUnsafeIframe));
         // ── Phase 8: Performance & Accessibility ──
         self.rules
             .push(Box::new(performance::prefer_fragments::PreferFragments));
@@ -201,6 +212,11 @@ impl RuleRegistry {
             .push(Box::new(performance::aria_valid::AriaValid));
         self.rules
             .push(Box::new(performance::heading_levels::HeadingLevels));
+        self.rules
+            .push(Box::new(performance::a_has_content::AHasContent));
+        self.rules.push(Box::new(
+            performance::no_ambiguous_labels::NoAmbiguousLabels,
+        ));
         // ── Phase 12: Next.js ──
         self.rules
             .push(Box::new(nextjs::no_img_element::NoImgElement));

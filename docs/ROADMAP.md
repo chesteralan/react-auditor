@@ -117,16 +117,16 @@
 - [ ] **Spinner/progress bar during scan.** Prettier progress with `indicatif`.
 
 ## Phase 14 — New Rules
-- [ ] **React: `no-direct-mutation`.** Detect `this.props.x = y` or direct `state` mutation outside `setState`.
-- [ ] **React: `jsx-no-duplicate-props`.** Flag repeated props like `<div id="a" id="b" />`.
+- [x] **React: `no-direct-mutation`.** Detect `this.props.x = y` or direct `state` mutation outside `setState`.
+- [x] **React: `jsx-no-duplicate-props`.** Flag repeated props like `<div id="a" id="b" />`.
 - [ ] **React: `no-array-index-key`.** Warn when `<li key={index}>` is used.
-- [ ] **React: `no-ref-in-component-name`.** Component names shouldn't contain "Ref".
-- [ ] **TypeScript: `no-explicit-any` (stricter).** Catch `as any`, `as unknown as any` in addition to type annotations.
-- [ ] **Security: `no-unsafe-iframe`.** Warn on `<iframe>` without `sandbox` or `title`.
+- [x] **React: `no-ref-in-component-name`.** Component names shouldn't contain "Ref".
+- [x] **TypeScript: `no-explicit-any` (stricter).** Catch `as any`, `<any>`, and type annotations with `any`.
+- [x] **Security: `no-unsafe-iframe`.** Warn on `<iframe>` without `sandbox` or `title`.
 - [ ] **Next.js: `no-sync-script`.** Flag synchronous `<Script>` without `strategy="afterInteractive"`.
 - [ ] **Performance: `no-large-libraries`.** Warn on importing heavy libraries (moment, lodash) when lighter alternatives exist.
-- [ ] **Accessibility: `a-has-content`.** Warn on `<a>` or `<button>` with no text content or `aria-label`.
-- [ ] **Accessibility: `no-ambiguous-labels`.** Warn on duplicate or ambiguous label text.
+- [x] **Accessibility: `a-has-content`.** Warn on `<a>` or `<button>` with no text content or `aria-label`.
+- [x] **Accessibility: `no-ambiguous-labels`.** Warn on duplicate or ambiguous label text.
 - [ ] **Auto-fix for more rules.** Extend `--fix` to `no-empty-blocks`, `no-console` (strip), `prefer-fragments`.
 
 ## Phase 15 — Scanner & Engine

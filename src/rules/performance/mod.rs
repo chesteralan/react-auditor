@@ -1,9 +1,11 @@
+pub mod a_has_content;
 pub mod aria_valid;
 pub mod button_has_type;
 pub mod heading_levels;
 pub mod img_alt;
 pub mod label_associated;
 pub mod lazy_load_components;
+pub mod no_ambiguous_labels;
 pub mod no_bind_in_jsx;
 pub mod no_heavy_computation_in_render;
 pub mod prefer_fragments;

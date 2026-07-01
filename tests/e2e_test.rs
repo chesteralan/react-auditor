@@ -81,6 +81,10 @@ fn e2e_security_issues_fires_rules() {
         rule_ids.contains(&"no-insecure-protocol".to_string()),
         "expected no-insecure-protocol"
     );
+    assert!(
+        rule_ids.contains(&"no-unsafe-iframe".to_string()),
+        "expected no-unsafe-iframe"
+    );
     assert!(!rule_ids.is_empty(), "expected at least one violation");
 }
 
@@ -120,6 +124,14 @@ fn e2e_accessibility_issues_fires_rules() {
     assert!(
         rule_ids.contains(&"heading-levels".to_string()),
         "expected heading-levels"
+    );
+    assert!(
+        rule_ids.contains(&"a-has-content".to_string()),
+        "expected a-has-content"
+    );
+    assert!(
+        rule_ids.contains(&"no-ambiguous-labels".to_string()),
+        "expected no-ambiguous-labels"
     );
     assert!(!rule_ids.is_empty(), "expected at least one violation");
 }
@@ -190,6 +202,10 @@ fn e2e_react_issues_fires_rules() {
     assert!(
         rule_ids.contains(&"no-set-state-in-render".to_string()),
         "expected no-set-state-in-render"
+    );
+    assert!(
+        rule_ids.contains(&"jsx-no-duplicate-props".to_string()),
+        "expected jsx-no-duplicate-props"
     );
     assert!(!rule_ids.is_empty(), "expected at least one violation");
 }
@@ -289,4 +305,22 @@ fn e2e_category_filter_empty_returns_nothing() {
         rule_ids.is_empty(),
         "expected no violations for nonexistent category"
     );
+}
+
+#[test]
+fn e2e_new_rules_fires_rules() {
+    let rule_ids = run_scanner("new_rules.tsx");
+    assert!(
+        rule_ids.contains(&"no-ref-in-component-name".to_string()),
+        "expected no-ref-in-component-name"
+    );
+    assert!(
+        rule_ids.contains(&"no-direct-mutation".to_string()),
+        "expected no-direct-mutation"
+    );
+    assert!(
+        rule_ids.contains(&"no-explicit-any".to_string()),
+        "expected no-explicit-any"
+    );
+    assert!(!rule_ids.is_empty(), "expected at least one violation");
 }

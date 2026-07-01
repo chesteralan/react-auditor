@@ -42,6 +42,7 @@ function MyComponent() {
     <div>
       {list}
       <MyClass />
+      <div id="x" id="y">duplicate props</div>
     </div>
   );
 }

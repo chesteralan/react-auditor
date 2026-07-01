@@ -6,6 +6,9 @@ function Nav() {
       <h4>Subsection</h4>
       <button>Click me</button>
       <input placeholder="name" />
+      <a href="/foo"></a>
+      <label>Name <input /></label>
+      <label>Name <input /></label>
     </nav>
   );
 }
