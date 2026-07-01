@@ -14,7 +14,10 @@ const RULE_META: RuleMeta = RuleMeta {
 };
 
 fn is_hook_with_deps(name: &str) -> bool {
-    matches!(name, "useEffect" | "useMemo" | "useCallback" | "useLayoutEffect" | "useInsertionEffect")
+    matches!(
+        name,
+        "useEffect" | "useMemo" | "useCallback" | "useLayoutEffect" | "useInsertionEffect"
+    )
 }
 
 impl Rule for EffectDepsComplete {
@@ -23,7 +26,10 @@ impl Rule for EffectDepsComplete {
     }
 
     fn run(&self, program: &Program, _semantic: &Semantic, source_text: &str) -> Vec<RuleFinding> {
-        let mut collector = DepsCollector { findings: Vec::new(), source: source_text };
+        let mut collector = DepsCollector {
+            findings: Vec::new(),
+            source: source_text,
+        };
         collector.visit_program(program);
         collector.findings
     }
@@ -38,7 +44,11 @@ impl<'a> DepsCollector<'a> {
     fn add_finding(&mut self, start: usize, msg: String) {
         let line = self.source[..start].lines().count().max(1);
         let col = start - self.source[..start].rfind('\n').map(|i| i + 1).unwrap_or(0);
-        self.findings.push(RuleFinding { line, column: col + 1, message: msg });
+        self.findings.push(RuleFinding {
+            line,
+            column: col + 1,
+            message: msg,
+        });
     }
 }
 
@@ -55,21 +65,30 @@ impl<'a> Visit<'a> for DepsCollector<'a> {
         }
 
         if expr.arguments.len() < 2 {
-            self.add_finding(expr.span.start as usize,
-                format!("`{name}` is missing a dependency array"));
+            self.add_finding(
+                expr.span.start as usize,
+                format!("`{name}` is missing a dependency array"),
+            );
             return;
         }
 
         let last_arg = expr.arguments.last().unwrap();
         if let oxc_ast::ast::Argument::ArrayExpression(arr) = last_arg {
             if arr.elements.is_empty()
-                && (name == "useEffect" || name == "useLayoutEffect" || name == "useInsertionEffect") {
-                    self.add_finding(expr.span.start as usize,
-                        format!("`{name}` has empty deps array — likely a bug"));
-                }
+                && (name == "useEffect"
+                    || name == "useLayoutEffect"
+                    || name == "useInsertionEffect")
+            {
+                self.add_finding(
+                    expr.span.start as usize,
+                    format!("`{name}` has empty deps array — likely a bug"),
+                );
+            }
         } else {
-            self.add_finding(expr.span.start as usize,
-                format!("`{name}` dependency argument should be an array literal"));
+            self.add_finding(
+                expr.span.start as usize,
+                format!("`{name}` dependency argument should be an array literal"),
+            );
         }
     }
 }

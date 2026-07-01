@@ -19,7 +19,10 @@ impl Rule for NoEval {
     }
 
     fn run(&self, program: &Program, _semantic: &Semantic, source_text: &str) -> Vec<RuleFinding> {
-        let mut collector = EvalCollector { findings: Vec::new(), source: source_text };
+        let mut collector = EvalCollector {
+            findings: Vec::new(),
+            source: source_text,
+        };
         collector.visit_program(program);
         collector.findings
     }
@@ -46,20 +49,24 @@ impl<'a> Visit<'a> for EvalCollector<'a> {
             }
         } else if let Some(member) = expr.callee.as_member_expression() {
             let name = member.static_property_name().unwrap_or("");
-            let is_dynamic = name == "Function" || name == "constructor" || name == "setTimeout" || name == "setInterval";
+            let is_dynamic = name == "Function"
+                || name == "constructor"
+                || name == "setTimeout"
+                || name == "setInterval";
             if is_dynamic {
                 let obj = member.object();
                 if let oxc_ast::ast::Expression::Identifier(ident) = obj
-                    && (ident.name.as_str() == "window" || ident.name.as_str() == "globalThis") {
-                        let start = expr.span.start as usize;
-                        let line = self.source[..start].lines().count().max(1);
-                        let col = start - self.source[..start].rfind('\n').map(|i| i + 1).unwrap_or(0);
-                        self.findings.push(RuleFinding {
-                            line,
-                            column: col + 1,
-                            message: format!("Unexpected dynamic code execution via `{}`", name),
-                        });
-                    }
+                    && (ident.name.as_str() == "window" || ident.name.as_str() == "globalThis")
+                {
+                    let start = expr.span.start as usize;
+                    let line = self.source[..start].lines().count().max(1);
+                    let col = start - self.source[..start].rfind('\n').map(|i| i + 1).unwrap_or(0);
+                    self.findings.push(RuleFinding {
+                        line,
+                        column: col + 1,
+                        message: format!("Unexpected dynamic code execution via `{}`", name),
+                    });
+                }
             }
         }
     }

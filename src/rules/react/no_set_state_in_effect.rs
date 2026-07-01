@@ -19,7 +19,11 @@ impl Rule for NoSetStateInEffect {
     }
 
     fn run(&self, program: &Program, _semantic: &Semantic, source_text: &str) -> Vec<RuleFinding> {
-        let mut collector = SetStateEffectCollector { findings: Vec::new(), source: source_text, in_effect: false };
+        let mut collector = SetStateEffectCollector {
+            findings: Vec::new(),
+            source: source_text,
+            in_effect: false,
+        };
         collector.visit_program(program);
         collector.findings
     }
@@ -35,7 +39,11 @@ impl<'a> SetStateEffectCollector<'a> {
     fn add_finding(&mut self, start: usize, msg: String) {
         let line = self.source[..start].lines().count().max(1);
         let col = start - self.source[..start].rfind('\n').map(|i| i + 1).unwrap_or(0);
-        self.findings.push(RuleFinding { line, column: col + 1, message: msg });
+        self.findings.push(RuleFinding {
+            line,
+            column: col + 1,
+            message: msg,
+        });
     }
 }
 
@@ -54,14 +62,21 @@ impl<'a> Visit<'a> for SetStateEffectCollector<'a> {
             return;
         }
 
-        if self.in_effect && (name.starts_with("set") && name.len() > 3 && name.as_bytes()[3].is_ascii_uppercase()) {
+        if self.in_effect
+            && (name.starts_with("set")
+                && name.len() > 3
+                && name.as_bytes()[3].is_ascii_uppercase())
+        {
             self.add_finding(expr.span.start as usize,
                 format!("`{name}` called inside useEffect without dependencies — may cause infinite loop"));
         }
 
         if self.in_effect && name == "dispatch" {
-            self.add_finding(expr.span.start as usize,
-                "Store dispatch in useEffect without dependencies — may cause infinite loop".to_string());
+            self.add_finding(
+                expr.span.start as usize,
+                "Store dispatch in useEffect without dependencies — may cause infinite loop"
+                    .to_string(),
+            );
         }
     }
 }

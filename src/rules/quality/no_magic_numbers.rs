@@ -53,7 +53,10 @@ impl<'a> Visit<'a> for MagicCollector<'a> {
             self.findings.push(RuleFinding {
                 line,
                 column: col + 1,
-                message: format!("Magic number `{}` — use a named constant instead", lit.value),
+                message: format!(
+                    "Magic number `{}` — use a named constant instead",
+                    lit.value
+                ),
             });
         }
     }

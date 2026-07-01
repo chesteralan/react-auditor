@@ -19,7 +19,10 @@ impl Rule for NoScriptUrl {
     }
 
     fn run(&self, program: &Program, _semantic: &Semantic, source_text: &str) -> Vec<RuleFinding> {
-        let mut collector = ScriptUrlCollector { findings: Vec::new(), source: source_text };
+        let mut collector = ScriptUrlCollector {
+            findings: Vec::new(),
+            source: source_text,
+        };
         collector.visit_program(program);
         collector.findings
     }
@@ -49,17 +52,19 @@ impl<'a> Visit<'a> for ScriptUrlCollector<'a> {
         for attr_item in &el.attributes {
             if let oxc_ast::ast::JSXAttributeItem::Attribute(attr) = attr_item
                 && let Some(val) = &attr.value
-                    && let oxc_ast::ast::JSXAttributeValue::StringLiteral(s) = val
-                        && s.value.as_str().to_lowercase().starts_with("javascript:") {
-                            let start = attr.span.start as usize;
-                            let line = self.source[..start].lines().count().max(1);
-                            let col = start - self.source[..start].rfind('\n').map(|i| i + 1).unwrap_or(0);
-                            self.findings.push(RuleFinding {
-                                line,
-                                column: col + 1,
-                                message: "Unexpected `javascript:` URL in JSX attribute — security risk".to_string(),
-                            });
-                        }
+                && let oxc_ast::ast::JSXAttributeValue::StringLiteral(s) = val
+                && s.value.as_str().to_lowercase().starts_with("javascript:")
+            {
+                let start = attr.span.start as usize;
+                let line = self.source[..start].lines().count().max(1);
+                let col = start - self.source[..start].rfind('\n').map(|i| i + 1).unwrap_or(0);
+                self.findings.push(RuleFinding {
+                    line,
+                    column: col + 1,
+                    message: "Unexpected `javascript:` URL in JSX attribute — security risk"
+                        .to_string(),
+                });
+            }
         }
     }
 }

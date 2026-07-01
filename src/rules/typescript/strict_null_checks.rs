@@ -20,7 +20,10 @@ impl Rule for StrictNullChecks {
     }
 
     fn run(&self, program: &Program, _semantic: &Semantic, source_text: &str) -> Vec<RuleFinding> {
-        let mut collector = NullCheckCollector { findings: Vec::new(), source: source_text };
+        let mut collector = NullCheckCollector {
+            findings: Vec::new(),
+            source: source_text,
+        };
         collector.visit_program(program);
         collector.findings
     }
@@ -35,30 +38,45 @@ impl<'a> NullCheckCollector<'a> {
     fn add_finding(&mut self, start: usize, msg: String) {
         let line = self.source[..start].lines().count().max(1);
         let col = start - self.source[..start].rfind('\n').map(|i| i + 1).unwrap_or(0);
-        self.findings.push(RuleFinding { line, column: col + 1, message: msg });
+        self.findings.push(RuleFinding {
+            line,
+            column: col + 1,
+            message: msg,
+        });
     }
 }
 
 impl<'a> Visit<'a> for NullCheckCollector<'a> {
     fn visit_member_expression(&mut self, expr: &MemberExpression<'a>) {
         if let MemberExpression::ComputedMemberExpression(computed) = expr
-            && !computed.optional {
-                self.add_finding(expr.span().start as usize,
-                    "Potential null access on computed member — consider optional chaining `?.[]`".to_string());
-            }
+            && !computed.optional
+        {
+            self.add_finding(
+                expr.span().start as usize,
+                "Potential null access on computed member — consider optional chaining `?.[]`"
+                    .to_string(),
+            );
+        }
         if let MemberExpression::StaticMemberExpression(static_member) = expr
-            && !static_member.optional {
-                self.add_finding(expr.span().start as usize,
-                    "Potential null access on property — consider optional chaining `?.`".to_string());
-            }
+            && !static_member.optional
+        {
+            self.add_finding(
+                expr.span().start as usize,
+                "Potential null access on property — consider optional chaining `?.`".to_string(),
+            );
+        }
     }
 
     fn visit_assignment_expression(&mut self, expr: &oxc_ast::ast::AssignmentExpression<'a>) {
         if matches!(expr.operator, AssignmentOperator::Assign)
-            && let oxc_ast::ast::AssignmentTarget::ComputedMemberExpression(_member) = &expr.left {
-                self.add_finding(expr.span.start as usize,
-                    "Unsafe property write via computed access — ensure value is not null/undefined".to_string());
-            }
+            && let oxc_ast::ast::AssignmentTarget::ComputedMemberExpression(_member) = &expr.left
+        {
+            self.add_finding(
+                expr.span.start as usize,
+                "Unsafe property write via computed access — ensure value is not null/undefined"
+                    .to_string(),
+            );
+        }
     }
 
     fn visit_call_expression(&mut self, expr: &CallExpression<'a>) {
@@ -72,8 +90,10 @@ impl<'a> Visit<'a> for NullCheckCollector<'a> {
                 MemberExpression::PrivateFieldExpression(_) => false,
             };
             if !optional {
-                self.add_finding(expr.span.start as usize,
-                    "Unsafe method call — consider optional chaining `?.()`".to_string());
+                self.add_finding(
+                    expr.span.start as usize,
+                    "Unsafe method call — consider optional chaining `?.()`".to_string(),
+                );
             }
         }
     }

@@ -20,7 +20,10 @@ impl Rule for ConsistentComponentNaming {
     }
 
     fn run(&self, program: &Program, _semantic: &Semantic, source_text: &str) -> Vec<RuleFinding> {
-        let mut collector = NamingCollector { findings: Vec::new(), source: source_text };
+        let mut collector = NamingCollector {
+            findings: Vec::new(),
+            source: source_text,
+        };
         collector.visit_program(program);
         collector.findings
     }
@@ -47,9 +50,10 @@ impl<'a> Visit<'a> for NamingCollector<'a> {
             }
 
             // Check if function returns JSX (heuristic: check body for JSX)
-            let returns_jsx = func.body.as_ref().is_some_and(|body| {
-                body.statements.iter().any(|stmt| contains_jsx(stmt))
-            });
+            let returns_jsx = func
+                .body
+                .as_ref()
+                .is_some_and(|body| body.statements.iter().any(|stmt| contains_jsx(stmt)));
 
             if returns_jsx {
                 let first_char = name.chars().next().unwrap_or(' ');
@@ -71,9 +75,10 @@ impl<'a> Visit<'a> for NamingCollector<'a> {
 
 fn contains_jsx(stmt: &oxc_ast::ast::Statement) -> bool {
     match stmt {
-        oxc_ast::ast::Statement::ReturnStatement(ret) => {
-            ret.argument.as_ref().is_some_and(|arg| is_jsx_expression(arg))
-        }
+        oxc_ast::ast::Statement::ReturnStatement(ret) => ret
+            .argument
+            .as_ref()
+            .is_some_and(|arg| is_jsx_expression(arg)),
         oxc_ast::ast::Statement::ExpressionStatement(expr) => is_jsx_expression(&expr.expression),
         oxc_ast::ast::Statement::BlockStatement(block) => {
             block.body.iter().any(|s| contains_jsx(s))

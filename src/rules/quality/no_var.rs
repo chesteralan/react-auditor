@@ -1,6 +1,6 @@
 use oxc_ast::ast::{Program, VariableDeclarationKind};
-use oxc_ast_visit::walk::walk_variable_declaration;
 use oxc_ast_visit::Visit;
+use oxc_ast_visit::walk::walk_variable_declaration;
 use oxc_semantic::Semantic;
 
 use crate::rules::{Rule, RuleFinding, RuleMeta, Severity};
@@ -20,7 +20,10 @@ impl Rule for NoVar {
     }
 
     fn run(&self, program: &Program, _semantic: &Semantic, source_text: &str) -> Vec<RuleFinding> {
-        let mut collector = VarCollector { findings: Vec::new(), source: source_text };
+        let mut collector = VarCollector {
+            findings: Vec::new(),
+            source: source_text,
+        };
         collector.visit_program(program);
         collector.findings
     }

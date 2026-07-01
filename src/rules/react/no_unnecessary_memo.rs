@@ -19,7 +19,10 @@ impl Rule for NoUnnecessaryMemo {
     }
 
     fn run(&self, program: &Program, _semantic: &Semantic, source_text: &str) -> Vec<RuleFinding> {
-        let mut collector = UnnecessaryMemoCollector { findings: Vec::new(), source: source_text };
+        let mut collector = UnnecessaryMemoCollector {
+            findings: Vec::new(),
+            source: source_text,
+        };
         collector.visit_program(program);
         collector.findings
     }
@@ -41,18 +44,22 @@ impl<'a> Visit<'a> for UnnecessaryMemoCollector<'a> {
         };
 
         if let Some(name) = name
-            && (name == "useMemo" || name == "useCallback") && expr.arguments.len() >= 2
-                && let Some(last_arg) = expr.arguments.last()
-                    && let oxc_ast::ast::Argument::ArrayExpression(arr) = &last_arg
-                        && arr.elements.is_empty() {
-                            let start = expr.span.start as usize;
-                            let line = self.source[..start].lines().count().max(1);
-                            let col = start - self.source[..start].rfind('\n').map(|i| i + 1).unwrap_or(0);
-                            self.findings.push(RuleFinding {
-                                line,
-                                column: col + 1,
-                                message: format!("`{name}` with empty deps array — value will never change, consider removing"),
-                            });
-                        }
+            && (name == "useMemo" || name == "useCallback")
+            && expr.arguments.len() >= 2
+            && let Some(last_arg) = expr.arguments.last()
+            && let oxc_ast::ast::Argument::ArrayExpression(arr) = &last_arg
+            && arr.elements.is_empty()
+        {
+            let start = expr.span.start as usize;
+            let line = self.source[..start].lines().count().max(1);
+            let col = start - self.source[..start].rfind('\n').map(|i| i + 1).unwrap_or(0);
+            self.findings.push(RuleFinding {
+                line,
+                column: col + 1,
+                message: format!(
+                    "`{name}` with empty deps array — value will never change, consider removing"
+                ),
+            });
+        }
     }
 }

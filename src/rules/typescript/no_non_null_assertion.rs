@@ -19,7 +19,10 @@ impl Rule for NoNonNullAssertion {
     }
 
     fn run(&self, program: &Program, _semantic: &Semantic, source_text: &str) -> Vec<RuleFinding> {
-        let mut collector = NonNullCollector { findings: Vec::new(), source: source_text };
+        let mut collector = NonNullCollector {
+            findings: Vec::new(),
+            source: source_text,
+        };
         collector.visit_program(program);
         collector.findings
     }
@@ -38,7 +41,8 @@ impl<'a> Visit<'a> for NonNullCollector<'a> {
         self.findings.push(RuleFinding {
             line,
             column: col + 1,
-            message: "Unexpected non-null assertion `!` — use optional chaining or type guard".to_string(),
+            message: "Unexpected non-null assertion `!` — use optional chaining or type guard"
+                .to_string(),
         });
     }
 }

@@ -19,7 +19,10 @@ impl Rule for LabelAssociated {
     }
 
     fn run(&self, program: &Program, _semantic: &Semantic, source_text: &str) -> Vec<RuleFinding> {
-        let mut collector = LabelCollector { findings: Vec::new(), source: source_text };
+        let mut collector = LabelCollector {
+            findings: Vec::new(),
+            source: source_text,
+        };
         collector.visit_program(program);
         collector.findings
     }
@@ -57,7 +60,8 @@ impl<'a> Visit<'a> for LabelCollector<'a> {
             self.findings.push(RuleFinding {
                 line,
                 column: col + 1,
-                message: "Form input is missing an associated `<label>` or `aria-label`".to_string(),
+                message: "Form input is missing an associated `<label>` or `aria-label`"
+                    .to_string(),
             });
         }
     }

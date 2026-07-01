@@ -19,7 +19,10 @@ impl Rule for NoMissingKey {
     }
 
     fn run(&self, program: &Program, _semantic: &Semantic, source_text: &str) -> Vec<RuleFinding> {
-        let mut collector = MissingKeyCollector { findings: Vec::new(), source: source_text };
+        let mut collector = MissingKeyCollector {
+            findings: Vec::new(),
+            source: source_text,
+        };
         collector.visit_program(program);
         collector.findings
     }
@@ -52,13 +55,14 @@ impl<'a> Visit<'a> for MissingKeyCollector<'a> {
             };
 
             if let Some(name) = name_str
-                && name.chars().next().is_some_and(|c| c.is_uppercase()) {
-                    self.findings.push(RuleFinding {
-                        line,
-                        column: col + 1,
-                        message: format!("Component `<{name}>` is missing a `key` prop"),
-                    });
-                }
+                && name.chars().next().is_some_and(|c| c.is_uppercase())
+            {
+                self.findings.push(RuleFinding {
+                    line,
+                    column: col + 1,
+                    message: format!("Component `<{name}>` is missing a `key` prop"),
+                });
+            }
         }
     }
 }

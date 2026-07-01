@@ -19,7 +19,10 @@ impl Rule for NoIndexKey {
     }
 
     fn run(&self, program: &Program, _semantic: &Semantic, source_text: &str) -> Vec<RuleFinding> {
-        let mut collector = IndexKeyCollector { findings: Vec::new(), source: source_text };
+        let mut collector = IndexKeyCollector {
+            findings: Vec::new(),
+            source: source_text,
+        };
         collector.visit_program(program);
         collector.findings
     }
@@ -40,17 +43,19 @@ impl<'a> Visit<'a> for IndexKeyCollector<'a> {
                 }
                 if let Some(val) = &attr.value
                     && let oxc_ast::ast::JSXAttributeValue::ExpressionContainer(container) = val
-                        && let oxc_ast::ast::JSXExpression::Identifier(ident) = &container.expression
-                            && ident.name.as_str() == "index" {
-                                let start = attr.span.start as usize;
-                                let line = self.source[..start].lines().count().max(1);
-                                let col = start - self.source[..start].rfind('\n').map(|i| i + 1).unwrap_or(0);
-                                self.findings.push(RuleFinding {
-                                    line,
-                                    column: col + 1,
-                                    message: "Avoid using array index as `key` — prefer a stable ID".to_string(),
-                                });
-                            }
+                    && let oxc_ast::ast::JSXExpression::Identifier(ident) = &container.expression
+                    && ident.name.as_str() == "index"
+                {
+                    let start = attr.span.start as usize;
+                    let line = self.source[..start].lines().count().max(1);
+                    let col = start - self.source[..start].rfind('\n').map(|i| i + 1).unwrap_or(0);
+                    self.findings.push(RuleFinding {
+                        line,
+                        column: col + 1,
+                        message: "Avoid using array index as `key` — prefer a stable ID"
+                            .to_string(),
+                    });
+                }
             }
         }
     }

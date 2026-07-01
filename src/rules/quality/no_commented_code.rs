@@ -13,9 +13,25 @@ const RULE_META: RuleMeta = RuleMeta {
 };
 
 const CODE_KEYWORDS: &[&str] = &[
-    "function ", "const ", "let ", "var ", "if ", "else ", "for ", "while ",
-    "return ", "import ", "export ", "class ", "new ", "try ", "catch ",
-    "=>", "console.", "document.", "require(",
+    "function ",
+    "const ",
+    "let ",
+    "var ",
+    "if ",
+    "else ",
+    "for ",
+    "while ",
+    "return ",
+    "import ",
+    "export ",
+    "class ",
+    "new ",
+    "try ",
+    "catch ",
+    "=>",
+    "console.",
+    "document.",
+    "require(",
 ];
 
 impl Rule for NoCommentedCode {
@@ -51,9 +67,7 @@ impl Rule for NoCommentedCode {
                     i += 1;
                 }
                 let full_comment = comment_lines.join("\n");
-                let body = full_comment
-                    .trim_start_matches("/*")
-                    .trim_end_matches("*/");
+                let body = full_comment.trim_start_matches("/*").trim_end_matches("*/");
 
                 let mut line_count = 0;
                 for comment_line in body.lines() {

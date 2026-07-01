@@ -22,7 +22,10 @@ impl Rule for NoLongFunctions {
     }
 
     fn run(&self, program: &Program, _semantic: &Semantic, source_text: &str) -> Vec<RuleFinding> {
-        let mut collector = LongFnCollector { findings: Vec::new(), source: source_text };
+        let mut collector = LongFnCollector {
+            findings: Vec::new(),
+            source: source_text,
+        };
         collector.visit_program(program);
         collector.findings
     }
@@ -58,7 +61,10 @@ impl<'a> Visit<'a> for LongFnCollector<'a> {
         }
     }
 
-    fn visit_arrow_function_expression(&mut self, func: &oxc_ast::ast::ArrowFunctionExpression<'a>) {
+    fn visit_arrow_function_expression(
+        &mut self,
+        func: &oxc_ast::ast::ArrowFunctionExpression<'a>,
+    ) {
         let start_line = self.source[..func.body.span.start as usize].lines().count();
         let end_line = self.source[..func.body.span.end as usize].lines().count();
         let line_count = end_line - start_line;

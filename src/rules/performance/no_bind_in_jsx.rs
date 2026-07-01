@@ -19,7 +19,10 @@ impl Rule for NoBindInJsx {
     }
 
     fn run(&self, program: &Program, _semantic: &Semantic, source_text: &str) -> Vec<RuleFinding> {
-        let mut collector = BindCollector { findings: Vec::new(), source: source_text };
+        let mut collector = BindCollector {
+            findings: Vec::new(),
+            source: source_text,
+        };
         collector.visit_program(program);
         collector.findings
     }
@@ -35,28 +38,30 @@ impl<'a> Visit<'a> for BindCollector<'a> {
         for attr_item in &el.attributes {
             if let oxc_ast::ast::JSXAttributeItem::Attribute(attr) = attr_item
                 && let Some(val) = &attr.value
-                    && let oxc_ast::ast::JSXAttributeValue::ExpressionContainer(container) = val {
-                        let has_bind = match &container.expression {
-                            oxc_ast::ast::JSXExpression::CallExpression(call) => {
-                                if let Some(member) = call.callee.as_member_expression() {
-                                    member.static_property_name() == Some("bind")
-                                } else {
-                                    false
-                                }
-                            }
-                            _ => false,
-                        };
-                        if has_bind {
-                            let start = attr.span.start as usize;
-                            let line = self.source[..start].lines().count().max(1);
-                            let col = start - self.source[..start].rfind('\n').map(|i| i + 1).unwrap_or(0);
-                            self.findings.push(RuleFinding {
-                                line,
-                                column: col + 1,
-                                message: "Avoid `.bind()` in JSX – use a class property or useCallback".to_string(),
-                            });
+                && let oxc_ast::ast::JSXAttributeValue::ExpressionContainer(container) = val
+            {
+                let has_bind = match &container.expression {
+                    oxc_ast::ast::JSXExpression::CallExpression(call) => {
+                        if let Some(member) = call.callee.as_member_expression() {
+                            member.static_property_name() == Some("bind")
+                        } else {
+                            false
                         }
                     }
+                    _ => false,
+                };
+                if has_bind {
+                    let start = attr.span.start as usize;
+                    let line = self.source[..start].lines().count().max(1);
+                    let col = start - self.source[..start].rfind('\n').map(|i| i + 1).unwrap_or(0);
+                    self.findings.push(RuleFinding {
+                        line,
+                        column: col + 1,
+                        message: "Avoid `.bind()` in JSX – use a class property or useCallback"
+                            .to_string(),
+                    });
+                }
+            }
         }
     }
 }

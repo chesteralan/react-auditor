@@ -20,7 +20,10 @@ impl Rule for ExplicitReturnType {
     }
 
     fn run(&self, program: &Program, _semantic: &Semantic, source_text: &str) -> Vec<RuleFinding> {
-        let mut collector = ReturnTypeCollector { findings: Vec::new(), source: source_text };
+        let mut collector = ReturnTypeCollector {
+            findings: Vec::new(),
+            source: source_text,
+        };
         collector.visit_program(program);
         collector.findings
     }
@@ -34,7 +37,11 @@ struct ReturnTypeCollector<'a> {
 impl<'a> Visit<'a> for ReturnTypeCollector<'a> {
     fn visit_function(&mut self, func: &oxc_ast::ast::Function<'a>, _flags: ScopeFlags) {
         if func.return_type.is_none() && func.body.is_some() {
-            let name = func.id.as_ref().map(|id| id.name.as_str()).unwrap_or("anonymous");
+            let name = func
+                .id
+                .as_ref()
+                .map(|id| id.name.as_str())
+                .unwrap_or("anonymous");
             let start = func.span.start as usize;
             let line = self.source[..start].lines().count().max(1);
             let col = start - self.source[..start].rfind('\n').map(|i| i + 1).unwrap_or(0);
@@ -46,7 +53,10 @@ impl<'a> Visit<'a> for ReturnTypeCollector<'a> {
         }
     }
 
-    fn visit_arrow_function_expression(&mut self, func: &oxc_ast::ast::ArrowFunctionExpression<'a>) {
+    fn visit_arrow_function_expression(
+        &mut self,
+        func: &oxc_ast::ast::ArrowFunctionExpression<'a>,
+    ) {
         if func.return_type.is_none() {
             let start = func.span.start as usize;
             let line = self.source[..start].lines().count().max(1);

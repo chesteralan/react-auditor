@@ -19,7 +19,10 @@ impl Rule for NoInsecureProtocol {
     }
 
     fn run(&self, program: &Program, _semantic: &Semantic, source_text: &str) -> Vec<RuleFinding> {
-        let mut collector = InsecureProtocolCollector { findings: Vec::new(), source: source_text };
+        let mut collector = InsecureProtocolCollector {
+            findings: Vec::new(),
+            source: source_text,
+        };
         collector.visit_program(program);
         collector.findings
     }
@@ -34,7 +37,11 @@ impl<'a> InsecureProtocolCollector<'a> {
     fn add_finding(&mut self, start: usize, msg: String) {
         let line = self.source[..start].lines().count().max(1);
         let col = start - self.source[..start].rfind('\n').map(|i| i + 1).unwrap_or(0);
-        self.findings.push(RuleFinding { line, column: col + 1, message: msg });
+        self.findings.push(RuleFinding {
+            line,
+            column: col + 1,
+            message: msg,
+        });
     }
 }
 
@@ -42,8 +49,10 @@ impl<'a> Visit<'a> for InsecureProtocolCollector<'a> {
     fn visit_string_literal(&mut self, s: &oxc_ast::ast::StringLiteral) {
         let val = s.value.as_str();
         if val.starts_with("http://") {
-            self.add_finding(s.span.start as usize,
-                "Use `https://` instead of `http://` in URL".to_string());
+            self.add_finding(
+                s.span.start as usize,
+                "Use `https://` instead of `http://` in URL".to_string(),
+            );
         }
     }
 
@@ -51,11 +60,14 @@ impl<'a> Visit<'a> for InsecureProtocolCollector<'a> {
         for attr_item in &el.attributes {
             if let oxc_ast::ast::JSXAttributeItem::Attribute(attr) = attr_item
                 && let Some(val) = &attr.value
-                    && let oxc_ast::ast::JSXAttributeValue::StringLiteral(s) = val
-                        && s.value.as_str().starts_with("http://") {
-                            self.add_finding(attr.span.start as usize,
-                                "Use `https://` instead of `http://` in JSX attribute".to_string());
-                        }
+                && let oxc_ast::ast::JSXAttributeValue::StringLiteral(s) = val
+                && s.value.as_str().starts_with("http://")
+            {
+                self.add_finding(
+                    attr.span.start as usize,
+                    "Use `https://` instead of `http://` in JSX attribute".to_string(),
+                );
+            }
         }
     }
 }

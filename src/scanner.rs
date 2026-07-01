@@ -40,8 +40,7 @@ impl Scanner {
             let content = std::fs::read_to_string(path)
                 .with_context(|| format!("Failed to read {path_str}"))?;
 
-            let source_type = SourceType::from_path(path)
-                .unwrap_or_default();
+            let source_type = SourceType::from_path(path).unwrap_or_default();
 
             let allocator = Allocator::default();
             let ret = Parser::new(&allocator, &content, source_type).parse();
@@ -79,10 +78,11 @@ impl Scanner {
             for entry in WalkBuilder::new("src").standard_filters(true).build() {
                 if let Ok(entry) = entry
                     && entry.file_type().map(|t| t.is_file()).unwrap_or(false)
-                        && let Some(ext) = entry.path().extension().and_then(|e| e.to_str())
-                            && matches!(ext, "js" | "jsx" | "ts" | "tsx") {
-                                files.push(entry.path().to_string_lossy().to_string());
-                            }
+                    && let Some(ext) = entry.path().extension().and_then(|e| e.to_str())
+                    && matches!(ext, "js" | "jsx" | "ts" | "tsx")
+                {
+                    files.push(entry.path().to_string_lossy().to_string());
+                }
             }
         } else {
             for pattern in &self.files {
@@ -97,9 +97,10 @@ impl Scanner {
                     for entry in WalkBuilder::new(".").standard_filters(true).build() {
                         if let Ok(entry) = entry
                             && entry.file_type().map(|t| t.is_file()).unwrap_or(false)
-                                && glob_pattern.is_match(entry.path()) {
-                                    files.push(entry.path().to_string_lossy().to_string());
-                                }
+                            && glob_pattern.is_match(entry.path())
+                        {
+                            files.push(entry.path().to_string_lossy().to_string());
+                        }
                     }
                 }
             }
@@ -130,8 +131,7 @@ impl Scanner {
                     None => continue,
                 };
 
-                let var_len = fixed[offset..].find([' ', '\t', '\n', ';'])
-                    .unwrap_or(3);
+                let var_len = fixed[offset..].find([' ', '\t', '\n', ';']).unwrap_or(3);
                 fixed.replace_range(offset..offset + var_len, &replacement);
                 total += 1;
             }

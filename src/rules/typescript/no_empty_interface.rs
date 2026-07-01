@@ -19,7 +19,10 @@ impl Rule for NoEmptyInterface {
     }
 
     fn run(&self, program: &Program, _semantic: &Semantic, source_text: &str) -> Vec<RuleFinding> {
-        let mut collector = EmptyInterfaceCollector { findings: Vec::new(), source: source_text };
+        let mut collector = EmptyInterfaceCollector {
+            findings: Vec::new(),
+            source: source_text,
+        };
         collector.visit_program(program);
         collector.findings
     }
@@ -39,7 +42,10 @@ impl<'a> Visit<'a> for EmptyInterfaceCollector<'a> {
             self.findings.push(RuleFinding {
                 line,
                 column: col + 1,
-                message: format!("Interface `{}` is empty — remove or extend another type", decl.id.name),
+                message: format!(
+                    "Interface `{}` is empty — remove or extend another type",
+                    decl.id.name
+                ),
             });
         }
     }

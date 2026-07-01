@@ -37,9 +37,9 @@ mod tests {
         let scanner = Scanner::new(vec![path.to_string_lossy().to_string()], HashMap::new());
         let results = scanner.scan().unwrap();
 
-        let has_violation = results.iter().any(|r| {
-            r.violations.iter().any(|v| v.rule_id == "no-console")
-        });
+        let has_violation = results
+            .iter()
+            .any(|r| r.violations.iter().any(|v| v.rule_id == "no-console"));
         assert!(has_violation, "Expected no-console violation to fire");
 
         let _ = std::fs::remove_file(&path);
@@ -57,9 +57,9 @@ mod tests {
         let scanner = Scanner::new(vec![path.to_string_lossy().to_string()], overrides);
         let results = scanner.scan().unwrap();
 
-        let has_violation = results.iter().any(|r| {
-            r.violations.iter().any(|v| v.rule_id == "no-console")
-        });
+        let has_violation = results
+            .iter()
+            .any(|r| r.violations.iter().any(|v| v.rule_id == "no-console"));
         assert!(!has_violation, "Expected no-console to be disabled");
 
         let _ = std::fs::remove_file(&path);

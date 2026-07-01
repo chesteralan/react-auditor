@@ -1,6 +1,6 @@
 use oxc_ast::ast::Program;
-use oxc_ast_visit::walk::walk_statement;
 use oxc_ast_visit::Visit;
+use oxc_ast_visit::walk::walk_statement;
 use oxc_semantic::Semantic;
 use oxc_span::GetSpan;
 
@@ -62,7 +62,10 @@ impl<'a> Visit<'a> for NestingCollector<'a> {
                 self.findings.push(RuleFinding {
                     line,
                     column: col + 1,
-                    message: format!("Nesting depth {depth} exceeds max {MAX_DEPTH}", depth = self.depth),
+                    message: format!(
+                        "Nesting depth {depth} exceeds max {MAX_DEPTH}",
+                        depth = self.depth
+                    ),
                 });
             }
             walk_statement(self, stmt);

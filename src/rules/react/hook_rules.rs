@@ -13,9 +13,7 @@ const RULE_META: RuleMeta = RuleMeta {
     description: "Hooks must follow the Rules of Hooks",
 };
 
-const HOOK_PREFIXES: &[&str] = &[
-    "use",
-];
+const HOOK_PREFIXES: &[&str] = &["use"];
 
 fn is_hook_call(name: &str) -> bool {
     HOOK_PREFIXES.iter().any(|p| name.starts_with(p))
@@ -35,7 +33,11 @@ impl<'a> HookRuleCollector<'a> {
     fn add_finding(&mut self, start: usize, msg: String) {
         let line = self.source[..start].lines().count().max(1);
         let col = start - self.source[..start].rfind('\n').map(|i| i + 1).unwrap_or(0);
-        self.findings.push(RuleFinding { line, column: col + 1, message: msg });
+        self.findings.push(RuleFinding {
+            line,
+            column: col + 1,
+            message: msg,
+        });
     }
 }
 
@@ -49,28 +51,41 @@ impl<'a> Visit<'a> for HookRuleCollector<'a> {
                 let in_nested_func = self.inside_nested_fn.len() > 1;
 
                 if in_condition {
-                    self.add_finding(expr.span.start as usize,
-                        format!("React hook `{name}` is called conditionally — move to top level"));
+                    self.add_finding(
+                        expr.span.start as usize,
+                        format!("React hook `{name}` is called conditionally — move to top level"),
+                    );
                 }
                 if in_loop {
-                    self.add_finding(expr.span.start as usize,
-                        format!("React hook `{name}` is called inside a loop — move to top level"));
+                    self.add_finding(
+                        expr.span.start as usize,
+                        format!("React hook `{name}` is called inside a loop — move to top level"),
+                    );
                 }
                 if in_nested_func {
-                    self.add_finding(expr.span.start as usize,
-                        format!("React hook `{name}` is called inside a nested function"));
+                    self.add_finding(
+                        expr.span.start as usize,
+                        format!("React hook `{name}` is called inside a nested function"),
+                    );
                 }
             }
         }
     }
 
-    fn visit_function(&mut self, func: &oxc_ast::ast::Function<'a>, _flags: oxc_syntax::scope::ScopeFlags) {
+    fn visit_function(
+        &mut self,
+        func: &oxc_ast::ast::Function<'a>,
+        _flags: oxc_syntax::scope::ScopeFlags,
+    ) {
         self.inside_nested_fn.push(true);
         oxc_ast_visit::walk::walk_function(self, func, _flags);
         self.inside_nested_fn.pop();
     }
 
-    fn visit_arrow_function_expression(&mut self, func: &oxc_ast::ast::ArrowFunctionExpression<'a>) {
+    fn visit_arrow_function_expression(
+        &mut self,
+        func: &oxc_ast::ast::ArrowFunctionExpression<'a>,
+    ) {
         self.inside_nested_fn.push(true);
         oxc_ast_visit::walk::walk_arrow_function_expression(self, func);
         self.inside_nested_fn.pop();
@@ -89,7 +104,10 @@ impl<'a> Visit<'a> for HookRuleCollector<'a> {
     }
 
     fn visit_logical_expression(&mut self, expr: &oxc_ast::ast::LogicalExpression<'a>) {
-        if matches!(expr.operator, oxc_ast::ast::LogicalOperator::And | oxc_ast::ast::LogicalOperator::Or) {
+        if matches!(
+            expr.operator,
+            oxc_ast::ast::LogicalOperator::And | oxc_ast::ast::LogicalOperator::Or
+        ) {
             self.inside_condition.push(true);
         }
         oxc_ast_visit::walk::walk_logical_expression(self, expr);

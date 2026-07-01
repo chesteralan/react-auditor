@@ -19,7 +19,10 @@ impl Rule for ImgAlt {
     }
 
     fn run(&self, program: &Program, _semantic: &Semantic, source_text: &str) -> Vec<RuleFinding> {
-        let mut collector = ImgAltCollector { findings: Vec::new(), source: source_text };
+        let mut collector = ImgAltCollector {
+            findings: Vec::new(),
+            source: source_text,
+        };
         collector.visit_program(program);
         collector.findings
     }

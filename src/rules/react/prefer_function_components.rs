@@ -19,7 +19,10 @@ impl Rule for PreferFunctionComponents {
     }
 
     fn run(&self, program: &Program, _semantic: &Semantic, source_text: &str) -> Vec<RuleFinding> {
-        let mut collector = ClassComponentCollector { findings: Vec::new(), source: source_text };
+        let mut collector = ClassComponentCollector {
+            findings: Vec::new(),
+            source: source_text,
+        };
         collector.visit_program(program);
         collector.findings
     }
@@ -37,22 +40,26 @@ impl<'a> Visit<'a> for ClassComponentCollector<'a> {
                 let name = ident.name.as_str();
                 name == "Component" || name == "PureComponent"
             } else if let Some(member) = expr.as_member_expression() {
-                member.static_property_name().is_some_and(|n| n == "Component" || n == "PureComponent")
+                member
+                    .static_property_name()
+                    .is_some_and(|n| n == "Component" || n == "PureComponent")
             } else {
                 false
             }
         });
 
-        if extends_react
-            && let Some(id) = &class.id {
-                let start = id.span.start as usize;
-                let line = self.source[..start].lines().count().max(1);
-                let col = start - self.source[..start].rfind('\n').map(|i| i + 1).unwrap_or(0);
-                self.findings.push(RuleFinding {
-                    line,
-                    column: col + 1,
-                    message: format!("`{}` extends Component — prefer a function component", id.name),
-                });
-            }
+        if extends_react && let Some(id) = &class.id {
+            let start = id.span.start as usize;
+            let line = self.source[..start].lines().count().max(1);
+            let col = start - self.source[..start].rfind('\n').map(|i| i + 1).unwrap_or(0);
+            self.findings.push(RuleFinding {
+                line,
+                column: col + 1,
+                message: format!(
+                    "`{}` extends Component — prefer a function component",
+                    id.name
+                ),
+            });
+        }
     }
 }

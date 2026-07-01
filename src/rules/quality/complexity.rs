@@ -21,7 +21,10 @@ impl Rule for Complexity {
     }
 
     fn run(&self, program: &Program, _semantic: &Semantic, source_text: &str) -> Vec<RuleFinding> {
-        let mut collector = ComplexityCollector { findings: Vec::new(), source: source_text };
+        let mut collector = ComplexityCollector {
+            findings: Vec::new(),
+            source: source_text,
+        };
         collector.visit_program(program);
         collector.findings
     }
@@ -33,24 +36,37 @@ struct ComplexityCollector<'a> {
 }
 
 impl<'a> Visit<'a> for ComplexityCollector<'a> {
-    fn visit_function(&mut self, func: &oxc_ast::ast::Function<'a>, _flags: oxc_syntax::scope::ScopeFlags) {
+    fn visit_function(
+        &mut self,
+        func: &oxc_ast::ast::Function<'a>,
+        _flags: oxc_syntax::scope::ScopeFlags,
+    ) {
         if let Some(body) = &func.body {
             let score = count_complexity(&body.statements);
             if score > MAX_COMPLEXITY {
-                let name = func.id.as_ref().map(|id| id.name.as_str()).unwrap_or("anonymous");
+                let name = func
+                    .id
+                    .as_ref()
+                    .map(|id| id.name.as_str())
+                    .unwrap_or("anonymous");
                 let start = func.span.start as usize;
                 let line = self.source[..start].lines().count().max(1);
                 let col = start - self.source[..start].rfind('\n').map(|i| i + 1).unwrap_or(0);
                 self.findings.push(RuleFinding {
                     line,
                     column: col + 1,
-                    message: format!("Function `{name}` has complexity {score}, max {MAX_COMPLEXITY}"),
+                    message: format!(
+                        "Function `{name}` has complexity {score}, max {MAX_COMPLEXITY}"
+                    ),
                 });
             }
         }
     }
 
-    fn visit_arrow_function_expression(&mut self, func: &oxc_ast::ast::ArrowFunctionExpression<'a>) {
+    fn visit_arrow_function_expression(
+        &mut self,
+        func: &oxc_ast::ast::ArrowFunctionExpression<'a>,
+    ) {
         let score = count_complexity(&func.body.statements);
         if score > MAX_COMPLEXITY {
             let start = func.span.start as usize;
@@ -78,9 +94,10 @@ fn count_complexity(stmts: &[oxc_ast::ast::Statement]) -> usize {
                     score += count_complexity(&b.body);
                 }
                 if let Some(alt) = &i.alternate
-                    && let oxc_ast::ast::Statement::BlockStatement(b) = alt {
-                        score += count_complexity(&b.body);
-                    }
+                    && let oxc_ast::ast::Statement::BlockStatement(b) = alt
+                {
+                    score += count_complexity(&b.body);
+                }
             }
             oxc_ast::ast::Statement::ForStatement(f) => {
                 score += 1;

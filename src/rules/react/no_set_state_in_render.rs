@@ -19,7 +19,11 @@ impl Rule for NoSetStateInRender {
     }
 
     fn run(&self, program: &Program, _semantic: &Semantic, source_text: &str) -> Vec<RuleFinding> {
-        let mut collector = SetStateInRenderCollector { findings: Vec::new(), source: source_text, in_effect: false };
+        let mut collector = SetStateInRenderCollector {
+            findings: Vec::new(),
+            source: source_text,
+            in_effect: false,
+        };
         collector.visit_program(program);
         collector.findings
     }
@@ -35,7 +39,11 @@ impl<'a> SetStateInRenderCollector<'a> {
     fn add_finding(&mut self, start: usize, msg: String) {
         let line = self.source[..start].lines().count().max(1);
         let col = start - self.source[..start].rfind('\n').map(|i| i + 1).unwrap_or(0);
-        self.findings.push(RuleFinding { line, column: col + 1, message: msg });
+        self.findings.push(RuleFinding {
+            line,
+            column: col + 1,
+            message: msg,
+        });
     }
 
     fn is_state_setter(&self, name: &str) -> bool {
@@ -60,8 +68,10 @@ impl<'a> Visit<'a> for SetStateInRenderCollector<'a> {
         }
 
         if !self.in_effect && self.is_state_setter(name) {
-            self.add_finding(expr.span.start as usize,
-                format!("`{name}` called during render — causes re-render loop"));
+            self.add_finding(
+                expr.span.start as usize,
+                format!("`{name}` called during render — causes re-render loop"),
+            );
         }
     }
 }

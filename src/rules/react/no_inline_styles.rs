@@ -19,7 +19,10 @@ impl Rule for NoInlineStyles {
     }
 
     fn run(&self, program: &Program, _semantic: &Semantic, source_text: &str) -> Vec<RuleFinding> {
-        let mut collector = InlineStyleCollector { findings: Vec::new(), source: source_text };
+        let mut collector = InlineStyleCollector {
+            findings: Vec::new(),
+            source: source_text,
+        };
         collector.visit_program(program);
         collector.findings
     }

@@ -19,7 +19,10 @@ impl Rule for NoTypeAssertion {
     }
 
     fn run(&self, program: &Program, _semantic: &Semantic, source_text: &str) -> Vec<RuleFinding> {
-        let mut collector = AssertionCollector { findings: Vec::new(), source: source_text };
+        let mut collector = AssertionCollector {
+            findings: Vec::new(),
+            source: source_text,
+        };
         collector.visit_program(program);
         collector.findings
     }
@@ -38,7 +41,8 @@ impl<'a> Visit<'a> for AssertionCollector<'a> {
         self.findings.push(RuleFinding {
             line,
             column: col + 1,
-            message: "Unexpected type assertion `as` — prefer type inference or type guard".to_string(),
+            message: "Unexpected type assertion `as` — prefer type inference or type guard"
+                .to_string(),
         });
     }
 

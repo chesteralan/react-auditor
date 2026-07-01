@@ -49,11 +49,7 @@ impl Config {
             }
         } else {
             // Try standard config file paths
-            let candidates = [
-                ".rauditrc.toml",
-                ".rauditrc.json",
-                ".rauditrc",
-            ];
+            let candidates = [".rauditrc.toml", ".rauditrc.json", ".rauditrc"];
 
             for candidate in &candidates {
                 let p = Path::new(candidate);
@@ -67,12 +63,13 @@ impl Config {
             let pkg_path = Path::new("package.json");
             if pkg_path.exists()
                 && let Ok(content) = std::fs::read_to_string(pkg_path)
-                    && let Ok(pkg) = serde_json::from_str::<PackageJson>(&content)
-                        && let Some(auditor) = pkg.react_auditor {
-                            config.rules.extend(auditor.rules);
-                            config.log = config.log.or(auditor.log);
-                            config.max_warnings = config.max_warnings.or(auditor.max_warnings);
-                        }
+                && let Ok(pkg) = serde_json::from_str::<PackageJson>(&content)
+                && let Some(auditor) = pkg.react_auditor
+            {
+                config.rules.extend(auditor.rules);
+                config.log = config.log.or(auditor.log);
+                config.max_warnings = config.max_warnings.or(auditor.max_warnings);
+            }
         }
 
         Ok(config)

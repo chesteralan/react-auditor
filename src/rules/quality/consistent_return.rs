@@ -1,6 +1,6 @@
 use oxc_ast::ast::Program;
-use oxc_ast_visit::walk;
 use oxc_ast_visit::Visit;
+use oxc_ast_visit::walk;
 use oxc_semantic::Semantic;
 use oxc_syntax::scope::ScopeFlags;
 
@@ -21,7 +21,10 @@ impl Rule for ConsistentReturn {
     }
 
     fn run(&self, program: &Program, _semantic: &Semantic, source_text: &str) -> Vec<RuleFinding> {
-        let mut collector = ReturnCollector { findings: Vec::new(), source: source_text };
+        let mut collector = ReturnCollector {
+            findings: Vec::new(),
+            source: source_text,
+        };
         collector.visit_program(program);
         collector.findings
     }
@@ -39,12 +42,11 @@ fn has_return_with_value(stmts: &[oxc_ast::ast::Statement]) -> bool {
         } else if let oxc_ast::ast::Statement::BlockStatement(b) = s {
             has_return_with_value(&b.body)
         } else if let oxc_ast::ast::Statement::IfStatement(i) = s {
-            let cons = has_return_with_value(
-                std::slice::from_ref(&i.consequent),
-            );
-            let alt = i.alternate.as_ref().is_some_and(|a| {
-                has_return_with_value(std::slice::from_ref(a))
-            });
+            let cons = has_return_with_value(std::slice::from_ref(&i.consequent));
+            let alt = i
+                .alternate
+                .as_ref()
+                .is_some_and(|a| has_return_with_value(std::slice::from_ref(a)));
             cons || alt
         } else {
             false
@@ -79,25 +81,30 @@ fn has_any_return(stmts: &[oxc_ast::ast::Statement]) -> bool {
 impl<'a> Visit<'a> for ReturnCollector<'a> {
     fn visit_function(&mut self, func: &oxc_ast::ast::Function<'a>, _flags: ScopeFlags) {
         if let Some(body) = &func.body
-            && has_any_return(&body.statements) {
-                let has_value = has_return_with_value(&body.statements);
-                let has_no_value = has_return_without_value(&body.statements);
+            && has_any_return(&body.statements)
+        {
+            let has_value = has_return_with_value(&body.statements);
+            let has_no_value = has_return_without_value(&body.statements);
 
-                if has_value && has_no_value {
-                    let start = func.span.start as usize;
-                    let line = self.source[..start].lines().count().max(1);
-                    let col = start - self.source[..start].rfind('\n').map(|i| i + 1).unwrap_or(0);
-                    self.findings.push(RuleFinding {
-                        line,
-                        column: col + 1,
-                        message: "Function inconsistently returns a value and returns without a value".to_string(),
-                    });
-                }
+            if has_value && has_no_value {
+                let start = func.span.start as usize;
+                let line = self.source[..start].lines().count().max(1);
+                let col = start - self.source[..start].rfind('\n').map(|i| i + 1).unwrap_or(0);
+                self.findings.push(RuleFinding {
+                    line,
+                    column: col + 1,
+                    message: "Function inconsistently returns a value and returns without a value"
+                        .to_string(),
+                });
             }
+        }
         walk::walk_function(self, func, _flags);
     }
 
-    fn visit_arrow_function_expression(&mut self, func: &oxc_ast::ast::ArrowFunctionExpression<'a>) {
+    fn visit_arrow_function_expression(
+        &mut self,
+        func: &oxc_ast::ast::ArrowFunctionExpression<'a>,
+    ) {
         if func.expression {
             // Expression bodies always return a value
             return;
@@ -113,7 +120,9 @@ impl<'a> Visit<'a> for ReturnCollector<'a> {
                 self.findings.push(RuleFinding {
                     line,
                     column: col + 1,
-                    message: "Arrow function inconsistently returns a value and returns without a value".to_string(),
+                    message:
+                        "Arrow function inconsistently returns a value and returns without a value"
+                            .to_string(),
                 });
             }
         }
