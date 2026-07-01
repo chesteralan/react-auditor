@@ -16,15 +16,19 @@ pub enum Severity {
     Off,
 }
 
-impl Severity {
-    pub fn from_str(s: &str) -> Self {
+impl std::str::FromStr for Severity {
+    type Err = ();
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
         match s.to_lowercase().as_str() {
-            "error" => Severity::Error,
-            "warn" | "warning" => Severity::Warning,
-            _ => Severity::Off,
+            "error" => Ok(Severity::Error),
+            "warn" | "warning" => Ok(Severity::Warning),
+            _ => Ok(Severity::Off),
         }
     }
+}
 
+impl Severity {
     pub fn is_on(&self) -> bool {
         !matches!(self, Severity::Off)
     }
@@ -162,7 +166,7 @@ impl RuleRegistry {
             let meta = rule.meta();
             let effective_severity = severity_overrides
                 .get(meta.id)
-                .map(|s| Severity::from_str(s))
+                .map(|s| s.parse::<Severity>().unwrap())
                 .unwrap_or_else(|| meta.default_severity.clone());
 
             if !effective_severity.is_on() {
@@ -190,7 +194,7 @@ impl RuleRegistry {
         self.rules.iter().map(|r| r.meta().id).collect()
     }
 
-    pub fn get_rule(&self, rule_id: &str) -> Option<&Box<dyn Rule>> {
-        self.rules.iter().find(|r| r.meta().id == rule_id)
+    pub fn get_rule(&self, rule_id: &str) -> Option<&dyn Rule> {
+        self.rules.iter().find(|r| r.meta().id == rule_id).map(|v| v.as_ref())
     }
 }

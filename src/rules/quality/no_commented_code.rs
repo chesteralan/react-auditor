@@ -30,8 +30,8 @@ impl Rule for NoCommentedCode {
         let mut i = 0;
         while i < lines.len() {
             let trimmed = lines[i].trim();
-            if trimmed.starts_with("//") {
-                let comment_body = &trimmed[2..].trim();
+            if let Some(body) = trimmed.strip_prefix("//") {
+                let comment_body = body.trim();
                 if looks_like_code(comment_body) {
                     findings.push(RuleFinding {
                         line: i + 1,

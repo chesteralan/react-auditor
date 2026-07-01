@@ -25,7 +25,11 @@
       },
       {
         "command": "react-auditor.runWorkspace",
-        "title": "React Auditor: Run on workspace"
+        "title": "React Auditor: Run on workspace (first 50 files)"
+      },
+      {
+        "command": "react-auditor.clear",
+        "title": "React Auditor: Clear all diagnostics"
       }
     ],
     "configuration": {
@@ -40,6 +44,16 @@
           "type": "boolean",
           "default": true,
           "description": "Run react-auditor on file save"
+        },
+        "reactAuditor.runOnChange": {
+          "type": "boolean",
+          "default": false,
+          "description": "Run react-auditor on file change (debounced)"
+        },
+        "reactAuditor.runOnOpen": {
+          "type": "boolean",
+          "default": false,
+          "description": "Run react-auditor when file opens"
         }
       }
     }

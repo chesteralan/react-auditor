@@ -6,12 +6,12 @@ mod tests {
 
     #[test]
     fn test_severity_from_str() {
-        assert_eq!(Severity::from_str("error"), Severity::Error);
-        assert_eq!(Severity::from_str("ERROR"), Severity::Error);
-        assert_eq!(Severity::from_str("warning"), Severity::Warning);
-        assert_eq!(Severity::from_str("warn"), Severity::Warning);
-        assert_eq!(Severity::from_str("off"), Severity::Off);
-        assert_eq!(Severity::from_str(""), Severity::Off);
+        assert_eq!("error".parse::<Severity>().unwrap(), Severity::Error);
+        assert_eq!("ERROR".parse::<Severity>().unwrap(), Severity::Error);
+        assert_eq!("warning".parse::<Severity>().unwrap(), Severity::Warning);
+        assert_eq!("warn".parse::<Severity>().unwrap(), Severity::Warning);
+        assert_eq!("off".parse::<Severity>().unwrap(), Severity::Off);
+        assert_eq!("".parse::<Severity>().unwrap(), Severity::Off);
     }
 
     #[test]
