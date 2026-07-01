@@ -49,6 +49,7 @@ pub struct Violation {
     pub line: usize,
     pub column: usize,
     pub rule_id: String,
+    pub category: String,
     pub message: String,
     pub severity: Severity,
 }
@@ -247,6 +248,7 @@ impl RuleRegistry {
                     line: finding.line,
                     column: finding.column,
                     rule_id: meta.id.to_string(),
+                    category: meta.category.to_string(),
                     message: finding.message.clone(),
                     severity: effective_severity.clone(),
                 });

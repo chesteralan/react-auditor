@@ -73,6 +73,10 @@ fn main() -> anyhow::Result<()> {
         .map(|max| warning_count as u32 > max)
         .unwrap_or(false);
 
+    // Fail-on severity check
+    let fail_on_error = cli.fail_on == "error" && error_count > 0;
+    let fail_on_warning = cli.fail_on == "warning" && total_violations > 0;
+
     if total_violations == 0 {
         println!("No issues found");
         Ok(())
@@ -82,7 +86,7 @@ fn main() -> anyhow::Result<()> {
             max_warnings.unwrap_or(0)
         );
         std::process::exit(1)
-    } else if error_count > 0 {
+    } else if fail_on_error || fail_on_warning {
         std::process::exit(1)
     } else {
         Ok(())

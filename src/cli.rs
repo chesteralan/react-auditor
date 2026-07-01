@@ -26,7 +26,8 @@ Examples:
   react-auditor src/ --format json            Scan src/ output as JSON
   react-auditor --rules react,typescript      Only React & TS rules
   react-auditor --log audit.json              Write JSON log file
-  react-auditor --max-warnings 10             Fail on >10 warnings
+   react-auditor --max-warnings 10             Fail on >10 warnings
+  react-auditor --fail-on warning             Fail on any violation
   react-auditor --fix                         Auto-fix where supported
 
 Configuration: .rauditrc.toml, .rauditrc.json, or package.json#reactAuditor"
@@ -42,6 +43,10 @@ pub struct Cli {
     /// Comma-separated rule categories to enable: quality, react, typescript, security, nextjs, performance, accessibility
     #[arg(short = 'r', long = "rules")]
     pub rules: Option<String>,
+
+    /// Fail on severity level: error, warning (exit code 1 if any violations at or above this level)
+    #[arg(long = "fail-on", default_value = "error")]
+    pub fail_on: String,
 
     /// Path to output JSON log file
     #[arg(short = 'l', long = "log")]
