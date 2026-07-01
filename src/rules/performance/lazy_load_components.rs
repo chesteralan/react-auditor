@@ -70,9 +70,7 @@ impl<'a> Visit<'a> for LazyCollector<'a> {
                         Some(s.local.name.as_str())
                     }
                 };
-                local_name.is_some_and(|n| {
-                    n.chars().next().is_some_and(|c| c.is_ascii_uppercase())
-                })
+                local_name.is_some_and(|n| n.chars().next().is_some_and(|c| c.is_ascii_uppercase()))
             })
         });
 

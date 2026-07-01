@@ -79,7 +79,10 @@ impl Scanner {
 
         let violation_count: usize = results.iter().map(|r| r.violations.len()).sum();
         if total > 1 {
-            eprintln!("Done — {violation_count} violation(s) in {} file(s).", results.len());
+            eprintln!(
+                "Done — {violation_count} violation(s) in {} file(s).",
+                results.len()
+            );
         }
 
         Ok(results)

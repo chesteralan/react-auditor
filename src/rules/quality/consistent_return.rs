@@ -36,93 +36,129 @@ struct ReturnCollector<'a> {
 }
 
 fn has_return_with_value(stmts: &[oxc_ast::ast::Statement]) -> bool {
-    stmts.iter().any(|s| {
-        match s {
-            oxc_ast::ast::Statement::ReturnStatement(r) => r.argument.is_some(),
-            oxc_ast::ast::Statement::BlockStatement(b) => has_return_with_value(&b.body),
-            oxc_ast::ast::Statement::IfStatement(i) => {
-                let cons = has_return_with_value(std::slice::from_ref(&i.consequent));
-                let alt = i
-                    .alternate
-                    .as_ref()
-                    .is_some_and(|a| has_return_with_value(std::slice::from_ref(a)));
-                cons || alt
-            }
-            oxc_ast::ast::Statement::SwitchStatement(s) => {
-                s.cases.iter().any(|case| has_return_with_value(&case.consequent))
-            }
-            oxc_ast::ast::Statement::ForStatement(f) => has_return_with_value(std::slice::from_ref(&f.body)),
-            oxc_ast::ast::Statement::ForInStatement(f) => has_return_with_value(std::slice::from_ref(&f.body)),
-            oxc_ast::ast::Statement::ForOfStatement(f) => has_return_with_value(std::slice::from_ref(&f.body)),
-            oxc_ast::ast::Statement::WhileStatement(w) => has_return_with_value(std::slice::from_ref(&w.body)),
-            oxc_ast::ast::Statement::DoWhileStatement(d) => has_return_with_value(std::slice::from_ref(&d.body)),
-            oxc_ast::ast::Statement::TryStatement(t) => {
-                let try_has = has_return_with_value(&t.block.body);
-                let catch_has = t.handler.as_ref().is_some_and(|h| has_return_with_value(&h.body.body));
-                let finally_has = t.finalizer.as_ref().is_some_and(|f| has_return_with_value(&f.body));
-                try_has || catch_has || finally_has
-            }
-            _ => false,
+    stmts.iter().any(|s| match s {
+        oxc_ast::ast::Statement::ReturnStatement(r) => r.argument.is_some(),
+        oxc_ast::ast::Statement::BlockStatement(b) => has_return_with_value(&b.body),
+        oxc_ast::ast::Statement::IfStatement(i) => {
+            let cons = has_return_with_value(std::slice::from_ref(&i.consequent));
+            let alt = i
+                .alternate
+                .as_ref()
+                .is_some_and(|a| has_return_with_value(std::slice::from_ref(a)));
+            cons || alt
         }
+        oxc_ast::ast::Statement::SwitchStatement(s) => s
+            .cases
+            .iter()
+            .any(|case| has_return_with_value(&case.consequent)),
+        oxc_ast::ast::Statement::ForStatement(f) => {
+            has_return_with_value(std::slice::from_ref(&f.body))
+        }
+        oxc_ast::ast::Statement::ForInStatement(f) => {
+            has_return_with_value(std::slice::from_ref(&f.body))
+        }
+        oxc_ast::ast::Statement::ForOfStatement(f) => {
+            has_return_with_value(std::slice::from_ref(&f.body))
+        }
+        oxc_ast::ast::Statement::WhileStatement(w) => {
+            has_return_with_value(std::slice::from_ref(&w.body))
+        }
+        oxc_ast::ast::Statement::DoWhileStatement(d) => {
+            has_return_with_value(std::slice::from_ref(&d.body))
+        }
+        oxc_ast::ast::Statement::TryStatement(t) => {
+            let try_has = has_return_with_value(&t.block.body);
+            let catch_has = t
+                .handler
+                .as_ref()
+                .is_some_and(|h| has_return_with_value(&h.body.body));
+            let finally_has = t
+                .finalizer
+                .as_ref()
+                .is_some_and(|f| has_return_with_value(&f.body));
+            try_has || catch_has || finally_has
+        }
+        _ => false,
     })
 }
 
 fn has_return_without_value(stmts: &[oxc_ast::ast::Statement]) -> bool {
-    stmts.iter().any(|s| {
-        match s {
-            oxc_ast::ast::Statement::ReturnStatement(r) => r.argument.is_none(),
-            oxc_ast::ast::Statement::BlockStatement(b) => has_return_without_value(&b.body),
-            oxc_ast::ast::Statement::IfStatement(i) => {
-                let cons = has_return_without_value(std::slice::from_ref(&i.consequent));
-                let alt = i
-                    .alternate
-                    .as_ref()
-                    .is_some_and(|a| has_return_without_value(std::slice::from_ref(a)));
-                cons || alt
-            }
-            oxc_ast::ast::Statement::SwitchStatement(s) => {
-                s.cases.iter().any(|case| has_return_without_value(&case.consequent))
-            }
-            oxc_ast::ast::Statement::ForStatement(f) => has_return_without_value(std::slice::from_ref(&f.body)),
-            oxc_ast::ast::Statement::ForInStatement(f) => has_return_without_value(std::slice::from_ref(&f.body)),
-            oxc_ast::ast::Statement::ForOfStatement(f) => has_return_without_value(std::slice::from_ref(&f.body)),
-            oxc_ast::ast::Statement::WhileStatement(w) => has_return_without_value(std::slice::from_ref(&w.body)),
-            oxc_ast::ast::Statement::DoWhileStatement(d) => has_return_without_value(std::slice::from_ref(&d.body)),
-            oxc_ast::ast::Statement::TryStatement(t) => {
-                let try_has = has_return_without_value(&t.block.body);
-                let catch_has = t.handler.as_ref().is_some_and(|h| has_return_without_value(&h.body.body));
-                let finally_has = t.finalizer.as_ref().is_some_and(|f| has_return_without_value(&f.body));
-                try_has || catch_has || finally_has
-            }
-            _ => false,
+    stmts.iter().any(|s| match s {
+        oxc_ast::ast::Statement::ReturnStatement(r) => r.argument.is_none(),
+        oxc_ast::ast::Statement::BlockStatement(b) => has_return_without_value(&b.body),
+        oxc_ast::ast::Statement::IfStatement(i) => {
+            let cons = has_return_without_value(std::slice::from_ref(&i.consequent));
+            let alt = i
+                .alternate
+                .as_ref()
+                .is_some_and(|a| has_return_without_value(std::slice::from_ref(a)));
+            cons || alt
         }
+        oxc_ast::ast::Statement::SwitchStatement(s) => s
+            .cases
+            .iter()
+            .any(|case| has_return_without_value(&case.consequent)),
+        oxc_ast::ast::Statement::ForStatement(f) => {
+            has_return_without_value(std::slice::from_ref(&f.body))
+        }
+        oxc_ast::ast::Statement::ForInStatement(f) => {
+            has_return_without_value(std::slice::from_ref(&f.body))
+        }
+        oxc_ast::ast::Statement::ForOfStatement(f) => {
+            has_return_without_value(std::slice::from_ref(&f.body))
+        }
+        oxc_ast::ast::Statement::WhileStatement(w) => {
+            has_return_without_value(std::slice::from_ref(&w.body))
+        }
+        oxc_ast::ast::Statement::DoWhileStatement(d) => {
+            has_return_without_value(std::slice::from_ref(&d.body))
+        }
+        oxc_ast::ast::Statement::TryStatement(t) => {
+            let try_has = has_return_without_value(&t.block.body);
+            let catch_has = t
+                .handler
+                .as_ref()
+                .is_some_and(|h| has_return_without_value(&h.body.body));
+            let finally_has = t
+                .finalizer
+                .as_ref()
+                .is_some_and(|f| has_return_without_value(&f.body));
+            try_has || catch_has || finally_has
+        }
+        _ => false,
     })
 }
 
 fn has_any_return(stmts: &[oxc_ast::ast::Statement]) -> bool {
-    stmts.iter().any(|s| {
-        match s {
-            oxc_ast::ast::Statement::ReturnStatement(_) => true,
-            oxc_ast::ast::Statement::BlockStatement(b) => has_any_return(&b.body),
-            oxc_ast::ast::Statement::IfStatement(i) => {
-                has_any_return(std::slice::from_ref(&i.consequent))
-                    || i.alternate.as_ref().is_some_and(|a| has_any_return(std::slice::from_ref(a)))
-            }
-            oxc_ast::ast::Statement::SwitchStatement(s) => {
-                s.cases.iter().any(|case| has_any_return(&case.consequent))
-            }
-            oxc_ast::ast::Statement::ForStatement(f) => has_any_return(std::slice::from_ref(&f.body)),
-            oxc_ast::ast::Statement::ForInStatement(f) => has_any_return(std::slice::from_ref(&f.body)),
-            oxc_ast::ast::Statement::ForOfStatement(f) => has_any_return(std::slice::from_ref(&f.body)),
-            oxc_ast::ast::Statement::WhileStatement(w) => has_any_return(std::slice::from_ref(&w.body)),
-            oxc_ast::ast::Statement::DoWhileStatement(d) => has_any_return(std::slice::from_ref(&d.body)),
-            oxc_ast::ast::Statement::TryStatement(t) => {
-                has_any_return(&t.block.body)
-                    || t.handler.as_ref().is_some_and(|h| has_any_return(&h.body.body))
-                    || t.finalizer.as_ref().is_some_and(|f| has_any_return(&f.body))
-            }
-            _ => false,
+    stmts.iter().any(|s| match s {
+        oxc_ast::ast::Statement::ReturnStatement(_) => true,
+        oxc_ast::ast::Statement::BlockStatement(b) => has_any_return(&b.body),
+        oxc_ast::ast::Statement::IfStatement(i) => {
+            has_any_return(std::slice::from_ref(&i.consequent))
+                || i.alternate
+                    .as_ref()
+                    .is_some_and(|a| has_any_return(std::slice::from_ref(a)))
         }
+        oxc_ast::ast::Statement::SwitchStatement(s) => {
+            s.cases.iter().any(|case| has_any_return(&case.consequent))
+        }
+        oxc_ast::ast::Statement::ForStatement(f) => has_any_return(std::slice::from_ref(&f.body)),
+        oxc_ast::ast::Statement::ForInStatement(f) => has_any_return(std::slice::from_ref(&f.body)),
+        oxc_ast::ast::Statement::ForOfStatement(f) => has_any_return(std::slice::from_ref(&f.body)),
+        oxc_ast::ast::Statement::WhileStatement(w) => has_any_return(std::slice::from_ref(&w.body)),
+        oxc_ast::ast::Statement::DoWhileStatement(d) => {
+            has_any_return(std::slice::from_ref(&d.body))
+        }
+        oxc_ast::ast::Statement::TryStatement(t) => {
+            has_any_return(&t.block.body)
+                || t.handler
+                    .as_ref()
+                    .is_some_and(|h| has_any_return(&h.body.body))
+                || t.finalizer
+                    .as_ref()
+                    .is_some_and(|f| has_any_return(&f.body))
+        }
+        _ => false,
     })
 }
 

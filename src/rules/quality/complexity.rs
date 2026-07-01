@@ -38,11 +38,7 @@ struct ComplexityCollector<'a> {
 }
 
 impl<'a> Visit<'a> for ComplexityCollector<'a> {
-    fn visit_function(
-        &mut self,
-        func: &oxc_ast::ast::Function<'a>,
-        _flags: ScopeFlags,
-    ) {
+    fn visit_function(&mut self, func: &oxc_ast::ast::Function<'a>, _flags: ScopeFlags) {
         if let Some(body) = &func.body {
             let score = count_complexity(&body.statements);
             if score > MAX_COMPLEXITY {
@@ -98,24 +94,16 @@ fn count_statement(stmt: &oxc_ast::ast::Statement) -> usize {
             }
             score
         }
-        oxc_ast::ast::Statement::ForStatement(f) => {
-            1 + count_statement(&f.body)
-        }
-        oxc_ast::ast::Statement::ForInStatement(f) => {
-            1 + count_statement(&f.body)
-        }
-        oxc_ast::ast::Statement::ForOfStatement(f) => {
-            1 + count_statement(&f.body)
-        }
-        oxc_ast::ast::Statement::WhileStatement(w) => {
-            1 + count_statement(&w.body)
-        }
-        oxc_ast::ast::Statement::DoWhileStatement(d) => {
-            1 + count_statement(&d.body)
-        }
-        oxc_ast::ast::Statement::SwitchStatement(s) => {
-            s.cases.iter().map(|case| 1 + count_complexity(&case.consequent)).sum()
-        }
+        oxc_ast::ast::Statement::ForStatement(f) => 1 + count_statement(&f.body),
+        oxc_ast::ast::Statement::ForInStatement(f) => 1 + count_statement(&f.body),
+        oxc_ast::ast::Statement::ForOfStatement(f) => 1 + count_statement(&f.body),
+        oxc_ast::ast::Statement::WhileStatement(w) => 1 + count_statement(&w.body),
+        oxc_ast::ast::Statement::DoWhileStatement(d) => 1 + count_statement(&d.body),
+        oxc_ast::ast::Statement::SwitchStatement(s) => s
+            .cases
+            .iter()
+            .map(|case| 1 + count_complexity(&case.consequent))
+            .sum(),
         oxc_ast::ast::Statement::TryStatement(t) => {
             let mut score = 0;
             if let Some(handler) = &t.handler {
@@ -127,9 +115,7 @@ fn count_statement(stmt: &oxc_ast::ast::Statement) -> usize {
             }
             score
         }
-        oxc_ast::ast::Statement::BlockStatement(b) => {
-            count_complexity(&b.body)
-        }
+        oxc_ast::ast::Statement::BlockStatement(b) => count_complexity(&b.body),
         _ => 0,
     }
 }

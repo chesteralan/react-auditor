@@ -74,9 +74,7 @@ impl<'a> Visit<'a> for DepsCollector<'a> {
 
         if let Some(oxc_ast::ast::Argument::ArrayExpression(arr)) = expr.arguments.last()
             && arr.elements.is_empty()
-            && (name == "useEffect"
-                || name == "useLayoutEffect"
-                || name == "useInsertionEffect")
+            && (name == "useEffect" || name == "useLayoutEffect" || name == "useInsertionEffect")
         {
             self.add_finding(
                 expr.span.start as usize,
