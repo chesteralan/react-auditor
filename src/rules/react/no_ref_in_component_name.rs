@@ -35,7 +35,7 @@ struct RefNameCollector<'a> {
 
 impl<'a> Visit<'a> for RefNameCollector<'a> {
     fn visit_variable_declarator(&mut self, decl: &oxc_ast::ast::VariableDeclarator<'a>) {
-        if let oxc_ast::ast::BindingPatternKind::BindingIdentifier(ident) = &decl.id.kind {
+        if let oxc_ast::ast::BindingPattern::BindingIdentifier(ident) = &decl.id {
             let name = ident.name.as_str();
             if is_pascal_case(name) && (name.contains("Ref") || name.contains("ref")) {
                 let start = ident.span.start as usize;

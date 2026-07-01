@@ -70,7 +70,7 @@ impl<'a> Visit<'a> for VarCollector<'a> {
                 .declarations
                 .iter()
                 .filter_map(|d| {
-                    if let oxc_ast::ast::BindingPatternKind::BindingIdentifier(id) = &d.id.kind {
+                    if let oxc_ast::ast::BindingPattern::BindingIdentifier(id) = &d.id {
                         Some(id.name.to_string())
                     } else {
                         None

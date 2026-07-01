@@ -56,7 +56,7 @@ struct SecretCollector<'a> {
 
 impl<'a> Visit<'a> for SecretCollector<'a> {
     fn visit_variable_declarator(&mut self, decl: &oxc_ast::ast::VariableDeclarator<'a>) {
-        let name = if let oxc_ast::ast::BindingPatternKind::BindingIdentifier(id) = &decl.id.kind {
+        let name = if let oxc_ast::ast::BindingPattern::BindingIdentifier(id) = &decl.id {
             id.name.as_str()
         } else {
             return;

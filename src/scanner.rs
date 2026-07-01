@@ -147,7 +147,7 @@ impl Scanner {
                 let allocator = Allocator::default();
                 let ret = Parser::new(&allocator, &content, source_type).parse();
 
-                if !ret.errors.is_empty() {
+                if !ret.diagnostics.is_empty() {
                     if let Some(ref bar) = pb {
                         bar.inc(1);
                     }
@@ -239,7 +239,7 @@ impl Scanner {
                 let allocator = Allocator::default();
                 let ret = Parser::new(&allocator, &content, source_type).parse();
 
-                if !ret.errors.is_empty() {
+                if !ret.diagnostics.is_empty() {
                     if let Some(ref bar) = pb {
                         bar.inc(1);
                     }

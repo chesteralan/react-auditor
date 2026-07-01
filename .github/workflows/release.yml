@@ -27,7 +27,7 @@ jobs:
             archive: zip
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - uses: actions-rs/toolchain@v1
         with:
@@ -53,7 +53,7 @@ jobs:
             tar czf "$ARCHIVE_NAME" react-auditor
           fi
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: react-auditor-${{ matrix.target }}
           path: react-auditor-*
@@ -64,11 +64,11 @@ jobs:
     permissions:
       contents: write
     steps:
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8
         with:
           pattern: react-auditor-*
           merge-multiple: true
 
-      - uses: softprops/action-gh-release@v1
+      - uses: softprops/action-gh-release@v3
         with:
           files: react-auditor-*
