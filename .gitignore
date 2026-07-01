@@ -3,3 +3,4 @@
 .DS_Store
 audit-results.json
 *.vsix
+.raudit-cache.json

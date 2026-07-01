@@ -9,7 +9,9 @@ use oxc_allocator::Allocator;
 use oxc_parser::Parser;
 use oxc_semantic::SemanticBuilder;
 use oxc_span::SourceType;
+use rayon::prelude::*;
 
+use crate::cache::Cache;
 use crate::rules::{RuleRegistry, Violation};
 
 #[derive(Debug, Clone)]
@@ -23,6 +25,7 @@ pub struct Scanner {
     pub registry: RuleRegistry,
     pub severity_overrides: HashMap<String, String>,
     pub category_filter: Option<Vec<String>>,
+    pub use_cache: bool,
     ignore_patterns: Vec<String>,
 }
 
@@ -38,6 +41,7 @@ impl Scanner {
             registry: RuleRegistry::new(),
             severity_overrides,
             category_filter,
+            use_cache: true,
             ignore_patterns,
         }
     }
@@ -73,8 +77,19 @@ impl Scanner {
     }
 
     pub fn scan(&self) -> Result<Vec<ScanResult>> {
-        let paths = self.resolve_files()?;
-        let mut results = Vec::new();
+        let mut cache = Cache::load();
+        let all_paths = self.resolve_files()?;
+
+        // Filter to only scan files that changed or weren't cached as clean
+        let paths: Vec<String> = if self.use_cache {
+            all_paths
+                .into_iter()
+                .filter(|p| !cache.is_unchanged_clean(Path::new(p)))
+                .collect()
+        } else {
+            all_paths
+        };
+
         let total = paths.len();
 
         let pb = if total > 1 {
@@ -91,50 +106,72 @@ impl Scanner {
             None
         };
 
-        for path_str in &paths {
-            if let Some(ref bar) = pb {
-                bar.set_message(path_str.to_string());
-            }
+        let results: Vec<ScanResult> = paths
+            .par_iter()
+            .filter_map(|path_str| {
+                if let Some(ref bar) = pb {
+                    bar.set_message(path_str.to_string());
+                }
 
-            let path = Path::new(path_str);
-            let content = std::fs::read_to_string(path)
-                .with_context(|| format!("Failed to read {path_str}"))?;
+                let path = Path::new(path_str);
+                let content = match std::fs::read_to_string(path) {
+                    Ok(c) => c,
+                    Err(_) => {
+                        if let Some(ref bar) = pb {
+                            bar.inc(1);
+                        }
+                        return None;
+                    }
+                };
 
-            let source_type = SourceType::from_path(path).unwrap_or_default();
+                let source_type = SourceType::from_path(path).unwrap_or_default();
+                let allocator = Allocator::default();
+                let ret = Parser::new(&allocator, &content, source_type).parse();
 
-            let allocator = Allocator::default();
-            let ret = Parser::new(&allocator, &content, source_type).parse();
+                if !ret.errors.is_empty() {
+                    if let Some(ref bar) = pb {
+                        bar.inc(1);
+                    }
+                    return None;
+                }
 
-            if !ret.errors.is_empty() {
+                let program = allocator.alloc(ret.program);
+                let semantic = SemanticBuilder::new().build(program);
+
+                let violations = self.registry.run_rules(
+                    program,
+                    &semantic.semantic,
+                    &content,
+                    path_str,
+                    &self.severity_overrides,
+                    self.category_filter.as_ref(),
+                );
+
                 if let Some(ref bar) = pb {
                     bar.inc(1);
                 }
-                continue;
-            }
 
-            let program = allocator.alloc(ret.program);
-            let semantic = SemanticBuilder::new().build(program);
+                if violations.is_empty() {
+                    None
+                } else {
+                    Some(ScanResult {
+                        file_path: path_str.clone(),
+                        violations,
+                    })
+                }
+            })
+            .collect();
 
-            let violations = self.registry.run_rules(
-                program,
-                &semantic.semantic,
-                &content,
-                path_str,
-                &self.severity_overrides,
-                self.category_filter.as_ref(),
-            );
-
-            if !violations.is_empty() {
-                results.push(ScanResult {
-                    file_path: path_str.clone(),
-                    violations,
-                });
-            }
-
-            if let Some(ref bar) = pb {
-                bar.inc(1);
+        // Update cache for scanned files
+        for result in &results {
+            cache.mark_dirty(Path::new(&result.file_path));
+        }
+        for path_str in &paths {
+            if !results.iter().any(|r| r.file_path == *path_str) {
+                cache.mark_clean(Path::new(path_str));
             }
         }
+        cache.save();
 
         if let Some(bar) = pb {
             let v = results.iter().map(|r| r.violations.len()).sum::<usize>();

@@ -130,8 +130,8 @@
 - [x] **Auto-fix for more rules.** Extend `--fix` to `no-empty-blocks`, `no-console` (strip).
 
 ## Phase 15 — Scanner & Engine
-- [ ] **Incremental / cached scanning.** Only re-scan changed files via `.raudit-cache.json` file hashes.
-- [ ] **Parallel file scanning.** Use `rayon` or `std::thread` for concurrent file processing.
+- [x] **Parallel file scanning.** Use `rayon` for concurrent file processing.
+- [x] **Incremental / cached scanning.** Only re-scan changed files via `.raudit-cache.json` file mtime hashes.
 - [ ] **Multi-root workspace support.** Scan multiple directories in a single invocation.
 - [ ] **Watch mode.** `react-auditor --watch` via `notify` crate.
 - [ ] **Configurable rule defaults per file type.** Disable TS rules for `.jsx` files.

@@ -34,12 +34,13 @@ fn main() -> anyhow::Result<()> {
             .collect()
     };
 
-    let scanner = Scanner::new(
+    let mut scanner = Scanner::new(
         files,
         config.rules.clone(),
         category_filter,
         ignore_patterns,
     );
+    scanner.use_cache = !cli.no_cache;
     let results = scanner.scan()?;
 
     let total_violations: usize = results.iter().map(|r| r.violations.len()).sum();

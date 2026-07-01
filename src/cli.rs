@@ -72,4 +72,8 @@ pub struct Cli {
     /// Auto-fix violations where supported (currently: no-var, no-console, no-empty-blocks)
     #[arg(long = "fix")]
     pub fix: bool,
+
+    /// Disable incremental caching (re-scan all files)
+    #[arg(long = "no-cache")]
+    pub no_cache: bool,
 }
