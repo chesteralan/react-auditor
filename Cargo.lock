@@ -490,6 +490,9 @@ name = "hashbrown"
 version = "0.17.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "ed5909b6e89a2db4456e54cd5f673791d7eca6732202bbf2a9cc504fe2f9b84a"
+dependencies = [
+ "allocator-api2",
+]
 
 [[package]]
 name = "heck"
@@ -811,6 +814,18 @@ dependencies = [
 ]
 
 [[package]]
+name = "oxc_allocator"
+version = "0.138.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "e8c54f9bbf7e174b39691080396390a9c6bea6d0dce206660567c1b88951f7b6"
+dependencies = [
+ "allocator-api2",
+ "hashbrown 0.17.1",
+ "oxc_data_structures 0.138.0",
+ "rustc-hash",
+]
+
+[[package]]
 name = "oxc_ast"
 version = "0.58.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -818,9 +833,9 @@ checksum = "54af74d151e1a61d57ec8699f1e8b6729d3817fe763c2ecbacb945822998ea3e"
 dependencies = [
  "bitflags 2.13.0",
  "cow-utils",
- "oxc_allocator",
+ "oxc_allocator 0.58.1",
  "oxc_ast_macros",
- "oxc_data_structures",
+ "oxc_data_structures 0.58.1",
  "oxc_estree",
  "oxc_regular_expression",
  "oxc_span",
@@ -844,7 +859,7 @@ version = "0.58.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "03bdf81b8db7952a841d15141e9efc40c8dd01720b9f1779b37f6d3ae5c9e7e4"
 dependencies = [
- "oxc_allocator",
+ "oxc_allocator 0.58.1",
  "oxc_ast",
  "oxc_span",
  "oxc_syntax",
@@ -874,6 +889,12 @@ dependencies = [
  "assert-unchecked",
  "ropey",
 ]
+
+[[package]]
+name = "oxc_data_structures"
+version = "0.138.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "30c920b812d5c7cd2c6b914dbeda4a7e6720e1de7869119b6de833ae39bedac9"
 
 [[package]]
 name = "oxc_diagnostics"
@@ -923,7 +944,7 @@ dependencies = [
  "memchr",
  "num-bigint",
  "num-traits",
- "oxc_allocator",
+ "oxc_allocator 0.58.1",
  "oxc_ast",
  "oxc_diagnostics",
  "oxc_ecmascript",
@@ -940,7 +961,7 @@ version = "0.58.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "b672d8601f80b9828342e0a38f6cc6735a04e2e4251c0c46476df55842df711a"
 dependencies = [
- "oxc_allocator",
+ "oxc_allocator 0.58.1",
  "oxc_ast_macros",
  "oxc_diagnostics",
  "oxc_estree",
@@ -958,11 +979,11 @@ checksum = "ae29a491046d24b7cbac9ce0602e1c30c52f7065013e7212d716f283800a92ab"
 dependencies = [
  "assert-unchecked",
  "itertools 0.14.0",
- "oxc_allocator",
+ "oxc_allocator 0.58.1",
  "oxc_ast",
  "oxc_ast_visit",
  "oxc_cfg",
- "oxc_data_structures",
+ "oxc_data_structures 0.58.1",
  "oxc_diagnostics",
  "oxc_ecmascript",
  "oxc_index",
@@ -981,7 +1002,7 @@ checksum = "c059e07f57c3299f54dfed3ba2f58dcc183ad68102d1186f8a4c5f546a2b9c5e"
 dependencies = [
  "compact_str",
  "oxc-miette",
- "oxc_allocator",
+ "oxc_allocator 0.58.1",
  "oxc_ast_macros",
  "oxc_estree",
 ]
@@ -996,7 +1017,7 @@ dependencies = [
  "bitflags 2.13.0",
  "cow-utils",
  "nonmax",
- "oxc_allocator",
+ "oxc_allocator 0.58.1",
  "oxc_ast_macros",
  "oxc_estree",
  "oxc_index",
@@ -1248,7 +1269,7 @@ dependencies = [
  "ignore",
  "indicatif",
  "notify",
- "oxc_allocator",
+ "oxc_allocator 0.138.0",
  "oxc_ast",
  "oxc_ast_visit",
  "oxc_parser",
