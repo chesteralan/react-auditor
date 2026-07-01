@@ -101,3 +101,68 @@
 - [x] VS Code extension publish workflow (`.github/workflows/publish-vscode.yml`)
 - [x] VS Code extension: live diagnostics, status bar, debounced file-watching
 - [x] Tag a `v0.1.0` release to trigger npm + VS Code publishing
+
+## Phase 12 — Next.js Rules ✅
+- [x] `no-img-element` (use `<Image />` instead of `<img>`)
+- [x] `no-script-tag-in-head` (use `<Script />` instead of `<script>` inside `<Head>`)
+- [x] `no-page-link` (use `<Link>` instead of `<a>` for internal navigation)
+- [x] `no-head-element` (use `<Head />` instead of `<head>`)
+
+## Phase 13 — CLI & UX
+- [ ] **Wire `--rules` flag into Scanner.** Flag is declared in `Cli` but ignored — `Scanner` doesn't filter by category. Just need to pass it through `run_rules`.
+- [ ] **Add `--ignore` / `--exclude` patterns.** Skip `node_modules`, `dist/`, `build/`, etc. without relying solely on the source glob.
+- [ ] **Add `--fail-on` severity level.** e.g. `--fail-on error` exits 1 only if errors exist.
+- [ ] **Colored output for `stylish` formatter.** Use `termcolor` for red/green/yellow severity indicators.
+- [ ] **Show rule category in output.** e.g. `[react/no-missing-key]` instead of just `[no-missing-key]`.
+- [ ] **Spinner/progress bar during scan.** Prettier progress with `indicatif`.
+
+## Phase 14 — New Rules
+- [ ] **React: `no-direct-mutation`.** Detect `this.props.x = y` or direct `state` mutation outside `setState`.
+- [ ] **React: `jsx-no-duplicate-props`.** Flag repeated props like `<div id="a" id="b" />`.
+- [ ] **React: `no-array-index-key`.** Warn when `<li key={index}>` is used.
+- [ ] **React: `no-ref-in-component-name`.** Component names shouldn't contain "Ref".
+- [ ] **TypeScript: `no-explicit-any` (stricter).** Catch `as any`, `as unknown as any` in addition to type annotations.
+- [ ] **Security: `no-unsafe-iframe`.** Warn on `<iframe>` without `sandbox` or `title`.
+- [ ] **Next.js: `no-sync-script`.** Flag synchronous `<Script>` without `strategy="afterInteractive"`.
+- [ ] **Performance: `no-large-libraries`.** Warn on importing heavy libraries (moment, lodash) when lighter alternatives exist.
+- [ ] **Accessibility: `a-has-content`.** Warn on `<a>` or `<button>` with no text content or `aria-label`.
+- [ ] **Accessibility: `no-ambiguous-labels`.** Warn on duplicate or ambiguous label text.
+- [ ] **Auto-fix for more rules.** Extend `--fix` to `no-empty-blocks`, `no-console` (strip), `prefer-fragments`.
+
+## Phase 15 — Scanner & Engine
+- [ ] **Incremental / cached scanning.** Only re-scan changed files via `.raudit-cache.json` file hashes.
+- [ ] **Parallel file scanning.** Use `rayon` or `std::thread` for concurrent file processing.
+- [ ] **Multi-root workspace support.** Scan multiple directories in a single invocation.
+- [ ] **Watch mode.** `react-auditor --watch` via `notify` crate.
+- [ ] **Configurable rule defaults per file type.** Disable TS rules for `.jsx` files.
+
+## Phase 16 — Testing
+- [ ] **Snapshot testing for formatters.** Compare fixture output against snapshots for `stylish`/`json`/`compact`.
+- [ ] **Property-based testing.** Use `proptest` to generate random AST fragments and verify rules don't panic.
+- [ ] **Integration test with real-world projects.** Clone a small React project and scan end-to-end.
+- [ ] **Benchmark suite.** Use `criterion` to track scan time per 1000 LOC.
+- [ ] **Fuzz the parser.** Feed random bytes to ensure graceful error handling.
+
+## Phase 17 — VS Code Extension
+- [ ] **Error list / problems panel grouping.** Group diagnostics by rule ID.
+- [ ] **Quick-fix code actions.** Suggest `--fix` from the editor.
+- [ ] **Configuration UI.** Settings page for `.rauditrc.toml` generation.
+- [ ] **Progress notification.** Show progress bar for workspace scan.
+- [ ] **Decorations.** Inline gutter markers for violations.
+
+## Phase 18 — Documentation
+- [ ] **Rule documentation generator.** Auto-generate per-rule markdown from `RuleMeta` with examples.
+- [ ] **Website / playground.** HTML page demonstrating output formats and rule examples.
+- [ ] **Migration guides.** ESLint → react-auditor config mapping.
+
+## Phase 19 — Distribution
+- [ ] **GitHub Action.** `react-auditor-action` that runs on PRs with problem matchers.
+- [ ] **Homebrew tap.** `brew install react-auditor` for macOS.
+- [ ] **Docker image.** `docker run react-auditor scan src/`.
+- [ ] **Pre-built binaries for Windows.** Add Windows via `cross`.
+
+## Phase 20 — Infrastructure
+- [ ] **Automated canary releases.** Nightly builds from `main`.
+- [ ] **Code coverage.** Track line/branch coverage in CI with `tarpaulin` or `cargo-llvm-cov`.
+- [ ] **Dependency dashboard.** Dependabot or Renovate for keeping deps current.
+- [ ] **Semantic release.** Automate version bumps, changelog, and tags from commit messages.

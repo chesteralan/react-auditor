@@ -10,9 +10,10 @@ const SEVERITY_MAP = {
 };
 
 let statusBarItem;
+let diagnosticCollection;
 
 function activate(context) {
-  const diagnosticCollection = vscode.languages.createDiagnosticCollection('react-auditor');
+  diagnosticCollection = vscode.languages.createDiagnosticCollection('react-auditor');
   context.subscriptions.push(diagnosticCollection);
 
   statusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left, 100);
