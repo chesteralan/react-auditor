@@ -100,4 +100,4 @@
 - [x] Publish npm package to `registry.npmjs.org` (triggered by `v*` tags)
 - [x] VS Code extension publish workflow (`.github/workflows/publish-vscode.yml`)
 - [x] VS Code extension: live diagnostics, status bar, debounced file-watching
-- [ ] Tag a `v0.1.0` release to trigger npm + VS Code publishing
+- [x] Tag a `v0.1.0` release to trigger npm + VS Code publishing
