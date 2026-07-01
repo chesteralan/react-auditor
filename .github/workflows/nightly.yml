@@ -26,7 +26,7 @@ jobs:
           command: test
 
       - name: Upload canary binary
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: react-auditor-canary-x86_64-linux
           path: target/release/react-auditor
