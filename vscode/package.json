@@ -3,6 +3,7 @@
   "displayName": "React Auditor",
   "description": "Real-time linting with react-auditor — best practices, quality, security, and accessibility for React codebases",
   "version": "0.1.4",
+  "icon": "icon.png",
   "publisher": "chesteralan",
   "license": "MIT",
   "engines": {
