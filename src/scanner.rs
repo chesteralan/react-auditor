@@ -106,6 +106,16 @@ impl Scanner {
                 let path = Path::new(pattern);
                 if path.is_file() {
                     files.push(pattern.clone());
+                } else if path.is_dir() {
+                    for entry in WalkBuilder::new(path).standard_filters(true).build() {
+                        if let Ok(entry) = entry
+                            && entry.file_type().map(|t| t.is_file()).unwrap_or(false)
+                            && let Some(ext) = entry.path().extension().and_then(|e| e.to_str())
+                            && matches!(ext, "js" | "jsx" | "ts" | "tsx")
+                        {
+                            files.push(entry.path().to_string_lossy().to_string());
+                        }
+                    }
                 } else {
                     let glob_pattern = globset::Glob::new(pattern)
                         .with_context(|| format!("Invalid glob pattern: {pattern}"))?

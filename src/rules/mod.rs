@@ -3,6 +3,7 @@ use std::collections::HashMap;
 use oxc_ast::ast::Program;
 use oxc_semantic::Semantic;
 
+pub mod nextjs;
 pub mod performance;
 pub mod quality;
 pub mod react;
@@ -199,6 +200,14 @@ impl RuleRegistry {
             .push(Box::new(performance::aria_valid::AriaValid));
         self.rules
             .push(Box::new(performance::heading_levels::HeadingLevels));
+        // ── Phase 12: Next.js ──
+        self.rules
+            .push(Box::new(nextjs::no_img_element::NoImgElement));
+        self.rules
+            .push(Box::new(nextjs::no_script_tag_in_head::NoScriptTagInHead));
+        self.rules.push(Box::new(nextjs::no_page_link::NoPageLink));
+        self.rules
+            .push(Box::new(nextjs::no_head_element::NoHeadElement));
     }
 
     pub fn run_rules(

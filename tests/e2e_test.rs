@@ -139,3 +139,109 @@ export default Greeting;
 
     let _ = std::fs::remove_file(&path);
 }
+
+#[test]
+fn e2e_react_issues_fires_rules() {
+    let rule_ids = run_scanner("react_issues.jsx");
+    assert!(
+        rule_ids.contains(&"no-missing-key".to_string()),
+        "expected no-missing-key"
+    );
+    assert!(
+        rule_ids.contains(&"consistent-component-naming".to_string()),
+        "expected consistent-component-naming"
+    );
+    assert!(
+        rule_ids.contains(&"prefer-function-components".to_string()),
+        "expected prefer-function-components"
+    );
+    assert!(
+        rule_ids.contains(&"no-unnecessary-memo".to_string()),
+        "expected no-unnecessary-memo"
+    );
+    assert!(
+        rule_ids.contains(&"no-multiple-render-methods".to_string()),
+        "expected no-multiple-render-methods"
+    );
+    assert!(
+        rule_ids.contains(&"no-side-effects-in-render".to_string()),
+        "expected no-side-effects-in-render"
+    );
+    assert!(
+        rule_ids.contains(&"hook-rules".to_string()),
+        "expected hook-rules"
+    );
+    assert!(
+        rule_ids.contains(&"no-missing-deps".to_string()),
+        "expected no-missing-deps"
+    );
+    assert!(
+        rule_ids.contains(&"no-set-state-in-effect".to_string()),
+        "expected no-set-state-in-effect"
+    );
+    assert!(
+        rule_ids.contains(&"no-set-state-in-render".to_string()),
+        "expected no-set-state-in-render"
+    );
+    assert!(!rule_ids.is_empty(), "expected at least one violation");
+}
+
+#[test]
+fn e2e_quality_issues_fires_rules() {
+    let rule_ids = run_scanner("quality_issues.jsx");
+    assert!(
+        rule_ids.contains(&"no-empty-blocks".to_string()),
+        "expected no-empty-blocks"
+    );
+    assert!(
+        rule_ids.contains(&"max-params".to_string()),
+        "expected max-params"
+    );
+    assert!(
+        rule_ids.contains(&"prefer-early-return".to_string()),
+        "expected prefer-early-return"
+    );
+    assert!(
+        rule_ids.contains(&"no-commented-code".to_string()),
+        "expected no-commented-code"
+    );
+    assert!(
+        rule_ids.contains(&"no-deep-nesting".to_string()),
+        "expected no-deep-nesting"
+    );
+    assert!(
+        rule_ids.contains(&"consistent-return".to_string()),
+        "expected consistent-return"
+    );
+    assert!(
+        rule_ids.contains(&"no-shadow".to_string()),
+        "expected no-shadow"
+    );
+    assert!(
+        rule_ids.contains(&"complexity".to_string()),
+        "expected complexity"
+    );
+    assert!(!rule_ids.is_empty(), "expected at least one violation");
+}
+
+#[test]
+fn e2e_nextjs_issues_fires_rules() {
+    let rule_ids = run_scanner("nextjs_issues.jsx");
+    assert!(
+        rule_ids.contains(&"no-img-element".to_string()),
+        "expected no-img-element"
+    );
+    assert!(
+        rule_ids.contains(&"no-script-tag-in-head".to_string()),
+        "expected no-script-tag-in-head"
+    );
+    assert!(
+        rule_ids.contains(&"no-page-link".to_string()),
+        "expected no-page-link"
+    );
+    assert!(
+        rule_ids.contains(&"no-head-element".to_string()),
+        "expected no-head-element"
+    );
+    assert!(!rule_ids.is_empty(), "expected at least one violation");
+}

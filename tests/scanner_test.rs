@@ -64,4 +64,56 @@ mod tests {
 
         let _ = std::fs::remove_file(&path);
     }
+
+    #[test]
+    fn test_scanner_parser_error_skips_file() {
+        let code = "const x = ;".to_string();
+        let path = std::env::temp_dir().join("_test_syntax_error.js");
+        std::fs::write(&path, &code).unwrap();
+
+        let scanner = Scanner::new(vec![path.to_string_lossy().to_string()], HashMap::new());
+        let results = scanner.scan().unwrap();
+        assert!(
+            results.is_empty(),
+            "expected no results for syntax error file"
+        );
+
+        let _ = std::fs::remove_file(&path);
+    }
+
+    #[test]
+    fn test_scanner_non_code_file_skipped() {
+        let code = "This is not code".to_string();
+        let path = std::env::temp_dir().join("_test_non_code.txt");
+        std::fs::write(&path, &code).unwrap();
+
+        let scanner = Scanner::new(vec![path.to_string_lossy().to_string()], HashMap::new());
+        // .txt files won't match the default src/**/*.{js,jsx,ts,tsx} pattern
+        // but if explicitly passed, the SourceType will fallback to default
+        let _r = scanner.scan().unwrap();
+        // should not panic on non-standard extension
+
+        let _ = std::fs::remove_file(&path);
+    }
+
+    #[test]
+    fn test_scanner_directory_arg() {
+        let scanner = Scanner::new(vec!["tests/fixtures".to_string()], HashMap::new());
+        let results = scanner.scan().unwrap();
+        assert!(
+            !results.is_empty(),
+            "expected violations from fixtures directory"
+        );
+    }
+
+    #[test]
+    fn test_scanner_all_rule_ids_unique() {
+        use react_auditor::rules::RuleRegistry;
+        let registry = RuleRegistry::new();
+        let ids = registry.get_rule_ids();
+        let mut sorted = ids.clone();
+        sorted.sort();
+        sorted.dedup();
+        assert_eq!(ids.len(), sorted.len(), "rule IDs must be unique");
+    }
 }
