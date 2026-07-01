@@ -19,7 +19,12 @@ fn main() -> anyhow::Result<()> {
         cli.files.clone()
     };
 
-    let scanner = Scanner::new(files, config.rules.clone());
+    let category_filter = cli
+        .rules
+        .as_ref()
+        .map(|r| r.split(',').map(|s| s.trim().to_string()).collect());
+
+    let scanner = Scanner::new(files, config.rules.clone(), category_filter);
     let results = scanner.scan()?;
 
     let total_violations: usize = results.iter().map(|r| r.violations.len()).sum();

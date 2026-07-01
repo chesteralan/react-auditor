@@ -20,14 +20,20 @@ pub struct Scanner {
     pub files: Vec<String>,
     pub registry: RuleRegistry,
     pub severity_overrides: HashMap<String, String>,
+    pub category_filter: Option<Vec<String>>,
 }
 
 impl Scanner {
-    pub fn new(files: Vec<String>, severity_overrides: HashMap<String, String>) -> Self {
+    pub fn new(
+        files: Vec<String>,
+        severity_overrides: HashMap<String, String>,
+        category_filter: Option<Vec<String>>,
+    ) -> Self {
         Self {
             files,
             registry: RuleRegistry::new(),
             severity_overrides,
+            category_filter,
         }
     }
 
@@ -67,6 +73,7 @@ impl Scanner {
                 &content,
                 path_str,
                 &self.severity_overrides,
+                self.category_filter.as_ref(),
             );
 
             if !violations.is_empty() {

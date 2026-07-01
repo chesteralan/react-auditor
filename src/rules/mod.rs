@@ -217,11 +217,19 @@ impl RuleRegistry {
         source_text: &str,
         file_path: &str,
         severity_overrides: &HashMap<String, String>,
+        category_filter: Option<&Vec<String>>,
     ) -> Vec<Violation> {
         let mut violations = Vec::new();
 
         for rule in &self.rules {
             let meta = rule.meta();
+
+            if let Some(categories) = &category_filter
+                && !categories.contains(&meta.category.to_string())
+            {
+                continue;
+            }
+
             let effective_severity = severity_overrides
                 .get(meta.id)
                 .map(|s| s.parse::<Severity>().unwrap())

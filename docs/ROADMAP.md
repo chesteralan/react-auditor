@@ -109,7 +109,7 @@
 - [x] `no-head-element` (use `<Head />` instead of `<head>`)
 
 ## Phase 13 — CLI & UX
-- [ ] **Wire `--rules` flag into Scanner.** Flag is declared in `Cli` but ignored — `Scanner` doesn't filter by category. Just need to pass it through `run_rules`.
+- [x] **Wire `--rules` flag into Scanner.** Flag is declared in `Cli` but ignored — `Scanner` doesn't filter by category. Just need to pass it through `run_rules`.
 - [ ] **Add `--ignore` / `--exclude` patterns.** Skip `node_modules`, `dist/`, `build/`, etc. without relying solely on the source glob.
 - [ ] **Add `--fail-on` severity level.** e.g. `--fail-on error` exits 1 only if errors exist.
 - [ ] **Colored output for `stylish` formatter.** Use `termcolor` for red/green/yellow severity indicators.

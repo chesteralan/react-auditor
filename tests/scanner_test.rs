@@ -23,7 +23,7 @@ mod tests {
 
     #[test]
     fn test_scanner_empty_files() {
-        let scanner = Scanner::new(vec![], HashMap::new());
+        let scanner = Scanner::new(vec![], HashMap::new(), None);
         let results = scanner.scan().unwrap();
         assert!(results.is_empty());
     }
@@ -34,7 +34,11 @@ mod tests {
         let path = std::env::temp_dir().join("_test_no_console.js");
         std::fs::write(&path, &code).unwrap();
 
-        let scanner = Scanner::new(vec![path.to_string_lossy().to_string()], HashMap::new());
+        let scanner = Scanner::new(
+            vec![path.to_string_lossy().to_string()],
+            HashMap::new(),
+            None,
+        );
         let results = scanner.scan().unwrap();
 
         let has_violation = results
@@ -54,7 +58,7 @@ mod tests {
         let mut overrides = HashMap::new();
         overrides.insert("no-console".to_string(), "off".to_string());
 
-        let scanner = Scanner::new(vec![path.to_string_lossy().to_string()], overrides);
+        let scanner = Scanner::new(vec![path.to_string_lossy().to_string()], overrides, None);
         let results = scanner.scan().unwrap();
 
         let has_violation = results
@@ -71,7 +75,11 @@ mod tests {
         let path = std::env::temp_dir().join("_test_syntax_error.js");
         std::fs::write(&path, &code).unwrap();
 
-        let scanner = Scanner::new(vec![path.to_string_lossy().to_string()], HashMap::new());
+        let scanner = Scanner::new(
+            vec![path.to_string_lossy().to_string()],
+            HashMap::new(),
+            None,
+        );
         let results = scanner.scan().unwrap();
         assert!(
             results.is_empty(),
@@ -87,7 +95,11 @@ mod tests {
         let path = std::env::temp_dir().join("_test_non_code.txt");
         std::fs::write(&path, &code).unwrap();
 
-        let scanner = Scanner::new(vec![path.to_string_lossy().to_string()], HashMap::new());
+        let scanner = Scanner::new(
+            vec![path.to_string_lossy().to_string()],
+            HashMap::new(),
+            None,
+        );
         // .txt files won't match the default src/**/*.{js,jsx,ts,tsx} pattern
         // but if explicitly passed, the SourceType will fallback to default
         let _r = scanner.scan().unwrap();
@@ -98,7 +110,7 @@ mod tests {
 
     #[test]
     fn test_scanner_directory_arg() {
-        let scanner = Scanner::new(vec!["tests/fixtures".to_string()], HashMap::new());
+        let scanner = Scanner::new(vec!["tests/fixtures".to_string()], HashMap::new(), None);
         let results = scanner.scan().unwrap();
         assert!(
             !results.is_empty(),

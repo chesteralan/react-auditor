@@ -28,7 +28,7 @@ fn bench_scan_all_fixtures(c: &mut Criterion) {
 
     c.bench_function("scan_all_fixtures", |b| {
         b.iter(|| {
-            let scanner = Scanner::new(paths.clone(), HashMap::new());
+            let scanner = Scanner::new(paths.clone(), HashMap::new(), None);
             let results = scanner.scan().unwrap();
             let total: usize = results.iter().map(|r| r.violations.len()).sum();
             std::hint::black_box(total);
@@ -44,7 +44,11 @@ fn bench_scan_large_generated(c: &mut Criterion) {
 
     c.bench_function("scan_1000_line_tsx", |b| {
         b.iter(|| {
-            let scanner = Scanner::new(vec![path.to_string_lossy().to_string()], HashMap::new());
+            let scanner = Scanner::new(
+                vec![path.to_string_lossy().to_string()],
+                HashMap::new(),
+                None,
+            );
             let results = scanner.scan().unwrap();
             let total: usize = results.iter().map(|r| r.violations.len()).sum();
             std::hint::black_box(total);

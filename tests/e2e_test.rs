@@ -12,7 +12,11 @@ fn fixture_path(name: &str) -> PathBuf {
 
 fn run_scanner(file: &str) -> Vec<String> {
     let path = fixture_path(file);
-    let scanner = Scanner::new(vec![path.to_string_lossy().to_string()], HashMap::new());
+    let scanner = Scanner::new(
+        vec![path.to_string_lossy().to_string()],
+        HashMap::new(),
+        None,
+    );
     let results = scanner.scan().unwrap();
     results
         .into_iter()
@@ -132,7 +136,11 @@ export default Greeting;
     let path = std::env::temp_dir().join("_e2e_clean.tsx");
     std::fs::write(&path, clean).unwrap();
 
-    let scanner = Scanner::new(vec![path.to_string_lossy().to_string()], HashMap::new());
+    let scanner = Scanner::new(
+        vec![path.to_string_lossy().to_string()],
+        HashMap::new(),
+        None,
+    );
     let results = scanner.scan().unwrap();
     let total: usize = results.iter().map(|r| r.violations.len()).sum();
     assert_eq!(total, 0, "expected no violations for clean file");
@@ -244,4 +252,41 @@ fn e2e_nextjs_issues_fires_rules() {
         "expected no-head-element"
     );
     assert!(!rule_ids.is_empty(), "expected at least one violation");
+}
+
+fn run_scanner_filtered(file: &str, categories: Vec<String>) -> Vec<String> {
+    let path = fixture_path(file);
+    let scanner = Scanner::new(
+        vec![path.to_string_lossy().to_string()],
+        HashMap::new(),
+        Some(categories),
+    );
+    let results = scanner.scan().unwrap();
+    results
+        .into_iter()
+        .flat_map(|r| r.violations.into_iter().map(|v| v.rule_id))
+        .collect()
+}
+
+#[test]
+fn e2e_category_filter_limits_to_nextjs_only() {
+    let rule_ids = run_scanner_filtered("nextjs_issues.jsx", vec!["nextjs".to_string()]);
+    assert_eq!(
+        rule_ids.len(),
+        5,
+        "expected 5 nextjs violations (2 no-page-link)"
+    );
+    assert!(rule_ids.contains(&"no-img-element".to_string()));
+    assert!(rule_ids.contains(&"no-script-tag-in-head".to_string()));
+    assert!(rule_ids.contains(&"no-page-link".to_string()));
+    assert!(rule_ids.contains(&"no-head-element".to_string()));
+}
+
+#[test]
+fn e2e_category_filter_empty_returns_nothing() {
+    let rule_ids = run_scanner_filtered("has_issues.jsx", vec!["nonexistent".to_string()]);
+    assert!(
+        rule_ids.is_empty(),
+        "expected no violations for nonexistent category"
+    );
 }
