@@ -34,8 +34,17 @@ impl Scanner {
     pub fn scan(&self) -> Result<Vec<ScanResult>> {
         let paths = self.resolve_files()?;
         let mut results = Vec::new();
+        let total = paths.len();
 
-        for path_str in &paths {
+        if total > 1 {
+            eprintln!("Scanning {total} files...");
+        }
+
+        for (i, path_str) in paths.iter().enumerate() {
+            if total > 1 {
+                eprintln!("  [{}/{}] {}", i + 1, total, path_str);
+            }
+
             let path = Path::new(path_str);
             let content = std::fs::read_to_string(path)
                 .with_context(|| format!("Failed to read {path_str}"))?;
@@ -66,6 +75,11 @@ impl Scanner {
                     violations,
                 });
             }
+        }
+
+        let violation_count: usize = results.iter().map(|r| r.violations.len()).sum();
+        if total > 1 {
+            eprintln!("Done — {violation_count} violation(s) in {} file(s).", results.len());
         }
 
         Ok(results)
