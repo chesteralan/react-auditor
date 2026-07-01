@@ -9,21 +9,17 @@ inputs:
     description: 'Arguments to pass to react-auditor (e.g. "src/ --fail-on error")'
     required: false
     default: 'src/'
-  version:
-    description: 'Version of react-auditor to install (e.g. "0.1.4" or "latest")'
-    required: false
-    default: 'latest'
 runs:
   using: 'composite'
   steps:
-    - name: Install react-auditor
+    - uses: actions-rs/toolchain@v1
+      with:
+        toolchain: stable
+        profile: minimal
+
+    - name: Build react-auditor
       shell: bash
-      run: |
-        if [ "${{ inputs.version }}" = "latest" ]; then
-          cargo install react-auditor
-        else
-          cargo install react-auditor --version "${{ inputs.version }}"
-        fi
+      run: cargo build --release
 
     - name: Add problem matcher
       shell: bash
@@ -36,7 +32,7 @@ runs:
               "severity": "error",
               "pattern": [
                 {
-                  "regexp": "^(error|warning)\\s+(\\d+):(\\d+)\\s+\\[([^/]+)/([^\\]]+)\\]\\s+(.+)$",
+                  "regexp": "^\\s+(error|warning)\\s+(\\d+):(\\d+)\\s+\\[([^/]+)/([^\\]]+)\\]\\s+(.+)$",
                   "severity": 1,
                   "line": 2,
                   "column": 3,
@@ -53,4 +49,4 @@ runs:
     - name: Run react-auditor
       shell: bash
       run: |
-        react-auditor ${{ inputs.args }}
+        ./target/release/react-auditor ${{ inputs.args }}
