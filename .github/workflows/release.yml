@@ -69,6 +69,6 @@ jobs:
           pattern: react-auditor-*
           merge-multiple: true
 
-      - uses: softprops/action-gh-release@v1
+      - uses: softprops/action-gh-release@v3
         with:
           files: react-auditor-*
