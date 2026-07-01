@@ -33,7 +33,10 @@ impl Rule for NoShadow {
             ancestors.next();
 
             for ancestor_scope_id in ancestors {
-                if scoping.get_binding(ancestor_scope_id, name.into()).is_some() {
+                if scoping
+                    .get_binding(ancestor_scope_id, name.into())
+                    .is_some()
+                {
                     let span = scoping.symbol_span(symbol_id);
                     let start = span.start as usize;
                     let line = source_text[..start].lines().count().max(1);
