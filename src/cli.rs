@@ -1,0 +1,64 @@
+use clap::Parser;
+
+#[derive(Parser, Debug)]
+#[command(
+    name = "react-auditor",
+    version,
+    about = "A blazing-fast Rust CLI to scan JS/TS/React code for best practices, quality, and security issues",
+    long_about = "react-auditor — Scan JS/TS/React Code for Best Practices
+
+A blazing-fast Rust CLI powered by oxc to lint your React codebase for
+quality, correctness, security, performance, and accessibility issues.
+
+Categories (43 rules total):
+  quality        Code quality & clean code (13 rules)
+  react          React best practices & hooks (13 rules)
+  typescript     TypeScript strictness (8 rules)
+  security       Security vulnerabilities (6 rules)
+  performance    Performance anti-patterns (5 rules)
+  accessibility  Accessibility violations (4 rules)
+
+Integrated with lint-staged and husky for pre-commit checks.
+
+Examples:
+  react-auditor                              Scan src/**/*.{js,jsx,ts,tsx}
+  react-auditor src/ --format json            Scan src/ output as JSON
+  react-auditor --rules react,typescript      Only React & TS rules
+  react-auditor --log audit.json              Write JSON log file
+  react-auditor --max-warnings 10             Fail on >10 warnings
+  react-auditor --fix                         Auto-fix where supported
+
+Configuration: .rauditrc.toml, .rauditrc.json, or package.json#reactAuditor"
+)]
+pub struct Cli {
+    /// File paths or glob patterns to scan (default: src/**/*.{js,jsx,ts,tsx})
+    pub files: Vec<String>,
+
+    /// Path to config file (.rauditrc.toml, .rauditrc.json, package.json)
+    #[arg(short = 'c', long = "config")]
+    pub config: Option<String>,
+
+    /// Comma-separated rule categories to enable: quality, react, typescript, security, performance, accessibility
+    #[arg(short = 'r', long = "rules")]
+    pub rules: Option<String>,
+
+    /// Path to output JSON log file
+    #[arg(short = 'l', long = "log")]
+    pub log: Option<String>,
+
+    /// Output format: stylish (default), json, compact
+    #[arg(short = 'f', long = "format", default_value = "stylish")]
+    pub format: String,
+
+    /// Max warnings before exiting with code 1
+    #[arg(short = 'w', long = "max-warnings")]
+    pub max_warnings: Option<u32>,
+
+    /// Only output errors (suppress warnings)
+    #[arg(short = 'q', long = "quiet")]
+    pub quiet: bool,
+
+    /// Auto-fix violations where supported (currently: no-var, no-inline-styles)
+    #[arg(long = "fix")]
+    pub fix: bool,
+}

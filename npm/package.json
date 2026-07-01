@@ -1,0 +1,30 @@
+{
+  "name": "react-auditor",
+  "version": "0.1.0",
+  "description": "A blazing-fast Rust CLI to scan JS/TS/React code for best practices, quality, and security issues",
+  "bin": {
+    "react-auditor": "./react-auditor"
+  },
+  "scripts": {
+    "postinstall": "node install.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/chesteralan/react-auditor"
+  },
+  "keywords": [
+    "react",
+    "linter",
+    "audit",
+    "best-practices",
+    "code-quality",
+    "security",
+    "performance",
+    "accessibility",
+    "typescript"
+  ],
+  "author": "chesteralan",
+  "license": "MIT",
+  "os": ["darwin", "linux", "win32"],
+  "cpu": ["x64", "arm64"]
+}

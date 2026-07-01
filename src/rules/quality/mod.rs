@@ -1,0 +1,13 @@
+pub mod complexity;
+pub mod consistent_return;
+pub mod max_params;
+pub mod no_commented_code;
+pub mod no_console;
+pub mod no_deep_nesting;
+pub mod no_empty_blocks;
+pub mod no_long_functions;
+pub mod no_magic_numbers;
+pub mod no_shadow;
+pub mod no_unused_vars_rule;
+pub mod no_var;
+pub mod prefer_early_return;
