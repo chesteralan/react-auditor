@@ -16,6 +16,7 @@ fn run_scanner(file: &str) -> Vec<String> {
         vec![path.to_string_lossy().to_string()],
         HashMap::new(),
         None,
+        Vec::new(),
     );
     let results = scanner.scan().unwrap();
     results
@@ -152,6 +153,7 @@ export default Greeting;
         vec![path.to_string_lossy().to_string()],
         HashMap::new(),
         None,
+        Vec::new(),
     );
     let results = scanner.scan().unwrap();
     let total: usize = results.iter().map(|r| r.violations.len()).sum();
@@ -276,6 +278,7 @@ fn run_scanner_filtered(file: &str, categories: Vec<String>) -> Vec<String> {
         vec![path.to_string_lossy().to_string()],
         HashMap::new(),
         Some(categories),
+        Vec::new(),
     );
     let results = scanner.scan().unwrap();
     results

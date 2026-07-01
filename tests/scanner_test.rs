@@ -23,7 +23,7 @@ mod tests {
 
     #[test]
     fn test_scanner_empty_files() {
-        let scanner = Scanner::new(vec![], HashMap::new(), None);
+        let scanner = Scanner::new(vec![], HashMap::new(), None, Vec::new());
         let results = scanner.scan().unwrap();
         assert!(results.is_empty());
     }
@@ -38,6 +38,7 @@ mod tests {
             vec![path.to_string_lossy().to_string()],
             HashMap::new(),
             None,
+            Vec::new(),
         );
         let results = scanner.scan().unwrap();
 
@@ -58,7 +59,12 @@ mod tests {
         let mut overrides = HashMap::new();
         overrides.insert("no-console".to_string(), "off".to_string());
 
-        let scanner = Scanner::new(vec![path.to_string_lossy().to_string()], overrides, None);
+        let scanner = Scanner::new(
+            vec![path.to_string_lossy().to_string()],
+            overrides,
+            None,
+            Vec::new(),
+        );
         let results = scanner.scan().unwrap();
 
         let has_violation = results
@@ -79,6 +85,7 @@ mod tests {
             vec![path.to_string_lossy().to_string()],
             HashMap::new(),
             None,
+            Vec::new(),
         );
         let results = scanner.scan().unwrap();
         assert!(
@@ -99,6 +106,7 @@ mod tests {
             vec![path.to_string_lossy().to_string()],
             HashMap::new(),
             None,
+            Vec::new(),
         );
         // .txt files won't match the default src/**/*.{js,jsx,ts,tsx} pattern
         // but if explicitly passed, the SourceType will fallback to default
@@ -110,7 +118,12 @@ mod tests {
 
     #[test]
     fn test_scanner_directory_arg() {
-        let scanner = Scanner::new(vec!["tests/fixtures".to_string()], HashMap::new(), None);
+        let scanner = Scanner::new(
+            vec!["tests/fixtures".to_string()],
+            HashMap::new(),
+            None,
+            Vec::new(),
+        );
         let results = scanner.scan().unwrap();
         assert!(
             !results.is_empty(),

@@ -2,6 +2,7 @@ use std::collections::HashMap;
 use std::path::Path;
 
 use anyhow::{Context, Result};
+use globset::GlobBuilder;
 use ignore::WalkBuilder;
 use oxc_allocator::Allocator;
 use oxc_parser::Parser;
@@ -21,6 +22,7 @@ pub struct Scanner {
     pub registry: RuleRegistry,
     pub severity_overrides: HashMap<String, String>,
     pub category_filter: Option<Vec<String>>,
+    ignore_patterns: Vec<String>,
 }
 
 impl Scanner {
@@ -28,13 +30,45 @@ impl Scanner {
         files: Vec<String>,
         severity_overrides: HashMap<String, String>,
         category_filter: Option<Vec<String>>,
+        ignore_patterns: Vec<String>,
     ) -> Self {
         Self {
             files,
             registry: RuleRegistry::new(),
             severity_overrides,
             category_filter,
+            ignore_patterns,
         }
+    }
+
+    fn is_ignored(&self, path: &Path) -> bool {
+        if self.ignore_patterns.is_empty() {
+            return false;
+        }
+        let path_str = path.to_string_lossy();
+        self.ignore_patterns.iter().any(|pattern| {
+            if let Ok(glob) = GlobBuilder::new(pattern).literal_separator(true).build() {
+                let matcher = glob.compile_matcher();
+                matcher.is_match(path_str.as_ref())
+            } else {
+                false
+            }
+        })
+    }
+
+    fn walk_files(&self, root: &Path) -> Vec<String> {
+        let mut files = Vec::new();
+        for result in WalkBuilder::new(root).standard_filters(true).build() {
+            if let Ok(entry) = result
+                && entry.file_type().map(|t| t.is_file()).unwrap_or(false)
+                && let Some(ext) = entry.path().extension().and_then(|e| e.to_str())
+                && matches!(ext, "js" | "jsx" | "ts" | "tsx")
+                && !self.is_ignored(entry.path())
+            {
+                files.push(entry.path().to_string_lossy().to_string());
+            }
+        }
+        files
     }
 
     pub fn scan(&self) -> Result<Vec<ScanResult>> {
@@ -99,30 +133,14 @@ impl Scanner {
         let mut files = Vec::new();
 
         if self.files.is_empty() {
-            for entry in WalkBuilder::new("src").standard_filters(true).build() {
-                if let Ok(entry) = entry
-                    && entry.file_type().map(|t| t.is_file()).unwrap_or(false)
-                    && let Some(ext) = entry.path().extension().and_then(|e| e.to_str())
-                    && matches!(ext, "js" | "jsx" | "ts" | "tsx")
-                {
-                    files.push(entry.path().to_string_lossy().to_string());
-                }
-            }
+            files = self.walk_files(Path::new("src"));
         } else {
             for pattern in &self.files {
                 let path = Path::new(pattern);
                 if path.is_file() {
                     files.push(pattern.clone());
                 } else if path.is_dir() {
-                    for entry in WalkBuilder::new(path).standard_filters(true).build() {
-                        if let Ok(entry) = entry
-                            && entry.file_type().map(|t| t.is_file()).unwrap_or(false)
-                            && let Some(ext) = entry.path().extension().and_then(|e| e.to_str())
-                            && matches!(ext, "js" | "jsx" | "ts" | "tsx")
-                        {
-                            files.push(entry.path().to_string_lossy().to_string());
-                        }
-                    }
+                    files.extend(self.walk_files(path));
                 } else {
                     let glob_pattern = globset::Glob::new(pattern)
                         .with_context(|| format!("Invalid glob pattern: {pattern}"))?
@@ -132,6 +150,7 @@ impl Scanner {
                         if let Ok(entry) = entry
                             && entry.file_type().map(|t| t.is_file()).unwrap_or(false)
                             && glob_pattern.is_match(entry.path())
+                            && !self.is_ignored(entry.path())
                         {
                             files.push(entry.path().to_string_lossy().to_string());
                         }

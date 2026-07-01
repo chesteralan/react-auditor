@@ -24,7 +24,22 @@ fn main() -> anyhow::Result<()> {
         .as_ref()
         .map(|r| r.split(',').map(|s| s.trim().to_string()).collect());
 
-    let scanner = Scanner::new(files, config.rules.clone(), category_filter);
+    let ignore_patterns: Vec<String> = if cli.ignore.is_empty() {
+        Vec::new()
+    } else {
+        cli.ignore
+            .split(',')
+            .map(|s| s.trim().to_string())
+            .filter(|s| !s.is_empty())
+            .collect()
+    };
+
+    let scanner = Scanner::new(
+        files,
+        config.rules.clone(),
+        category_filter,
+        ignore_patterns,
+    );
     let results = scanner.scan()?;
 
     let total_violations: usize = results.iter().map(|r| r.violations.len()).sum();

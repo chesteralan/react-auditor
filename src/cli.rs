@@ -25,6 +25,7 @@ Examples:
   react-auditor                              Scan src/**/*.{js,jsx,ts,tsx}
   react-auditor src/ --format json            Scan src/ output as JSON
   react-auditor --rules react,typescript      Only React & TS rules
+  react-auditor --ignore node_modules,dist    Skip node_modules and dist
   react-auditor --log audit.json              Write JSON log file
    react-auditor --max-warnings 10             Fail on >10 warnings
   react-auditor --fail-on warning             Fail on any violation
@@ -63,6 +64,10 @@ pub struct Cli {
     /// Only output errors (suppress warnings)
     #[arg(short = 'q', long = "quiet")]
     pub quiet: bool,
+
+    /// Comma-separated glob patterns to ignore (e.g. node_modules,dist,build)
+    #[arg(long = "ignore", default_value = "")]
+    pub ignore: String,
 
     /// Auto-fix violations where supported (currently: no-var, no-inline-styles)
     #[arg(long = "fix")]

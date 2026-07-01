@@ -110,7 +110,7 @@
 
 ## Phase 13 — CLI & UX
 - [x] **Wire `--rules` flag into Scanner.** Flag is declared in `Cli` but ignored — `Scanner` doesn't filter by category. Just need to pass it through `run_rules`.
-- [ ] **Add `--ignore` / `--exclude` patterns.** Skip `node_modules`, `dist/`, `build/`, etc. without relying solely on the source glob.
+- [x] **Add `--ignore` / `--exclude` patterns.** Skip `node_modules`, `dist/`, `build/`, etc. without relying solely on the source glob.
 - [x] **Add `--fail-on` severity level.** e.g. `--fail-on error` exits 1 only if errors exist.
 - [x] **Colored output for `stylish` formatter.** Use `termcolor` for red/green/yellow severity indicators.
 - [x] **Show rule category in output.** e.g. `[react/no-missing-key]` instead of just `[no-missing-key]`.
