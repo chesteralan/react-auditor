@@ -76,4 +76,8 @@ pub struct Cli {
     /// Disable incremental caching (re-scan all files)
     #[arg(long = "no-cache")]
     pub no_cache: bool,
+
+    /// Watch mode: re-scan on file changes
+    #[arg(short = 'W', long = "watch")]
+    pub watch: bool,
 }

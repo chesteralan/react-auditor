@@ -72,6 +72,11 @@ pub trait Rule: Send + Sync {
     fn fix(&self, _finding: &RuleFinding, _source_text: &str) -> Option<Fix> {
         None
     }
+
+    /// Whether this rule has auto-fix capability.
+    fn has_fix(&self) -> bool {
+        false
+    }
 }
 
 pub struct RuleFinding {

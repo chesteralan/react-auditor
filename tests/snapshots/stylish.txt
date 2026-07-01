@@ -1,0 +1,11 @@
+
+src/components/Button.tsx:
+[0m[36m  error  10:5  [0m[34m[quality/no-console][0m[31m  Unexpected console statement[0m
+[0m[36m  warning  15:3  [0m[34m[quality/no-var][0m[33m  Unexpected var, use let or const instead[0m
+
+src/App.tsx:
+[0m[36m  error  3:7  [0m[34m[react/no-missing-key][0m[31m  Missing key prop for list item[0m
+
+[0m[1m[31m  2 error(s)
+[0m[1m[33m  1 warning(s)
+[0m

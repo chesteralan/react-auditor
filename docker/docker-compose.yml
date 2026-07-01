@@ -1,0 +1,9 @@
+services:
+  react-auditor:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    command: src/ --fail-on error
+    volumes:
+      - ..:/app:ro
+    working_dir: /app

@@ -26,6 +26,7 @@ pub struct Scanner {
     pub severity_overrides: HashMap<String, String>,
     pub category_filter: Option<Vec<String>>,
     pub use_cache: bool,
+    pub file_type_overrides: HashMap<String, HashMap<String, String>>,
     ignore_patterns: Vec<String>,
 }
 
@@ -42,6 +43,7 @@ impl Scanner {
             severity_overrides,
             category_filter,
             use_cache: true,
+            file_type_overrides: HashMap::new(),
             ignore_patterns,
         }
     }
@@ -76,9 +78,26 @@ impl Scanner {
         files
     }
 
+    fn compute_merged_overrides_map(&self) -> HashMap<String, HashMap<String, String>> {
+        let mut map = HashMap::new();
+        for ext in self.file_type_overrides.keys() {
+            let mut merged = self.severity_overrides.clone();
+            if let Some(overrides) = self.file_type_overrides.get(ext.as_str()) {
+                for (rule_id, severity) in overrides {
+                    merged.insert(rule_id.clone(), severity.clone());
+                }
+            }
+            map.insert(ext.clone(), merged);
+        }
+        map
+    }
+
     pub fn scan(&self) -> Result<Vec<ScanResult>> {
         let mut cache = Cache::load();
         let all_paths = self.resolve_files()?;
+
+        // Pre-compute merged overrides per extension
+        let merged_map = self.compute_merged_overrides_map();
 
         // Filter to only scan files that changed or weren't cached as clean
         let paths: Vec<String> = if self.use_cache {
@@ -138,12 +157,19 @@ impl Scanner {
                 let program = allocator.alloc(ret.program);
                 let semantic = SemanticBuilder::new().build(program);
 
+                let overrides = if merged_map.is_empty() {
+                    &self.severity_overrides
+                } else {
+                    let ext = path.extension().and_then(|e| e.to_str()).unwrap_or("");
+                    merged_map.get(ext).unwrap_or(&self.severity_overrides)
+                };
+
                 let violations = self.registry.run_rules(
                     program,
                     &semantic.semantic,
                     &content,
                     path_str,
-                    &self.severity_overrides,
+                    overrides,
                     self.category_filter.as_ref(),
                 );
 
@@ -172,6 +198,87 @@ impl Scanner {
             }
         }
         cache.save();
+
+        if let Some(bar) = pb {
+            let v = results.iter().map(|r| r.violations.len()).sum::<usize>();
+            bar.finish_with_message(format!("{v} violation(s) in {} file(s)", results.len()));
+        }
+
+        Ok(results)
+    }
+
+    /// Scan a specific list of file paths without resolving globs / applying ignores.
+    pub fn scan_paths(&self, paths: &[String]) -> Result<Vec<ScanResult>> {
+        let total = paths.len();
+        let merged_map = self.compute_merged_overrides_map();
+
+        let pb = if total > 1 {
+            let bar = ProgressBar::new(total as u64);
+            bar.set_style(
+                ProgressStyle::default_bar()
+                    .template("{spinner:.green} [{bar:32.cyan/blue}] {pos}/{len}  {msg}")
+                    .unwrap()
+                    .progress_chars("=> "),
+            );
+            bar.set_message("scanning...");
+            Some(bar)
+        } else {
+            None
+        };
+
+        let results: Vec<ScanResult> = paths
+            .par_iter()
+            .filter_map(|path_str| {
+                if let Some(ref bar) = pb {
+                    bar.set_message(path_str.to_string());
+                }
+
+                let path = Path::new(path_str);
+                let content = std::fs::read_to_string(path).ok()?;
+                let source_type = SourceType::from_path(path).unwrap_or_default();
+                let allocator = Allocator::default();
+                let ret = Parser::new(&allocator, &content, source_type).parse();
+
+                if !ret.errors.is_empty() {
+                    if let Some(ref bar) = pb {
+                        bar.inc(1);
+                    }
+                    return None;
+                }
+
+                let program = allocator.alloc(ret.program);
+                let semantic = SemanticBuilder::new().build(program);
+
+                let overrides = if merged_map.is_empty() {
+                    &self.severity_overrides
+                } else {
+                    let ext = path.extension().and_then(|e| e.to_str()).unwrap_or("");
+                    merged_map.get(ext).unwrap_or(&self.severity_overrides)
+                };
+
+                let violations = self.registry.run_rules(
+                    program,
+                    &semantic.semantic,
+                    &content,
+                    path_str,
+                    overrides,
+                    self.category_filter.as_ref(),
+                );
+
+                if let Some(ref bar) = pb {
+                    bar.inc(1);
+                }
+
+                if violations.is_empty() {
+                    None
+                } else {
+                    Some(ScanResult {
+                        file_path: path_str.clone(),
+                        violations,
+                    })
+                }
+            })
+            .collect();
 
         if let Some(bar) = pb {
             let v = results.iter().map(|r| r.violations.len()).sum::<usize>();

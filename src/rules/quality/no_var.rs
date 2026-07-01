@@ -28,6 +28,10 @@ impl Rule for NoVar {
         collector.findings
     }
 
+    fn has_fix(&self) -> bool {
+        true
+    }
+
     fn fix(&self, finding: &RuleFinding, source_text: &str) -> Option<Fix> {
         let offset = crate::rules::line_col_to_offset(source_text, finding.line, finding.column)?;
         let after = &source_text[offset..];

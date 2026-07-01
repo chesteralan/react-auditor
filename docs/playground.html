@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>React Auditor Playground</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #1e1e2e; color: #cdd6f4; display: flex; flex-direction: column; height: 100vh; }
+  header { background: #181825; padding: 12px 24px; display: flex; align-items: center; gap: 16px; border-bottom: 1px solid #313244; }
+  header h1 { font-size: 18px; font-weight: 600; }
+  header span { opacity: .6; font-size: 13px; }
+  .main { display: flex; flex: 1; overflow: hidden; }
+  .panel { flex: 1; display: flex; flex-direction: column; }
+  .panel + .panel { border-left: 1px solid #313244; }
+  .panel-header { padding: 8px 16px; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: .5px; background: #181825; border-bottom: 1px solid #313244; color: #6c7086; }
+  textarea { flex: 1; background: #1e1e2e; color: #cdd6f4; border: none; padding: 16px; font-family: 'JetBrains Mono', 'Fira Code', monospace; font-size: 13px; line-height: 1.5; resize: none; outline: none; tab-size: 2; }
+  #output { flex: 1; background: #1e1e2e; padding: 16px; font-family: 'JetBrains Mono', 'Fira Code', monospace; font-size: 13px; line-height: 1.6; overflow-y: auto; white-space: pre-wrap; }
+  .error-line { color: #f38ba8; }
+  .warning-line { color: #f9e2af; }
+  .info-text { opacity: .5; }
+  .controls { display: flex; gap: 8px; padding: 10px 16px; background: #181825; border-bottom: 1px solid #313244; align-items: center; }
+  button { background: #45475a; color: #cdd6f4; border: none; padding: 6px 14px; border-radius: 4px; cursor: pointer; font-size: 12px; font-weight: 500; }
+  button:hover { background: #585b70; }
+  button.primary { background: #89b4fa; color: #1e1e2e; }
+  button.primary:hover { background: #74c7ec; }
+  select { background: #45475a; color: #cdd6f4; border: none; padding: 6px 10px; border-radius: 4px; font-size: 12px; }
+  .count { font-size: 12px; margin-left: auto; opacity: .6; }
+  .error { color: #f38ba8; }
+  .warning { color: #f9e2af; }
+</style>
+</head>
+<body>
+<header>
+  <h1>React Auditor</h1>
+  <span>Playground</span>
+</header>
+<div class="controls">
+  <select id="example">
+    <option value="basic">Basic example</option>
+    <option value="hooks">Hooks</option>
+    <option value="security">Security issues</option>
+    <option value="typescript">TypeScript issues</option>
+    <option value="nextjs">Next.js issues</option>
+  </select>
+  <button class="primary" onclick="run()">Run</button>
+  <button onclick="clearOutput()">Clear</button>
+  <span class="count" id="count"></span>
+</div>
+<div class="main">
+  <div class="panel">
+    <div class="panel-header">Source</div>
+    <textarea id="source" spellcheck="false"></textarea>
+  </div>
+  <div class="panel">
+    <div class="panel-header">Output</div>
+    <div id="output">Click "Run" to scan the source code.</div>
+  </div>
+</div>
+
+<script>
+const EXAMPLES = {
+  basic: `import React from 'react';
+import moment from 'moment';
+
+const App = () => {
+  var x = 10;
+  console.log(x);
+
+  return (
+    <div style={{ padding: 20 }}>
+      {items.map((item, index) => (
+        <div>{item.name}</div>
+      ))}
+    </div>
+  );
+};`,
+  hooks: `import { useState, useEffect } from 'react';
+
+function SearchResults({ query }) {
+  const [results, setResults] = useState([]);
+
+  useEffect(() => {
+    fetch('/api/search?q=' + query)
+      .then(r => r.json())
+      .then(setResults);
+  });
+
+  const items = results.map((r) => <li>{r}</li>);
+  return <ul>{items}</ul>;
+}`,
+  security: `import React from 'react';
+
+function Comment({ html }) {
+  return <div dangerouslySetInnerHTML={{ __html: html }} />;
+}
+
+function Login() {
+  const password = 'super-secret-123';
+  const token = 'ghp_xxxxxxxxxxxxxxxxxxxx';
+  return <a href="javascript:void(0)">Login</a>;
+}`,
+  typescript: `interface Props {
+  name: string;
+}
+
+function Greeting({ name }: any) {
+  const el = document.getElementById('root')!;
+  return <div>Hello {name}</div>;
+}`,
+  nextjs: `import Script from 'next/script';
+
+export default function Page() {
+  return (
+    <>
+      <Script src="/analytics.js" />
+      <a href="/about">About</a>
+      <img src="/hero.jpg" />
+    </>
+  );
+}`,
+};
+
+const sourceEl = document.getElementById('source');
+const outputEl = document.getElementById('output');
+const countEl = document.getElementById('count');
+const exampleEl = document.getElementById('example');
+
+// Load initial example
+sourceEl.value = EXAMPLES.basic;
+
+exampleEl.addEventListener('change', () => {
+  sourceEl.value = EXAMPLES[exampleEl.value] || '';
+  outputEl.textContent = 'Click "Run" to scan the source code.';
+  countEl.textContent = '';
+});
+
+function escapeHtml(s) {
+  return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+
+function clearOutput() {
+  outputEl.textContent = 'Click "Run" to scan the source code.';
+  countEl.textContent = '';
+}
+
+function formatOutput(results) {
+  if (!results || results.length === 0) return '<span class="info-text">No issues found</span>';
+
+  let html = '';
+  let errors = 0, warnings = 0;
+
+  for (const fileResult of results) {
+    if (!fileResult.violations || fileResult.violations.length === 0) continue;
+
+    html += '<strong>' + escapeHtml(fileResult.file_path) + ':</strong>\n';
+
+    for (const v of fileResult.violations) {
+      const cls = v.severity === 'error' ? 'error-line' : 'warning-line';
+      if (v.severity === 'error') errors++;
+      else warnings++;
+
+      html += '<span class="' + cls + '">'
+        + '  ' + v.severity + '  ' + v.line + ':' + v.column + '  '
+        + escapeHtml(v.ruleId || v.rule_id)
+        + '  ' + escapeHtml(v.message)
+        + '</span>\n';
+    }
+    html += '\n';
+  }
+
+  const summary = [];
+  if (errors > 0) summary.push('<span class="error">' + errors + ' error(s)</span>');
+  if (warnings > 0) summary.push('<span class="warning">' + warnings + ' warning(s)</span>');
+  if (summary.length > 0) html += summary.join(', ');
+
+  return html;
+}
+
+async function run() {
+  const source = sourceEl.value;
+  if (!source) return;
+
+  outputEl.textContent = 'Scanning...';
+  countEl.textContent = '';
+
+  try {
+    // Try POST to the API first
+    const res = await fetch('/api/scan', {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain' },
+      body: source,
+    });
+
+    if (res.ok) {
+      const data = await res.json();
+      outputEl.innerHTML = formatOutput(data);
+      const total = (data || []).reduce((s, r) => s + (r.violations?.length || 0), 0);
+      countEl.textContent = total + ' violation(s)';
+    } else {
+      throw new Error('API Error');
+    }
+  } catch {
+    // Fallback: show mock output for the examples
+    const mockResults = getMockResults(source);
+    outputEl.innerHTML = formatOutput(mockResults);
+    const total = (mockResults || []).reduce((s, r) => s + (r.violations?.length || 0), 0);
+    if (total > 0) {
+      countEl.textContent = total + ' violation(s) (estimated)';
+    }
+  }
+}
+
+function getMockResults(source) {
+  const violations = [];
+  const lines = source.split('\n');
+
+  lines.forEach((line, i) => {
+    const lineNum = i + 1;
+    if (/\bvar\s/.test(line)) violations.push({ line: lineNum, column: line.search(/var\s/) + 1, ruleId: 'no-var', severity: 'error', message: 'Use const or let instead of var' });
+    if (/console\.\w+/.test(line)) violations.push({ line: lineNum, column: line.search(/console/) + 1, ruleId: 'no-console', severity: 'warning', message: 'Unexpected console statement' });
+    if (/style\s*=\s*\{/.test(line) && /dangerouslySetInnerHTML/.test(line) === false) violations.push({ line: lineNum, column: line.search(/style\s*=/) + 1, ruleId: 'no-inline-styles', severity: 'warning', message: 'Avoid inline style prop' });
+    if (/\.map\(\s*\(/.test(line) && /key/.test(line) === false) violations.push({ line: lineNum, column: line.search(/\.map/) + 1, ruleId: 'no-missing-key', severity: 'error', message: 'Missing key prop in list' });
+    if (/dangerouslySetInnerHTML/.test(line)) violations.push({ line: lineNum, column: line.search(/dangerouslySetInnerHTML/) + 1, ruleId: 'no-dangerously-set-innerhtml', severity: 'error', message: 'Avoid dangerouslySetInnerHTML' });
+    if (/=\s*['"][^'"]*['"]/.test(line) && /password|secret|token|key|api_key/i.test(line)) violations.push({ line: lineNum, column: line.search(/=\s*['"]/) + 1, ruleId: 'no-hardcoded-secrets', severity: 'error', message: 'Hardcoded secret detected' });
+    if (/javascript:/.test(line)) violations.push({ line: lineNum, column: line.search(/javascript:/) + 1, ruleId: 'no-script-url', severity: 'error', message: 'No javascript: URLs' });
+    if (/: any[^a-zA-Z]/.test(line)) violations.push({ line: lineNum, column: line.search(/: any/) + 1, ruleId: 'no-explicit-any', severity: 'error', message: 'Avoid using any type' });
+    if (/!\s*[;,\)]/.test(line) || /!\s*$/.test(line.trim())) violations.push({ line: lineNum, column: Math.max(1, line.search(/!/) + 1), ruleId: 'no-non-null-assertion', severity: 'warning', message: 'Avoid non-null assertion' });
+    if (/from ['"]moment['"]/.test(line)) violations.push({ line: lineNum, column: line.search(/from/) + 1, ruleId: 'no-large-libraries', severity: 'warning', message: 'Avoid importing moment, use date-fns or dayjs instead' });
+    if (/<Script\s/.test(line) && !/strategy=/.test(line)) violations.push({ line: lineNum, column: line.search(/<Script/) + 1, ruleId: 'no-sync-script', severity: 'warning', message: 'Script should use strategy="afterInteractive"' });
+    if (/<a\s/.test(line) && !/href=["']https?:\/\//.test(line) && !/href=["']#/.test(line) && !/target=/.test(line)) violations.push({ line: lineNum, column: line.search(/<a\s/) + 1, ruleId: 'no-page-link', severity: 'warning', message: 'Use next/link instead of <a> for internal navigation' });
+    if (/<img\s/.test(line) && !/alt=/.test(line)) violations.push({ line: lineNum, column: line.search(/<img\s/) + 1, ruleId: 'img-alt', severity: 'error', message: 'Images must have alt text' });
+  });
+
+  return [{ file_path: 'playground.tsx', violations }];
+}
+</script>
+</body>
+</html>
