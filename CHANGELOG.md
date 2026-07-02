@@ -8,6 +8,14 @@
 
 # Changelog
 
+## [0.1.9](https://github.com/chesteralan/react-auditor/compare/v0.1.8...v0.1.9) (2026-07-02)
+
+
+### Bug Fixes
+
+* npm package no longer downloads binary from GitHub ([4bc8a2c](https://github.com/chesteralan/react-auditor/commit/4bc8a2c022653364279e32a6098a5c344fdf6dd0))
+* npm package no longer downloads binary from GitHub ([6ba983f](https://github.com/chesteralan/react-auditor/commit/6ba983f1dd81b8c8c327d9071357806100b1e7e2))
+
 ## [0.1.8](https://github.com/chesteralan/react-auditor/compare/v0.1.7...v0.1.8) (2026-07-02)
 
 
