@@ -397,8 +397,7 @@ fn version_binary() -> std::process::Command {
     if let Some(bin) = option_env!("CARGO_BIN_EXE_REACT_AUDITOR") {
         return std::process::Command::new(bin);
     }
-    let mut p = std::env::current_exe()
-        .expect("failed to get test binary path");
+    let mut p = std::env::current_exe().expect("failed to get test binary path");
     p.pop(); // remove test binary filename
     if p.file_name().and_then(|s| s.to_str()) == Some("deps") {
         p.pop(); // remove deps/ directory
