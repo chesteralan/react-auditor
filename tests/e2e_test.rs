@@ -394,12 +394,11 @@ fn e2e_no_empty_blocks_fix_removes_empty_blocks() {
 }
 
 fn version_binary() -> std::process::Command {
-    let bin = std::env::var_os("CARGO_BIN_EXE_REACT_AUDITOR")
-        .unwrap_or_else(|| {
-            let mut p = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
-            p.push("target/debug/react-auditor");
-            p.into_os_string()
-        });
+    let bin = std::env::var_os("CARGO_BIN_EXE_REACT_AUDITOR").unwrap_or_else(|| {
+        let mut p = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+        p.push("target/debug/react-auditor");
+        p.into_os_string()
+    });
     std::process::Command::new(bin)
 }
 
