@@ -1,10 +1,8 @@
 name: Publish Cargo Package
 
 on:
-  push:
-    tags:
-      - 'v*'
-  workflow_dispatch:
+  release:
+    types: [published]
 
 jobs:
   publish:
