@@ -13,9 +13,9 @@ All rules organized by category.
 | [heading-levels](heading-levels.md) | warning | Heading levels should not be skipped |
 | [a-has-content](a-has-content.md) | warning | Anchor and button elements should have text content or an aria-label |
 | [no-ambiguous-labels](no-ambiguous-labels.md) | warning | No duplicate or ambiguous label text |
-| [tabindex-no-positive](tabindex-no-positive.md) | error | Avoid positive tabIndex values; use 0 or -1 only |
+| [tabindex-no-positive](tabindex-no-positive.md) | error | Avoid positive tabIndex values; only 0 and -1 are valid |
 | [click-events-have-key-events](click-events-have-key-events.md) | warning | Elements with onClick must have a keyboard event handler |
-| [html-has-lang](html-has-lang.md) | error | `<html>` element must have a `lang` attribute |
+| [html-has-lang](html-has-lang.md) | error | <html> element must have a lang attribute |
 | [no-autofocus](no-autofocus.md) | warning | Avoid autoFocus attribute; it can cause usability issues |
 
 ## Nextjs

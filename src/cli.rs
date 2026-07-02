@@ -80,4 +80,8 @@ pub struct Cli {
     /// Watch mode: re-scan on file changes
     #[arg(short = 'W', long = "watch")]
     pub watch: bool,
+
+    /// Generate rule documentation in docs/rules/
+    #[arg(long = "docs")]
+    pub docs: bool,
 }

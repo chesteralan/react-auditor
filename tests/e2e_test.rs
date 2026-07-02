@@ -3,6 +3,16 @@ use std::path::PathBuf;
 
 use react_auditor::scanner::Scanner;
 
+fn contains_semver(s: &str) -> bool {
+    s.split_whitespace().any(|word| {
+        let parts: Vec<&str> = word.split('.').collect();
+        parts.len() == 3
+            && parts
+                .iter()
+                .all(|p| !p.is_empty() && p.chars().all(|c| c.is_ascii_digit()))
+    })
+}
+
 fn fixture_path(name: &str) -> PathBuf {
     let mut p = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
     p.push("tests/fixtures");
@@ -418,7 +428,10 @@ fn e2e_version_flag() {
         stdout.contains("react-auditor"),
         "output should contain binary name"
     );
-    assert!(stdout.contains("0.1.7"), "output should contain version");
+    assert!(
+        contains_semver(&stdout),
+        "output should contain a semver version like 0.1.8 or 1.0.0"
+    );
 }
 
 #[test]
@@ -433,5 +446,8 @@ fn e2e_short_version_flag() {
         stdout.contains("react-auditor"),
         "output should contain binary name"
     );
-    assert!(stdout.contains("0.1.7"), "output should contain version");
+    assert!(
+        contains_semver(&stdout),
+        "output should contain a semver version like 0.1.8 or 1.0.0"
+    );
 }

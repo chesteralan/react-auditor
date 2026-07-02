@@ -2,13 +2,12 @@ use std::collections::BTreeMap;
 use std::fs;
 use std::path::Path;
 
-use react_auditor::rules::RuleRegistry;
+use crate::rules::{RuleRegistry, Severity};
 
-fn main() {
+pub fn generate_docs() {
     let registry = RuleRegistry::new();
     let ids = registry.get_rule_ids();
 
-    // Collect rules grouped by category
     let mut categories: BTreeMap<&str, Vec<(&str, &str, &str)>> = BTreeMap::new();
 
     for id in &ids {
@@ -17,7 +16,7 @@ fn main() {
             categories.entry(meta.category).or_default().push((
                 meta.id,
                 meta.description,
-                meta.default_severity_str(),
+                severity_str(&meta.default_severity),
             ));
         }
     }
@@ -25,7 +24,6 @@ fn main() {
     let docs_dir = Path::new("docs/rules");
     fs::create_dir_all(docs_dir).expect("failed to create docs/rules");
 
-    // Generate per-rule pages
     for id in &ids {
         if let Some(rule) = registry.get_rule(id) {
             let meta = rule.meta();
@@ -41,7 +39,7 @@ fn main() {
                 ),
                 meta.id,
                 meta.category,
-                meta.default_severity_str(),
+                severity_str(&meta.default_severity),
                 if rule.has_fix() { "Yes" } else { "No" },
                 meta.description,
             );
@@ -50,7 +48,6 @@ fn main() {
         }
     }
 
-    // Generate index
     let mut index = String::from("# Rules\n\nAll rules organized by category.\n\n");
     for (category, rules) in &categories {
         index.push_str(&format!("## {}\n\n", capitalize(category)));
@@ -66,24 +63,18 @@ fn main() {
     println!("wrote {}", index_path.display());
 }
 
+fn severity_str(s: &Severity) -> &str {
+    match s {
+        Severity::Error => "error",
+        Severity::Warning => "warning",
+        Severity::Off => "off",
+    }
+}
+
 fn capitalize(s: &str) -> String {
     let mut chars = s.chars();
     match chars.next() {
         None => String::new(),
         Some(c) => c.to_uppercase().to_string() + chars.as_str(),
-    }
-}
-
-trait DefaultSeverityStr {
-    fn default_severity_str(&self) -> &str;
-}
-
-impl DefaultSeverityStr for react_auditor::rules::RuleMeta {
-    fn default_severity_str(&self) -> &str {
-        match self.default_severity {
-            react_auditor::rules::Severity::Error => "error",
-            react_auditor::rules::Severity::Warning => "warning",
-            react_auditor::rules::Severity::Off => "off",
-        }
     }
 }
