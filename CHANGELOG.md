@@ -1,3 +1,8 @@
+## [0.3.1](https://github.com/chesteralan/react-auditor/compare/v0.1.11...v0.3.1) (2026-07-03)
+
+
+# Changelog
+
 ## [0.1.11](https://github.com/chesteralan/react-auditor/compare/v0.1.10...v0.1.11) (2026-07-03)
 
 
