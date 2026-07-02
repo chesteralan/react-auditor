@@ -1,5 +1,18 @@
 # Changelog
 
+## [0.1.8](https://github.com/chesteralan/react-auditor/compare/v0.1.7...v0.1.8) (2026-07-02)
+
+
+### Features
+
+* --docs flag generates rule docs in docs/rules/ ([e4d26be](https://github.com/chesteralan/react-auditor/commit/e4d26bed8552810c535183b837a2115faedb9f32))
+
+
+### Bug Fixes
+
+* npm bin wrapper uses wrapper.js to avoid shell-script recursion ([ce31146](https://github.com/chesteralan/react-auditor/commit/ce31146feacff3de0751956e5cf81e9341fcc605))
+
+
 ## [0.1.7](https://github.com/chesteralan/react-auditor/compare/v0.1.6...v0.1.7) (2026-07-02)
 
 
