@@ -13,6 +13,11 @@ use react_auditor::scanner::Scanner;
 fn main() -> anyhow::Result<()> {
     let cli = Cli::parse();
 
+    if cli.docs {
+        react_auditor::docs::generate_docs();
+        return Ok(());
+    }
+
     let config = Config::load(cli.config.as_ref().map(Path::new))?;
 
     let files = if cli.files.is_empty() {
