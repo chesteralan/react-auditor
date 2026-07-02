@@ -8,6 +8,14 @@
 
 # Changelog
 
+## [0.3.0](https://github.com/chesteralan/react-auditor/compare/v0.2.0...v0.3.0) (2026-07-02)
+
+
+### Features
+
+* remove push trigger for release-please branch ([0b95fc8](https://github.com/chesteralan/react-auditor/commit/0b95fc80e37d1756afb8da6a1fcab8280c0cdf88))
+* remove push trigger for release-please branch ([a7e4684](https://github.com/chesteralan/react-auditor/commit/a7e468429b13b77ae11d912ad6b34931ab0221f2))
+
 ## [0.2.0](https://github.com/chesteralan/react-auditor/compare/v0.1.9...v0.2.0) (2026-07-02)
 
 
