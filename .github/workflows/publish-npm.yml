@@ -22,12 +22,14 @@ jobs:
           node-version: 22
           registry-url: https://registry.npmjs.org
 
-      - name: Update PKG_VERSION in install.js
-        working-directory: npm
-        run: |
-          VERSION=$(node -p "require('./package.json').version")
-          sed -i "s/^const PKG_VERSION = \".*\";/const PKG_VERSION = \"$VERSION\";/" install.js
-          echo "install.js PKG_VERSION set to $VERSION"
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Build release binary
+        run: cargo build --release
+
+      - name: Copy binary into npm package
+        run: cp target/release/react-auditor npm/
 
       - name: Publish to npmjs
         working-directory: npm

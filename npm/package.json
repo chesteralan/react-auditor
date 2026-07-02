@@ -5,9 +5,7 @@
   "bin": {
     "react-auditor": "./wrapper.js"
   },
-  "scripts": {
-    "prepack": "cargo build --release --manifest-path ../Cargo.toml && cp ../target/release/react-auditor ."
-  },
+  "scripts": {},
   "repository": {
     "type": "git",
     "url": "https://github.com/chesteralan/react-auditor"
