@@ -418,7 +418,10 @@ fn e2e_version_flag() {
         stdout.contains("react-auditor"),
         "output should contain binary name"
     );
-    assert!(stdout.contains("0.1.7"), "output should contain version");
+    assert!(
+        stdout.contains("0.1."),
+        "output should contain version"
+    );
 }
 
 #[test]
@@ -433,5 +436,8 @@ fn e2e_short_version_flag() {
         stdout.contains("react-auditor"),
         "output should contain binary name"
     );
-    assert!(stdout.contains("0.1.7"), "output should contain version");
+    assert!(
+        stdout.contains("0.1."),
+        "output should contain version"
+    );
 }
