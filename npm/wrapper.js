@@ -18,10 +18,9 @@ const bin = findBinary();
 if (!bin) {
   console.error(
     "react-auditor binary not found.\n" +
-      "Install it first:\n" +
+      "This should be bundled with the npm package. Reinstall, or install via:\n" +
       "  cargo install react-auditor\n" +
-      "  brew install react-auditor\n" +
-      "  npm install -g react-auditor"
+      "  brew install react-auditor"
   );
   process.exit(1);
 }

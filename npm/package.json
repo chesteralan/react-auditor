@@ -1,11 +1,13 @@
 {
   "name": "react-auditor",
-  "version": "0.1.8",
+  "version": "0.1.9",
   "description": "A blazing-fast Rust CLI to scan JS/TS/React code for best practices, quality, and security issues",
   "bin": {
     "react-auditor": "./wrapper.js"
   },
-  "scripts": {},
+  "scripts": {
+    "prepack": "cargo build --release --manifest-path ../Cargo.toml && cp ../target/release/react-auditor ."
+  },
   "repository": {
     "type": "git",
     "url": "https://github.com/chesteralan/react-auditor"
