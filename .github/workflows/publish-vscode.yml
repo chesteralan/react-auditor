@@ -18,6 +18,15 @@ jobs:
           node-version: 22
           registry-url: https://registry.npmjs.org
 
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Build release binary
+        run: cargo build --release
+
+      - name: Copy binary into extension
+        run: cp target/release/react-auditor vscode/
+
       - name: Install vsce
         run: npm install -g @vscode/vsce
 

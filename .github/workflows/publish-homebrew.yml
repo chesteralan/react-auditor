@@ -1,8 +1,9 @@
 name: Publish Homebrew Formula
 
 on:
-  release:
-    types: [published]
+  workflow_run:
+    workflows: ["Release"]
+    types: [completed]
   workflow_dispatch:
     inputs:
       version:
@@ -11,6 +12,7 @@ on:
 
 jobs:
   publish:
+    if: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -19,8 +21,8 @@ jobs:
       - name: Determine version
         id: version
         run: |
-          if [ "${{ github.event_name }}" = "release" ]; then
-            TAG="${{ github.event.release.tag_name }}"
+          if [ "${{ github.event_name }}" = "workflow_run" ]; then
+            TAG="${{ github.event.workflow_run.head_branch }}"
             VERSION="${TAG#v}"
             echo "version=$VERSION" >> "$GITHUB_OUTPUT"
             echo "tag=$TAG" >> "$GITHUB_OUTPUT"
@@ -28,9 +30,6 @@ jobs:
             echo "version=${{ inputs.version }}" >> "$GITHUB_OUTPUT"
             echo "tag=v${{ inputs.version }}" >> "$GITHUB_OUTPUT"
           fi
-
-      - name: Wait for release artifacts to be available
-        run: sleep 300
 
       - name: Download release archives
         env:

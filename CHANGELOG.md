@@ -1,9 +1,9 @@
-## [0.1.9](https://github.com/chesteralan/react-auditor/compare/v0.1.8...v0.1.9) (2026-07-02)
+## [0.1.10](https://github.com/chesteralan/react-auditor/compare/v0.1.9...v0.1.10) (2026-07-02)
 
 
 ### Features
 
-* npm package bundles prebuilt binary via prepack script ([6ba983f](https://github.com/chesteralan/react-auditor/commit/6ba983fd9e8c0aad369aab2a0cc3ecb6998287ab))
+* npm package bundles binary via publish workflow ([a61d755](https://github.com/chesteralan/react-auditor/commit/a61d7555e7cb89a802e3547e01912bf0273d66e6))
 
 
 # Changelog
