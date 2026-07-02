@@ -167,6 +167,8 @@ impl RuleRegistry {
         self.rules.push(Box::new(
             react::no_ref_in_component_name::NoRefInComponentName,
         ));
+        self.rules
+            .push(Box::new(react::no_forward_ref::NoForwardRef));
         // ── Phase 6: TypeScript ──
         self.rules.push(Box::new(typescript::no_any::NoAny));
         self.rules.push(Box::new(
@@ -228,6 +230,16 @@ impl RuleRegistry {
         self.rules.push(Box::new(
             performance::no_ambiguous_labels::NoAmbiguousLabels,
         ));
+        self.rules.push(Box::new(
+            performance::tabindex_no_positive::TabindexNoPositive,
+        ));
+        self.rules.push(Box::new(
+            performance::click_events_have_key_events::ClickEventsHaveKeyEvents,
+        ));
+        self.rules
+            .push(Box::new(performance::html_has_lang::HtmlHasLang));
+        self.rules
+            .push(Box::new(performance::no_autofocus::NoAutofocus));
         // ── Phase 12: Next.js ──
         self.rules
             .push(Box::new(nextjs::no_img_element::NoImgElement));
