@@ -2,7 +2,7 @@
 
 A blazing-fast Rust CLI to scan JS/TS/React code for best practices, quality, security, performance, Next.js, and accessibility issues.
 
-Powered by [oxc](https://oxc.rs/) — parallel scanning at ~138µs per 1k LOC. 62 rules across 7 categories.
+Powered by [oxc](https://oxc.rs/) — parallel scanning at ~138µs per 1k LOC. 67 rules across 7 categories.
 
 ## Usage
 

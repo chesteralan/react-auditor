@@ -13,6 +13,10 @@ All rules organized by category.
 | [heading-levels](heading-levels.md) | warning | Heading levels should not be skipped |
 | [a-has-content](a-has-content.md) | warning | Anchor and button elements should have text content or an aria-label |
 | [no-ambiguous-labels](no-ambiguous-labels.md) | warning | No duplicate or ambiguous label text |
+| [tabindex-no-positive](tabindex-no-positive.md) | error | Avoid positive tabIndex values; use 0 or -1 only |
+| [click-events-have-key-events](click-events-have-key-events.md) | warning | Elements with onClick must have a keyboard event handler |
+| [html-has-lang](html-has-lang.md) | error | `<html>` element must have a `lang` attribute |
+| [no-autofocus](no-autofocus.md) | warning | Avoid autoFocus attribute; it can cause usability issues |
 
 ## Nextjs
 
@@ -72,6 +76,7 @@ All rules organized by category.
 | [jsx-no-duplicate-props](jsx-no-duplicate-props.md) | error | Duplicate props are not allowed in JSX |
 | [no-direct-mutation](no-direct-mutation.md) | warning | Avoid direct mutation of state or props — use setState or dispatch |
 | [no-ref-in-component-name](no-ref-in-component-name.md) | warning | Component names should not contain 'Ref' |
+| [no-forward-ref](no-forward-ref.md) | warning | forwardRef is deprecated in React 19; use ref as a prop instead |
 
 ## Security
 

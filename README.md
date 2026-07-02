@@ -2,7 +2,7 @@
 
 **A blazing-fast Rust CLI to scan JS/TS/React code for best practices, quality, security, performance, Next.js, and accessibility issues.**
 
-Powered by [oxc](https://oxc.rs/) — parallel scanning at ~138µs per 1k LOC. 62 rules across 7 categories.
+Powered by [oxc](https://oxc.rs/) — parallel scanning at ~138µs per 1k LOC. 67 rules across 7 categories.
 
 ## Installation
 
@@ -91,15 +91,15 @@ react-auditor --format compact   # one-line per violation
 react-auditor --quiet            # errors only, no warnings
 ```
 
-## Rules (62 total)
+## Rules (67 total)
 
 | Category | Count | Rule IDs |
 |----------|-------|----------|
 | Code Quality | 13 | `no-console`, `no-empty-blocks`, `no-var`, `max-params`, `no-long-functions`, `prefer-early-return`, `no-commented-code`, `no-deep-nesting`, `no-magic-numbers`, `consistent-return`, `no-unused-vars`, `no-shadow`, `complexity` |
-| React | 16 | `no-missing-key`, `no-inline-styles`, `consistent-component-naming`, `no-index-key`, `no-inline-functions`, `prefer-function-components`, `no-unnecessary-memo`, `no-multiple-render-methods`, `no-side-effects-in-render`, `hook-rules`, `no-missing-deps`, `no-set-state-in-effect`, `no-set-state-in-render`, `jsx-no-duplicate-props`, `no-direct-mutation`, `no-ref-in-component-name` |
+| React | 17 | `no-missing-key`, `no-inline-styles`, `consistent-component-naming`, `no-index-key`, `no-inline-functions`, `prefer-function-components`, `no-unnecessary-memo`, `no-multiple-render-methods`, `no-side-effects-in-render`, `hook-rules`, `no-missing-deps`, `no-set-state-in-effect`, `no-set-state-in-render`, `jsx-no-duplicate-props`, `no-direct-mutation`, `no-ref-in-component-name`, `no-forward-ref` |
 | TypeScript | 9 | `no-any`, `no-non-null-assertion`, `no-type-assertion`, `no-empty-interface`, `consistent-type-imports`, `explicit-return-type`, `strict-null-checks`, `prefer-interface`, `no-explicit-any` |
 | Security | 7 | `no-dangerously-set-innerhtml`, `no-eval`, `no-script-url`, `no-hardcoded-secrets`, `no-unsanitized-input`, `no-insecure-protocol`, `no-unsafe-iframe` |
-| Accessibility | 7 | `img-alt`, `button-has-type`, `label-associated`, `aria-valid`, `heading-levels`, `a-has-content`, `no-ambiguous-labels` |
+| Accessibility | 11 | `img-alt`, `button-has-type`, `label-associated`, `aria-valid`, `heading-levels`, `a-has-content`, `no-ambiguous-labels`, `tabindex-no-positive`, `click-events-have-key-events`, `html-has-lang`, `no-autofocus` |
 | Performance | 5 | `prefer-fragments`, `no-bind-in-jsx`, `no-heavy-computation-in-render`, `lazy-load-components`, `no-large-libraries` |
 | Next.js | 5 | `no-img-element`, `no-script-tag-in-head`, `no-page-link`, `no-head-element`, `no-sync-script` |
 
