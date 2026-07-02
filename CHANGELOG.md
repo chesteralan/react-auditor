@@ -3,6 +3,13 @@
 ## [0.1.8](https://github.com/chesteralan/react-auditor/compare/v0.1.7...v0.1.8) (2026-07-02)
 
 
+### Bug Fixes
+
+* **tests:** make version checks resilient to patch bumps ([a427f8f](https://github.com/chesteralan/react-auditor/commit/a427f8f4edca3fff68c7486a1309bd2746998b17))
+
+## [0.1.8](https://github.com/chesteralan/react-auditor/compare/v0.1.7...v0.1.8) (2026-07-02)
+
+
 ### Features
 
 * --docs flag generates rule docs in docs/rules/ ([e4d26be](https://github.com/chesteralan/react-auditor/commit/e4d26bed8552810c535183b837a2115faedb9f32))
