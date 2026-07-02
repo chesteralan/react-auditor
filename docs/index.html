@@ -25,7 +25,7 @@
       color: var(--text);
       line-height: 1.6;
     }
-    .container { max-width: 900px; margin: 0 auto; padding: 0 24px; }
+    .container { max-width: 960px; margin: 0 auto; padding: 0 24px; }
     header {
       padding: 64px 0 48px;
       border-bottom: 1px solid var(--border);
@@ -37,7 +37,7 @@
       font-size: 1.2rem;
       color: var(--text-muted);
       margin-top: 12px;
-      max-width: 600px;
+      max-width: 640px;
       margin-left: auto;
       margin-right: auto;
     }
@@ -54,7 +54,7 @@
     .badge.green { border-color: var(--green); color: var(--green); }
     .badge.orange { border-color: var(--orange); color: var(--orange); }
     .badge.blue { border-color: var(--accent); color: var(--accent); }
-
+    .badge.purple { border-color: #d2a8ff; color: #d2a8ff; }
     section { padding: 48px 0; border-bottom: 1px solid var(--border); }
     h2 { font-size: 1.5rem; margin-bottom: 20px; }
     h2 .count {
@@ -73,7 +73,7 @@
       border-radius: 8px;
       padding: 20px;
     }
-    .card h3 { font-size: 1.1rem; margin-bottom: 8px; }
+    .card h4 { font-size: 1.1rem; margin-bottom: 8px; }
     .card p { font-size: .9rem; color: var(--text-muted); }
     .card .rule-count {
       display: inline-block;
@@ -82,7 +82,6 @@
       font-family: var(--mono);
       color: var(--accent);
     }
-
     pre {
       background: var(--surface);
       border: 1px solid var(--border);
@@ -96,8 +95,38 @@
     code { font-family: var(--mono); }
     .cmd { color: var(--green); }
     .comment { color: var(--text-muted); }
-    .install-steps { display: flex; flex-direction: column; gap: 16px; }
-
+    .install-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 16px;
+      margin-top: 16px;
+    }
+    .install-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 16px 20px;
+    }
+    .install-card pre { margin-top: 8px; border: none; padding: 0; background: transparent; }
+    ul.feature-list {
+      list-style: none;
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 12px;
+    }
+    ul.feature-list li {
+      padding: 8px 12px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      font-size: .9rem;
+    }
+    ul.feature-list li::before {
+      content: "\2713";
+      color: var(--green);
+      margin-right: 8px;
+      font-weight: 700;
+    }
     footer {
       text-align: center;
       padding: 32px 0;
@@ -114,60 +143,102 @@
       <h1><span>react</span>-auditor</h1>
       <p class="tagline">
         A blazing-fast Rust CLI that scans your JS/TS/React codebase for best practices,
-        quality, security, performance, and accessibility issues.
+        quality, security, performance, Next.js, and accessibility issues.
       </p>
       <div class="badges">
-        <span class="badge green">43 rules</span>
-        <span class="badge orange">Rust + oxc</span>
+        <span class="badge green">62 rules</span>
+        <span class="badge orange">Rust + oxc 0.138</span>
         <span class="badge blue">MIT license</span>
-        <span class="badge">5 platforms</span>
+        <span class="badge purple">~138us / 1k LOC</span>
+        <span class="badge">6 platforms</span>
       </div>
     </header>
 
     <section>
-      <h2>Quick Install</h2>
-      <div class="install-steps">
-        <pre><span class="comment"># Via npm (recommended)</span>
-$ npm install -g react-auditor</pre>
-        <pre><span class="comment"># Via Cargo</span>
-$ cargo install react-auditor</pre>
-        <pre><span class="comment"># Scan your project</span>
-$ react-auditor</pre>
+      <h2>Install</h2>
+      <div class="install-grid">
+        <div class="install-card">
+          <strong>npm</strong>
+          <pre>$ npm install -g react-auditor</pre>
+        </div>
+        <div class="install-card">
+          <strong>Cargo</strong>
+          <pre>$ cargo install react-auditor</pre>
+        </div>
+        <div class="install-card">
+          <strong>Homebrew</strong>
+          <pre>$ brew install react-auditor</pre>
+        </div>
+        <div class="install-card">
+          <strong>Docker</strong>
+          <pre>$ docker run ghcr.io/chesteralan/react-auditor src/</pre>
+        </div>
+        <div class="install-card">
+          <strong>VS Code</strong>
+          <pre>Install from marketplace</pre>
+        </div>
+        <div class="install-card">
+          <strong>GitHub Action</strong>
+          <pre>uses: ./.github/actions/react-auditor</pre>
+        </div>
       </div>
     </section>
 
     <section>
-      <h2>Rule Categories <span class="count">(43 rules total)</span></h2>
+      <h2>Key Features</h2>
+      <ul class="feature-list">
+        <li>Parallel scanning (rayon)</li>
+        <li>Watch mode (-W / --watch)</li>
+        <li>Incremental caching</li>
+        <li>Multi-root workspaces</li>
+        <li>Per-file-type rule config</li>
+        <li>Auto-fix (--fix)</li>
+        <li>--fail-on severity</li>
+        <li>--category filter</li>
+        <li>--ignore patterns</li>
+        <li>stylish / json / compact</li>
+        <li>Progress bar (indicatif)</li>
+        <li>VS Code extension</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>Rule Categories <span class="count">(62 rules total)</span></h2>
       <div class="card-grid">
         <div class="card">
-          <h3>Code Quality</h3>
-          <p>No unused vars, no shadowing, consistent returns, complexity caps, and more.</p>
+          <h4>Code Quality</h4>
+          <p>No unused vars, no shadowing, consistent returns, complexity caps, no console, no empty blocks, no var, max params, no long functions, prefer early return, no commented code, no deep nesting, no magic numbers.</p>
           <span class="rule-count">13 rules</span>
         </div>
         <div class="card">
-          <h3>React</h3>
-          <p>Hooks rules, missing keys, inline styles, effect deps, setState safety.</p>
-          <span class="rule-count">13 rules</span>
+          <h4>React</h4>
+          <p>Hooks rules, missing keys, inline styles, effect deps, direct mutation, duplicate props, component naming, index keys, inline functions, function components, unnecessary memo, multiple render methods, side effects in render, setState in effect/render, ref in component name.</p>
+          <span class="rule-count">16 rules</span>
         </div>
         <div class="card">
-          <h3>TypeScript</h3>
-          <p>No any, no non-null assertions, strict null checks, explicit return types.</p>
-          <span class="rule-count">8 rules</span>
+          <h4>TypeScript</h4>
+          <p>No any, no non-null assertions, no type assertions, no empty interfaces, consistent type imports, explicit return types, strict null checks, prefer interface, no explicit any.</p>
+          <span class="rule-count">9 rules</span>
         </div>
         <div class="card">
-          <h3>Security</h3>
-          <p>No eval, no dangerouslySetInnerHTML, no hardcoded secrets, no script URLs.</p>
-          <span class="rule-count">6 rules</span>
+          <h4>Security</h4>
+          <p>No eval, no dangerouslySetInnerHTML, no hardcoded secrets, no script URLs, no unsanitized input, no insecure protocols, no unsafe iframes.</p>
+          <span class="rule-count">7 rules</span>
         </div>
         <div class="card">
-          <h3>Accessibility</h3>
-          <p>img alt, button type, label associations, heading levels, valid ARIA attributes.</p>
+          <h4>Accessibility</h4>
+          <p>img alt, button type, label associations, valid ARIA, heading levels, link/button content, no ambiguous labels.</p>
+          <span class="rule-count">7 rules</span>
+        </div>
+        <div class="card">
+          <h4>Performance</h4>
+          <p>Prefer fragments, no bind in JSX, lazy loading, no heavy computation in render, no large libraries.</p>
           <span class="rule-count">5 rules</span>
         </div>
         <div class="card">
-          <h3>Performance</h3>
-          <p>Prefer fragments, no bind in JSX, lazy loading, no heavy computation in render.</p>
-          <span class="rule-count">4 rules</span>
+          <h4>Next.js</h4>
+          <p>Use Image instead of img, Script instead of script, Link instead of a, Head instead of head, async scripts.</p>
+          <span class="rule-count">5 rules</span>
         </div>
       </div>
     </section>
@@ -186,8 +257,11 @@ $ react-auditor --rules react,typescript,security
 <span class="comment"># Auto-fix where supported</span>
 $ react-auditor --fix
 
-<span class="comment"># Fail CI on more than 10 warnings</span>
-$ react-auditor --max-warnings 10
+<span class="comment"># Fail CI on errors only</span>
+$ react-auditor --fail-on error
+
+<span class="comment"># Watch mode</span>
+$ react-auditor -W
 
 <span class="comment"># Write JSON log</span>
 $ react-auditor --log audit.json</pre>
@@ -207,10 +281,29 @@ $ react-auditor --log audit.json</pre>
 }</pre>
     </section>
 
+    <section>
+      <h2>Configuration</h2>
+      <p style="margin-bottom:16px;color:var(--text-muted);">
+        Create <code>.rauditrc.toml</code> in your project root:
+      </p>
+      <pre><span class="comment"># Enable/disable rules per severity</span>
+<span style="color:#d2a8ff">"no-console"</span> = <span style="color:#a5d6ff">"warning"</span>
+<span style="color:#d2a8ff">"no-var"</span> = <span style="color:#a5d6ff">"error"</span>
+<span style="color:#d2a8ff">"no-magic-numbers"</span> = <span style="color:#a5d6ff">"off"</span>
+
+<span class="comment"># Workspace roots and per-file-type overrides</span>
+<span style="color:#d2a8ff">workspaces</span> = [<span style="color:#a5d6ff">"packages/*"</span>]
+
+<span class="comment">[file_types]</span>
+<span class="comment"># Disable TS rules in .jsx files</span>
+<span style="color:#d2a8ff">".jsx"</span> = { <span style="color:#d2a8ff">"no-explicit-any"</span> = <span style="color:#a5d6ff">"off"</span> }</pre>
+    </section>
+
     <footer>
       <p>
         MIT &mdash; <a href="https://github.com/chesteralan/react-auditor">GitHub</a>
         &middot; <a href="https://github.com/chesteralan/react-auditor/issues">Issues</a>
+        &middot; <a href="https://www.npmjs.com/package/react-auditor">npm</a>
       </p>
     </footer>
   </div>
