@@ -4,7 +4,7 @@ const { existsSync, chmodSync, createWriteStream, unlinkSync, readFileSync } = r
 const { get } = require("https");
 const { join } = require("path");
 const { platform, arch } = require("os");
-const { execSync } = require("child_process");
+const { execSync, execFileSync } = require("child_process");
 
 const PKG_VERSION = "0.1.6";
 const REPO = "chesteralan/react-auditor";
@@ -30,9 +30,28 @@ const archiveName = `react-auditor-${target}-v${PKG_VERSION}${archiveExt}`;
 const url = `https://github.com/${REPO}/releases/download/v${PKG_VERSION}/${archiveName}`;
 const dest = join(__dirname, binaryName);
 
+function getInstalledVersion(binPath) {
+  try {
+    const output = execFileSync(binPath, ["--version"], {
+      encoding: "utf8",
+      stdio: ["ignore", "pipe", "pipe"],
+    }).trim();
+    const match = output.match(/\d+\.\d+\.\d+(?:[-+][0-9A-Za-z.-]+)?/);
+    return match ? match[0] : null;
+  } catch (_) {
+    return null;
+  }
+}
+
 if (existsSync(dest)) {
-  console.log("react-auditor binary already installed");
-  process.exit(0);
+  const installedVersion = getInstalledVersion(dest);
+  if (installedVersion === PKG_VERSION) {
+    console.log(`react-auditor v${PKG_VERSION} is already installed`);
+    process.exit(0);
+  }
+  console.log(
+    `Found existing react-auditor ${installedVersion ? `v${installedVersion}` : "(unknown version)"}; installing v${PKG_VERSION}...`
+  );
 }
 
 console.log(`Downloading react-auditor v${PKG_VERSION} for ${target}...`);
