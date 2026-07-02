@@ -8,6 +8,13 @@
 
 # Changelog
 
+## [0.2.0](https://github.com/chesteralan/react-auditor/compare/v0.1.9...v0.2.0) (2026-07-02)
+
+
+### Features
+
+* update npm package version to v0.1.10 ([007c099](https://github.com/chesteralan/react-auditor/commit/007c0997c8aca9e20e50a9279e36ebb41fa3344f))
+
 ## [0.1.9](https://github.com/chesteralan/react-auditor/compare/v0.1.8...v0.1.9) (2026-07-02)
 
 
