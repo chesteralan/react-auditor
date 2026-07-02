@@ -2,20 +2,26 @@ class ReactAuditor < Formula
   desc "Fast Rust-based linter for React, TypeScript, and web security"
   homepage "https://github.com/chesteralan/react-auditor"
   license "MIT"
+  version "VERSION_PLACEHOLDER"
 
   on_macos do
     if Hardware::CPU.arm?
-      url "https://github.com/chesteralan/react-auditor/releases/download/v0.1.4/react-auditor-aarch64-apple-darwin-v0.1.4.tar.gz"
-      sha256 "0000000000000000000000000000000000000000000000000000000000000000" # placeholder
+      url "https://github.com/chesteralan/react-auditor/releases/download/vVERSION_PLACEHOLDER/react-auditor-aarch64-apple-darwin-vVERSION_PLACEHOLDER.tar.gz"
+      sha256 "MACOS_ARM_SHA256"
     else
-      url "https://github.com/chesteralan/react-auditor/releases/download/v0.1.4/react-auditor-x86_64-apple-darwin-v0.1.4.tar.gz"
-      sha256 "0000000000000000000000000000000000000000000000000000000000000000" # placeholder
+      url "https://github.com/chesteralan/react-auditor/releases/download/vVERSION_PLACEHOLDER/react-auditor-x86_64-apple-darwin-vVERSION_PLACEHOLDER.tar.gz"
+      sha256 "MACOS_X64_SHA256"
     end
   end
 
   on_linux do
-    url "https://github.com/chesteralan/react-auditor/releases/download/v0.1.4/react-auditor-x86_64-unknown-linux-gnu-v0.1.4.tar.gz"
-    sha256 "0000000000000000000000000000000000000000000000000000000000000000" # placeholder
+    if Hardware::CPU.arm?
+      url "https://github.com/chesteralan/react-auditor/releases/download/vVERSION_PLACEHOLDER/react-auditor-aarch64-unknown-linux-gnu-vVERSION_PLACEHOLDER.tar.gz"
+      sha256 "LINUX_ARM_SHA256"
+    else
+      url "https://github.com/chesteralan/react-auditor/releases/download/vVERSION_PLACEHOLDER/react-auditor-x86_64-unknown-linux-gnu-vVERSION_PLACEHOLDER.tar.gz"
+      sha256 "LINUX_X64_SHA256"
+    end
   end
 
   def install
