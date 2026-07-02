@@ -3,7 +3,7 @@
   "version": "0.1.9",
   "description": "A blazing-fast Rust CLI to scan JS/TS/React code for best practices, quality, and security issues",
   "bin": {
-    "react-auditor": "./wrapper.js"
+    "react-auditor": "./react-auditor"
   },
   "scripts": {},
   "repository": {

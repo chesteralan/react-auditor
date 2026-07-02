@@ -4,7 +4,7 @@ A blazing-fast Rust CLI to scan JS/TS/React code for best practices, quality, se
 
 Powered by [oxc](https://oxc.rs/) — parallel scanning at ~138µs per 1k LOC. 67 rules across 7 categories.
 
-This npm package bundles the prebuilt `react-auditor` binary. No additional installation needed.
+The binary is bundled with the npm package — no additional installation needed.
 
 ## Usage
 
