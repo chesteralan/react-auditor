@@ -42,8 +42,7 @@ impl<'a> Visit<'a> for AutofocusCollector<'a> {
             {
                 let start = a.span.start as usize;
                 let line = self.source[..start].lines().count().max(1);
-                let col =
-                    start - self.source[..start].rfind('\n').map(|i| i + 1).unwrap_or(0);
+                let col = start - self.source[..start].rfind('\n').map(|i| i + 1).unwrap_or(0);
                 self.findings.push(RuleFinding {
                     line,
                     column: col + 1,

@@ -48,11 +48,7 @@ impl<'a> Visit<'a> for TabindexCollector<'a> {
                 {
                     let start = el.span.start as usize;
                     let line = self.source[..start].lines().count().max(1);
-                    let col = start
-                        - self.source[..start]
-                            .rfind('\n')
-                            .map(|i| i + 1)
-                            .unwrap_or(0);
+                    let col = start - self.source[..start].rfind('\n').map(|i| i + 1).unwrap_or(0);
                     self.findings.push(RuleFinding {
                         line,
                         column: col + 1,
@@ -68,18 +64,11 @@ impl<'a> Visit<'a> for TabindexCollector<'a> {
                 {
                     let start = el.span.start as usize;
                     let line = self.source[..start].lines().count().max(1);
-                    let col = start
-                        - self.source[..start]
-                            .rfind('\n')
-                            .map(|i| i + 1)
-                            .unwrap_or(0);
+                    let col = start - self.source[..start].rfind('\n').map(|i| i + 1).unwrap_or(0);
                     self.findings.push(RuleFinding {
                         line,
                         column: col + 1,
-                        message: format!(
-                            "tabIndex=\"{}\" is positive; use 0 or -1 only",
-                            n
-                        ),
+                        message: format!("tabIndex=\"{}\" is positive; use 0 or -1 only", n),
                     });
                 }
             }
