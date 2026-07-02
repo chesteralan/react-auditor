@@ -8,6 +8,14 @@
 
 # Changelog
 
+## [0.3.1](https://github.com/chesteralan/react-auditor/compare/v0.3.0...v0.3.1) (2026-07-02)
+
+
+### Bug Fixes
+
+* use Node.js wrapper for npm binary ([0697797](https://github.com/chesteralan/react-auditor/commit/0697797e84f9f9876ad01f3ce1619e9b02dc4c55))
+* use Node.js wrapper for npm binary ([ebd6108](https://github.com/chesteralan/react-auditor/commit/ebd6108619d576cad3ae81c28b6cbad51af23160))
+
 ## [0.3.0](https://github.com/chesteralan/react-auditor/compare/v0.2.0...v0.3.0) (2026-07-02)
 
 
