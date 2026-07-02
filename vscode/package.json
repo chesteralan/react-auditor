@@ -4,7 +4,12 @@
   "description": "Real-time linting with react-auditor — best practices, quality, security, and accessibility for React codebases",
   "version": "0.1.10",
   "icon": "icon.png",
-  "publisher": "chesteralan",
+  "publisher": "alchietagudin",
+  "repository": {
+    "url": "https://github.com/chesteralan/react-auditor",
+    "directory": "vscode",
+    "type": "git"
+  },
   "license": "MIT",
   "engines": {
     "vscode": "^1.85.0"
@@ -47,7 +52,7 @@
         "reactAuditor.binaryPath": {
           "type": "string",
           "default": "react-auditor",
-          "description": "Path to the react-auditor binary"
+          "description": "Path to the react-auditor binary (bundled in extension by default)"
         },
         "reactAuditor.runOnSave": {
           "type": "boolean",

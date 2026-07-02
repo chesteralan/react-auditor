@@ -106,7 +106,7 @@ function activate(context) {
     if (!filePath) return;
 
     const config = vscode.workspace.getConfiguration('reactAuditor');
-    const binaryPath = config.get('binaryPath', 'react-auditor');
+  const binaryPath = config.get('binaryPath', path.join(__dirname, 'react-auditor'));
 
     statusBarItem.text = '$(sync~spin) React Auditor: fixing...';
     try {
@@ -393,8 +393,8 @@ function cancel() {
 
 async function runAuditor(document) {
   const config = vscode.workspace.getConfiguration('reactAuditor');
-  const binaryPath = config.get('binaryPath', 'react-auditor');
-  const filePath = document.uri.fsPath;
+    const binaryPath = config.get('binaryPath', path.join(__dirname, 'react-auditor'));
+    const filePath = document.uri.fsPath;
 
   if (!filePath) return;
 
