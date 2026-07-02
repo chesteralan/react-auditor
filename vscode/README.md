@@ -6,7 +6,7 @@ Powered by [oxc](https://oxc.rs) for blazing-fast performance.
 
 ## Features
 
-- **47 rules** across 7 categories: quality, react, typescript, security, nextjs, performance, accessibility
+- **67 rules** across 7 categories: quality, react, typescript, security, nextjs, accessibility, performance
 - Runs on save (configurable to run on change or open)
 - Status bar indicator showing issue count
 - Per-file diagnostics with rule ID and message

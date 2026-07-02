@@ -392,3 +392,46 @@ fn e2e_no_empty_blocks_fix_removes_empty_blocks() {
     assert_eq!(fixed, expected, "empty block should be removed");
     let _ = std::fs::remove_file(&path);
 }
+
+fn version_binary() -> std::process::Command {
+    if let Some(bin) = option_env!("CARGO_BIN_EXE_REACT_AUDITOR") {
+        return std::process::Command::new(bin);
+    }
+    let mut p = std::env::current_exe().expect("failed to get test binary path");
+    p.pop(); // remove test binary filename
+    if p.file_name().and_then(|s| s.to_str()) == Some("deps") {
+        p.pop(); // remove deps/ directory
+    }
+    p.push("react-auditor");
+    std::process::Command::new(p)
+}
+
+#[test]
+fn e2e_version_flag() {
+    let bin = version_binary()
+        .arg("--version")
+        .output()
+        .expect("failed to run react-auditor --version");
+    assert!(bin.status.success(), "--version should exit 0");
+    let stdout = String::from_utf8_lossy(&bin.stdout);
+    assert!(
+        stdout.contains("react-auditor"),
+        "output should contain binary name"
+    );
+    assert!(stdout.contains("0.1.7"), "output should contain version");
+}
+
+#[test]
+fn e2e_short_version_flag() {
+    let bin = version_binary()
+        .arg("-V")
+        .output()
+        .expect("failed to run react-auditor -V");
+    assert!(bin.status.success(), "-V should exit 0");
+    let stdout = String::from_utf8_lossy(&bin.stdout);
+    assert!(
+        stdout.contains("react-auditor"),
+        "output should contain binary name"
+    );
+    assert!(stdout.contains("0.1.7"), "output should contain version");
+}

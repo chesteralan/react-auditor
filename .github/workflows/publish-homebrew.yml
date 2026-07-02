@@ -1,0 +1,89 @@
+name: Publish Homebrew Formula
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Version to publish (e.g., 0.1.7)"
+        required: true
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - name: Determine version
+        id: version
+        run: |
+          if [ "${{ github.event_name }}" = "release" ]; then
+            TAG="${{ github.event.release.tag_name }}"
+            VERSION="${TAG#v}"
+            echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+            echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+          else
+            echo "version=${{ inputs.version }}" >> "$GITHUB_OUTPUT"
+            echo "tag=v${{ inputs.version }}" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Download release archives
+        env:
+          TAG: ${{ steps.version.outputs.tag }}
+        run: |
+          for target in aarch64-apple-darwin x86_64-apple-darwin aarch64-unknown-linux-gnu x86_64-unknown-linux-gnu; do
+            URL="https://github.com/${{ github.repository }}/releases/download/$TAG/react-auditor-${target}-$TAG.tar.gz"
+            echo "Downloading $URL"
+            curl -sSfL "$URL" -o "react-auditor-${target}.tar.gz"
+          done
+
+      - name: Compute SHA256 checksums
+        id: checksums
+        run: |
+          for target in aarch64-apple-darwin x86_64-apple-darwin aarch64-unknown-linux-gnu x86_64-unknown-linux-gnu; do
+            SHA=$(sha256sum "react-auditor-${target}.tar.gz" | cut -d' ' -f1)
+            key="${target//-/_}"
+            echo "${key}=${SHA}" >> "$GITHUB_OUTPUT"
+          done
+
+      - uses: actions/checkout@v7
+        with:
+          repository: chesteralan/homebrew-tap
+          token: ${{ secrets.HOMEBREW_TAP_TOKEN }}
+          path: homebrew-tap
+
+      - uses: actions/checkout@v7
+        with:
+          path: source-repo
+
+      - name: Generate formula
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+          MACOS_ARM_SHA: ${{ steps.checksums.outputs.aarch64_apple_darwin }}
+          MACOS_X64_SHA: ${{ steps.checksums.outputs.x86_64_apple_darwin }}
+          LINUX_ARM_SHA: ${{ steps.checksums.outputs.aarch64_unknown_linux_gnu }}
+          LINUX_X64_SHA: ${{ steps.checksums.outputs.x86_64_unknown_linux_gnu }}
+        run: |
+          mkdir -p homebrew-tap/Formula
+          sed \
+            -e "s/VERSION_PLACEHOLDER/$VERSION/g" \
+            -e "s/MACOS_ARM_SHA256/$MACOS_ARM_SHA/g" \
+            -e "s/MACOS_X64_SHA256/$MACOS_X64_SHA/g" \
+            -e "s/LINUX_ARM_SHA256/$LINUX_ARM_SHA/g" \
+            -e "s/LINUX_X64_SHA256/$LINUX_X64_SHA/g" \
+            source-repo/homebrew/react-auditor.rb > homebrew-tap/Formula/react-auditor.rb
+
+      - name: Commit and push
+        working-directory: homebrew-tap
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add Formula/react-auditor.rb
+          if git diff --cached --quiet; then
+            echo "No changes to commit"
+          else
+            git commit -m "react-auditor v${{ steps.version.outputs.version }}"
+            git push
+          fi
