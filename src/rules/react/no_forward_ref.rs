@@ -43,10 +43,10 @@ impl<'a> Visit<'a> for ForwardRefCollector<'a> {
             self.imports_react = true;
             if let Some(specifiers) = &decl.specifiers {
                 for spec in specifiers.iter() {
-                    if let oxc_ast::ast::ImportDeclarationSpecifier::ImportSpecifier(s) = spec {
-                        if s.imported.name().as_str() == "forwardRef" {
-                            self.has_forward_ref_import = true;
-                        }
+                    if let oxc_ast::ast::ImportDeclarationSpecifier::ImportSpecifier(s) = spec
+                        && s.imported.name().as_str() == "forwardRef"
+                    {
+                        self.has_forward_ref_import = true;
                     }
                 }
             }

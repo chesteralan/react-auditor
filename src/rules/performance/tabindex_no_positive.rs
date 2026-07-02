@@ -36,58 +36,51 @@ struct TabindexCollector<'a> {
 impl<'a> Visit<'a> for TabindexCollector<'a> {
     fn visit_jsx_opening_element(&mut self, el: &oxc_ast::ast::JSXOpeningElement<'a>) {
         for attr in &el.attributes {
-            if let oxc_ast::ast::JSXAttributeItem::Attribute(a) = attr {
-                if let oxc_ast::ast::JSXAttributeName::Identifier(id) = &a.name {
-                    if id.name.as_str() == "tabIndex" {
-                        if let Some(value) = &a.value {
-                            if let oxc_ast::ast::JSXAttributeValue::ExpressionContainer(expr) =
-                                value
-                            {
-                                if let Some(inner) = expr.expression.as_expression() {
-                                    if let oxc_ast::ast::Expression::NumericLiteral(n) = inner {
-                                        if n.value > 0.0 {
-                                            let start = el.span.start as usize;
-                                            let line = self.source[..start].lines().count().max(1);
-                                            let col = start
-                                                - self.source[..start]
-                                                    .rfind('\n')
-                                                    .map(|i| i + 1)
-                                                    .unwrap_or(0);
-                                            self.findings.push(RuleFinding {
-                                                line,
-                                                column: col + 1,
-                                                message: format!(
-                                                    "tabIndex={} is positive; use 0 or -1 only",
-                                                    n.value as i64
-                                                ),
-                                            });
-                                        }
-                                    }
-                                }
-                            }
-                            if let oxc_ast::ast::JSXAttributeValue::StringLiteral(s) = value {
-                                if let Ok(n) = s.value.parse::<i64>() {
-                                    if n > 0 {
-                                        let start = el.span.start as usize;
-                                        let line = self.source[..start].lines().count().max(1);
-                                        let col = start
-                                            - self.source[..start]
-                                                .rfind('\n')
-                                                .map(|i| i + 1)
-                                                .unwrap_or(0);
-                                        self.findings.push(RuleFinding {
-                                            line,
-                                            column: col + 1,
-                                            message: format!(
-                                                "tabIndex=\"{}\" is positive; use 0 or -1 only",
-                                                n
-                                            ),
-                                        });
-                                    }
-                                }
-                            }
-                        }
-                    }
+            if let oxc_ast::ast::JSXAttributeItem::Attribute(a) = attr
+                && let oxc_ast::ast::JSXAttributeName::Identifier(id) = &a.name
+                && id.name.as_str() == "tabIndex"
+                && let Some(value) = &a.value
+            {
+                if let oxc_ast::ast::JSXAttributeValue::ExpressionContainer(expr) = value
+                    && let Some(oxc_ast::ast::Expression::NumericLiteral(n)) =
+                        expr.expression.as_expression()
+                    && n.value > 0.0
+                {
+                    let start = el.span.start as usize;
+                    let line = self.source[..start].lines().count().max(1);
+                    let col = start
+                        - self.source[..start]
+                            .rfind('\n')
+                            .map(|i| i + 1)
+                            .unwrap_or(0);
+                    self.findings.push(RuleFinding {
+                        line,
+                        column: col + 1,
+                        message: format!(
+                            "tabIndex={} is positive; use 0 or -1 only",
+                            n.value as i64
+                        ),
+                    });
+                }
+                if let oxc_ast::ast::JSXAttributeValue::StringLiteral(s) = value
+                    && let Ok(n) = s.value.parse::<i64>()
+                    && n > 0
+                {
+                    let start = el.span.start as usize;
+                    let line = self.source[..start].lines().count().max(1);
+                    let col = start
+                        - self.source[..start]
+                            .rfind('\n')
+                            .map(|i| i + 1)
+                            .unwrap_or(0);
+                    self.findings.push(RuleFinding {
+                        line,
+                        column: col + 1,
+                        message: format!(
+                            "tabIndex=\"{}\" is positive; use 0 or -1 only",
+                            n
+                        ),
+                    });
                 }
             }
         }

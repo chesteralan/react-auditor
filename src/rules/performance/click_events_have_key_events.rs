@@ -41,14 +41,14 @@ impl<'a> Visit<'a> for ClickKeyCollector<'a> {
         let mut has_keyboard = false;
 
         for attr in &el.attributes {
-            if let oxc_ast::ast::JSXAttributeItem::Attribute(a) = attr {
-                if let oxc_ast::ast::JSXAttributeName::Identifier(id) = &a.name {
-                    let name = id.name.as_str();
-                    if name == "onClick" {
-                        has_click = true;
-                    } else if KEY_EVENTS.contains(&name) {
-                        has_keyboard = true;
-                    }
+            if let oxc_ast::ast::JSXAttributeItem::Attribute(a) = attr
+                && let oxc_ast::ast::JSXAttributeName::Identifier(id) = &a.name
+            {
+                let name = id.name.as_str();
+                if name == "onClick" {
+                    has_click = true;
+                } else if KEY_EVENTS.contains(&name) {
+                    has_keyboard = true;
                 }
             }
         }

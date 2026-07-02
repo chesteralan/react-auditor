@@ -36,20 +36,19 @@ struct AutofocusCollector<'a> {
 impl<'a> Visit<'a> for AutofocusCollector<'a> {
     fn visit_jsx_opening_element(&mut self, el: &oxc_ast::ast::JSXOpeningElement<'a>) {
         for attr in &el.attributes {
-            if let oxc_ast::ast::JSXAttributeItem::Attribute(a) = attr {
-                if let oxc_ast::ast::JSXAttributeName::Identifier(id) = &a.name {
-                    if id.name.as_str() == "autoFocus" {
-                        let start = a.span.start as usize;
-                        let line = self.source[..start].lines().count().max(1);
-                        let col =
-                            start - self.source[..start].rfind('\n').map(|i| i + 1).unwrap_or(0);
-                        self.findings.push(RuleFinding {
-                            line,
-                            column: col + 1,
-                            message: "Avoid autoFocus attribute for accessibility".to_string(),
-                        });
-                    }
-                }
+            if let oxc_ast::ast::JSXAttributeItem::Attribute(a) = attr
+                && let oxc_ast::ast::JSXAttributeName::Identifier(id) = &a.name
+                && id.name.as_str() == "autoFocus"
+            {
+                let start = a.span.start as usize;
+                let line = self.source[..start].lines().count().max(1);
+                let col =
+                    start - self.source[..start].rfind('\n').map(|i| i + 1).unwrap_or(0);
+                self.findings.push(RuleFinding {
+                    line,
+                    column: col + 1,
+                    message: "Avoid autoFocus attribute for accessibility".to_string(),
+                });
             }
         }
     }
