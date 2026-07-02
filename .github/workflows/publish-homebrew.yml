@@ -29,6 +29,9 @@ jobs:
             echo "tag=v${{ inputs.version }}" >> "$GITHUB_OUTPUT"
           fi
 
+      - name: Wait for release artifacts to be available
+        run: sleep 300
+
       - name: Download release archives
         env:
           TAG: ${{ steps.version.outputs.tag }}
