@@ -1,9 +1,14 @@
-## [0.1.10](https://github.com/chesteralan/react-auditor/compare/v0.1.9...v0.1.10) (2026-07-02)
+## [0.3.1](https://github.com/chesteralan/react-auditor/compare/v0.1.11...v0.3.1) (2026-07-03)
 
 
-### Features
+# Changelog
 
-* npm package bundles binary via publish workflow ([a61d755](https://github.com/chesteralan/react-auditor/commit/a61d7555e7cb89a802e3547e01912bf0273d66e6))
+## [0.1.11](https://github.com/chesteralan/react-auditor/compare/v0.1.10...v0.1.11) (2026-07-03)
+
+
+### Bug Fixes
+
+* use Node.js wrapper for npm binary to avoid shim errors ([ebd6108](https://github.com/chesteralan/react-auditor/commit/ebd6108620d7915b3e840da7e08a7f12fe19f85a))
 
 
 # Changelog
