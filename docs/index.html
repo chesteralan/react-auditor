@@ -143,10 +143,10 @@
       <h1><span>react</span>-auditor</h1>
       <p class="tagline">
         A blazing-fast Rust CLI that scans your JS/TS/React codebase for best practices,
-        quality, security, performance, Next.js, and accessibility issues.
+        quality, security, performance, accessibility, and Next.js issues.
       </p>
       <div class="badges">
-        <span class="badge green">62 rules</span>
+        <span class="badge green">67 rules</span>
         <span class="badge orange">Rust + oxc 0.138</span>
         <span class="badge blue">MIT license</span>
         <span class="badge purple">~138us / 1k LOC</span>
@@ -203,7 +203,7 @@
     </section>
 
     <section>
-      <h2>Rule Categories <span class="count">(62 rules total)</span></h2>
+      <h2>Rule Categories <span class="count">(67 rules total)</span></h2>
       <div class="card-grid">
         <div class="card">
           <h4>Code Quality</h4>
@@ -212,8 +212,8 @@
         </div>
         <div class="card">
           <h4>React</h4>
-          <p>Hooks rules, missing keys, inline styles, effect deps, direct mutation, duplicate props, component naming, index keys, inline functions, function components, unnecessary memo, multiple render methods, side effects in render, setState in effect/render, ref in component name.</p>
-          <span class="rule-count">16 rules</span>
+          <p>Hooks rules, missing keys, inline styles, effect deps, direct mutation, duplicate props, component naming, index keys, inline functions, function components, unnecessary memo, multiple render methods, side effects in render, setState in effect/render, ref in component name, no forwardRef.</p>
+          <span class="rule-count">17 rules</span>
         </div>
         <div class="card">
           <h4>TypeScript</h4>
@@ -227,8 +227,8 @@
         </div>
         <div class="card">
           <h4>Accessibility</h4>
-          <p>img alt, button type, label associations, valid ARIA, heading levels, link/button content, no ambiguous labels.</p>
-          <span class="rule-count">7 rules</span>
+          <p>img alt, button type, label associations, valid ARIA, heading levels, link/button content, no ambiguous labels, tabindex no positive, click events have key events, html has lang, no autofocus.</p>
+          <span class="rule-count">11 rules</span>
         </div>
         <div class="card">
           <h4>Performance</h4>

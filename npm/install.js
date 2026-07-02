@@ -6,7 +6,7 @@ const { join } = require("path");
 const { platform, arch } = require("os");
 const { execSync } = require("child_process");
 
-const PKG_VERSION = "0.1.5";
+const PKG_VERSION = "0.1.6";
 const REPO = "chesteralan/react-auditor";
 
 const PLATFORM_MAP = {

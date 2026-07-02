@@ -1,12 +1,16 @@
 pub mod a_has_content;
 pub mod aria_valid;
 pub mod button_has_type;
+pub mod click_events_have_key_events;
 pub mod heading_levels;
+pub mod html_has_lang;
 pub mod img_alt;
 pub mod label_associated;
 pub mod lazy_load_components;
 pub mod no_ambiguous_labels;
+pub mod no_autofocus;
 pub mod no_bind_in_jsx;
 pub mod no_heavy_computation_in_render;
 pub mod no_large_libraries;
 pub mod prefer_fragments;
+pub mod tabindex_no_positive;
