@@ -1,9 +1,6 @@
 name: CI
 
 on:
-  push:
-    branches:
-      - release-please--branches--main--components--react-auditor
   pull_request:
     branches: [main]
 
