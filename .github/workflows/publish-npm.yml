@@ -4,11 +4,8 @@ on:
   workflow_run:
     workflows: ["Release"]
     types: [completed]
-  workflow_dispatch:
-
 jobs:
   publish:
-    if: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -19,9 +16,23 @@ jobs:
     steps:
       - uses: actions/checkout@v7
 
+      - name: Determine version
+        id: version
+        run: |
+          mkdir -p tag-artifact
+          gh run download "${{ github.event.workflow_run.id }}" \
+            --name release-tag \
+            --dir tag-artifact \
+            --repo "${{ github.repository }}"
+          TAG=$(cat tag-artifact/RELEASE_TAG)
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+          echo "version=${TAG#v}" >> "$GITHUB_OUTPUT"
+        env:
+          GH_TOKEN: ${{ github.token }}
+
       - uses: actions/setup-node@v6
         with:
-          node-version: 22
+          node-version: 24
           registry-url: https://registry.npmjs.org
 
       - name: Download all release artifacts

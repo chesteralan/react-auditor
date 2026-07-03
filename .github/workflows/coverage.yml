@@ -6,6 +6,7 @@ on:
 
 jobs:
   coverage:
+    if: ${{ github.head_ref != 'release-please--branches--main--components--react-auditor' }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
