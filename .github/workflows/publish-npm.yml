@@ -1,15 +1,19 @@
 name: Publish npm Package
 
 on:
-  release:
-    types: [published]
+  workflow_run:
+    workflows: ["Release"]
+    types: [completed]
+  workflow_dispatch:
 
 jobs:
   publish:
+    if: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
     permissions:
       contents: read
       id-token: write
+      actions: read
     environment: npm
 
     steps:
@@ -26,6 +30,8 @@ jobs:
           pattern: react-auditor-*
           path: artifacts
           merge-multiple: true
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          run-id: ${{ github.event.workflow_run.id }}
 
       - name: Extract and rename binaries
         shell: bash
