@@ -3,6 +3,15 @@
 
 # Changelog
 
+## [0.5.1](https://github.com/chesteralan/react-auditor/compare/react-auditor-v0.5.0...react-auditor-v0.5.1) (2026-07-03)
+
+
+### Bug Fixes
+
+* **react:** report no-missing-key only in list render contexts ([82e7bf7](https://github.com/chesteralan/react-auditor/commit/82e7bf7be64b68aafe6b097eefe43c75c032d2f5))
+* **react:** report no-missing-key only in list render contexts ([82e7bf7](https://github.com/chesteralan/react-auditor/commit/82e7bf7be64b68aafe6b097eefe43c75c032d2f5))
+* **react:** report no-missing-key only in list render contexts ([6e7f0de](https://github.com/chesteralan/react-auditor/commit/6e7f0de18c92a0c37576dec492373eafd5f86eca))
+
 ## [0.5.0](https://github.com/chesteralan/react-auditor/compare/react-auditor-v0.4.0...react-auditor-v0.5.0) (2026-07-03)
 
 
