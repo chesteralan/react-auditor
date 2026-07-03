@@ -8,6 +8,7 @@ pub mod performance;
 pub mod quality;
 pub mod react;
 pub mod security;
+pub mod testing;
 pub mod typescript;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -169,6 +170,10 @@ impl RuleRegistry {
         ));
         self.rules
             .push(Box::new(react::no_forward_ref::NoForwardRef));
+        self.rules
+            .push(Box::new(react::no_array_index_key::NoArrayIndexKey));
+        self.rules
+            .push(Box::new(react::no_state_in_default_props::NoStateInDefaultProps));
         // ── Phase 6: TypeScript ──
         self.rules.push(Box::new(typescript::no_any::NoAny));
         self.rules.push(Box::new(
@@ -253,6 +258,9 @@ impl RuleRegistry {
         // ── Phase 14 continued: Performance ──
         self.rules
             .push(Box::new(performance::no_large_libraries::NoLargeLibraries));
+        // ── Testing ──
+        self.rules
+            .push(Box::new(testing::no_skipped_tests::NoSkippedTests));
     }
 
     pub fn run_rules(

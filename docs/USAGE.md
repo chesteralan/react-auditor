@@ -8,7 +8,7 @@
 npm install --save-dev react-auditor
 ```
 
-The npm package downloads the correct pre-built binary for your platform.
+The npm package bundles a pre-built binary (x86_64-apple-darwin). No separate download step needed.
 
 ### Option 2: cargo
 
@@ -37,12 +37,17 @@ react-auditor [files...] [options]
 | Flag | Alias | Description |
 |------|-------|-------------|
 | `--config <path>` | `-c` | Path to config file |
-| `--rules <categories>` | `-r` | Comma-separated rule categories: `quality`, `react`, `typescript`, `security`, `performance`, `accessibility`, `testing` |
+| `--rules <categories>` | `-r` | Comma-separated rule categories: `quality`, `react`, `typescript`, `security`, `nextjs`, `performance`, `accessibility` |
+| `--ignore <patterns>` | | Comma-separated glob patterns to ignore (e.g. `node_modules,dist`) |
+| `--fail-on <level>` | | Fail on severity level: `error` (default), `warning` |
 | `--log <path>` | `-l` | Path to output log file |
 | `--format <format>` | `-f` | Output format: `stylish` (default), `json`, `compact` |
 | `--max-warnings <n>` | `-w` | Number of warnings before exiting with code 1 |
 | `--quiet` | `-q` | Only output errors, no warnings |
-| `--fix` | | Auto-fix where supported |
+| `--fix` | | Auto-fix where supported (currently: `no-var`, `no-console`, `no-empty-blocks`) |
+| `--no-cache` | | Disable incremental caching |
+| `--watch` | `-W` | Watch mode — re-scan on file changes |
+| `--docs` | | Generate rule documentation in `docs/rules/` |
 | `--help` | `-h` | Show help |
 | `--version` | `-v` | Show version |
 
@@ -66,6 +71,21 @@ react-auditor --format json
 
 # Fail CI if more than 10 warnings
 react-auditor --max-warnings 10
+
+# Ignore specific directories
+react-auditor --ignore node_modules,dist,.next
+
+# Fail on any warning (not just errors)
+react-auditor --fail-on warning
+
+# Watch mode — re-scan on file changes
+react-auditor -W
+
+# Auto-fix violations
+react-auditor --fix
+
+# Generate rule documentation
+react-auditor --docs
 ```
 
 ## lint-staged Integration

@@ -17,37 +17,27 @@ cargo build
 
 ```
 src/
-├── bin/
-│   └── react-auditor.rs       # CLI entry point (clap)
-├── config/
-│   ├── mod.rs                 # Config loader
-│   └── types.rs               # Config types (serde)
-├── scanner/
-│   ├── mod.rs                 # Scanner orchestration
-│   ├── parser.rs              # oxc_parser wrapper
-│   └── walker.rs              # AST traversal driver
+├── main.rs                    # CLI entry point (clap)
+├── lib.rs                     # Module declarations
+├── cli.rs                     # Cli struct (clap derive)
+├── config.rs                  # Config loader (.rauditrc, package.json)
+├── scanner.rs                 # Scanner orchestration + rule runner
+├── cache.rs                   # Incremental cache (.raudit-cache.json)
+├── watch.rs                   # Watch mode (notify crate)
+├── docs.rs                    # Rule documentation generator (--docs)
 ├── rules/
-│   ├── mod.rs                 # Rule registry
-│   ├── quality/
-│   │   ├── no_console.rs
-│   │   ├── no_unused_vars.rs
-│   │   └── ...
-│   ├── react/
-│   │   ├── no_missing_key.rs
-│   │   ├── effect_deps.rs
-│   │   └── ...
-│   ├── typescript/
-│   ├── security/
-│   ├── performance/
-│   ├── accessibility/
-│   └── testing/
-├── formatters/
-│   ├── mod.rs
-│   ├── stylish.rs
-│   ├── json.rs
-│   └── compact.rs
-└── utils/
-    └── mod.rs
+│   ├── mod.rs                 # Rule trait, Severity, RuleRegistry
+│   ├── quality/               # 13 rules
+│   ├── react/                 # 17 rules
+│   ├── typescript/            # 9 rules
+│   ├── security/              # 7 rules
+│   ├── nextjs/                # 5 rules
+│   └── performance/           # 17 files (5 performance + 11 accessibility)
+└── formatters/
+    ├── mod.rs
+    ├── stylish.rs             # Color-coded terminal output
+    ├── json.rs                # Machine-readable JSON
+    └── compact.rs             # Single-line per violation
 ```
 
 ## Adding a New Rule
@@ -57,28 +47,34 @@ src/
 3. Implement the `Rule` trait:
 
 ```rust
-use crate::scanner::{Rule, RuleContext, RuleMeta, Violation};
-use oxc_ast::AstNode;
+use oxc_ast::ast::Program;
+use oxc_semantic::Semantic;
+use crate::rules::{Rule, RuleMeta, RuleFinding, Severity, Fix};
 
 pub struct NoMissingKey;
 
 impl Rule for NoMissingKey {
-    fn meta(&self) -> RuleMeta {
-        RuleMeta {
+    fn meta(&self) -> &RuleMeta {
+        &RuleMeta {
             id: "no-missing-key",
-            severity: Severity::Error,
+            default_severity: Severity::Error,
             category: "react",
             description: "List items should have a `key` prop",
         }
     }
 
-    fn run<'a>(&self, node: &'a AstNode<'a>, ctx: &mut RuleContext<'a>) {
+    fn run(&self, program: &Program, semantic: &Semantic, source_text: &str) -> Vec<RuleFinding> {
         // check logic using oxc AST types
+        Vec::new()
     }
 }
 ```
 
-4. Register the rule in `src/rules/mod.rs`
+4. Add the rule to `register_all()` in `src/rules/mod.rs`:
+   ```rust
+   self.rules.push(Box::new(react::no_missing_key::NoMissingKey));
+   ```
+5. For auto-fix support, override `has_fix() -> bool` and `fix()` on your rule struct.
 
 ## Testing
 
@@ -104,20 +100,13 @@ cargo clippy
 cargo fmt
 ```
 
-## Distributing via npm (optional)
+## Distributing via npm
 
-To integrate with `lint-staged` without requiring users to install Rust, publish a thin npm wrapper:
+The npm package (`npm/package.json`) wraps a single pre-built binary. The binary is built during CI publish and copied into `npm/`. `npm/wrapper.js` finds it at `__dirname/react-auditor` or falls back to `which react-auditor`.
 
-```
-react-auditor/
-├── Cargo.toml
-├── npm/
-│   ├── darwin-arm64/   (binary for Apple Silicon)
-│   ├── darwin-x64/     (binary for Intel Mac)
-│   ├── linux-x64/      (binary for Linux)
-│   └── win32-x64/      (binary for Windows)
-├── package.json        (optional npm wrapper)
-└── src/
-```
-
-This follows the pattern used by Biome, esbuild, and SWC.
+Binary targets on release:
+- `x86_64-unknown-linux-gnu`
+- `aarch64-unknown-linux-gnu`
+- `x86_64-apple-darwin`
+- `aarch64-apple-darwin`
+- `x86_64-pc-windows-msvc`

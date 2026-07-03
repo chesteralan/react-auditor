@@ -10,14 +10,15 @@ use clap::Parser;
 A blazing-fast Rust CLI powered by oxc to lint your React codebase for
 quality, correctness, security, performance, and accessibility issues.
 
-Categories (67 rules total):
+Categories (70 rules total):
   quality        Code quality & clean code (13 rules)
-  react          React best practices & hooks (17 rules)
+  react          React best practices & hooks (19 rules)
   typescript     TypeScript strictness (9 rules)
   security       Security vulnerabilities (7 rules)
   nextjs         Next.js best practices (5 rules)
   performance    Performance anti-patterns (5 rules)
   accessibility  Accessibility violations (11 rules)
+  testing        Test quality & correctness (1 rule)
 
 Integrated with lint-staged and husky for pre-commit checks.
 
@@ -41,7 +42,7 @@ pub struct Cli {
     #[arg(short = 'c', long = "config")]
     pub config: Option<String>,
 
-    /// Comma-separated rule categories to enable: quality, react, typescript, security, nextjs, performance, accessibility
+    /// Comma-separated rule categories to enable: quality, react, typescript, security, nextjs, performance, accessibility, testing
     #[arg(short = 'r', long = "rules")]
     pub rules: Option<String>,
 
@@ -69,7 +70,7 @@ pub struct Cli {
     #[arg(long = "ignore", default_value = "")]
     pub ignore: String,
 
-    /// Auto-fix violations where supported (currently: no-var, no-console, no-empty-blocks)
+    /// Auto-fix violations where supported (currently: no-var, no-console, no-empty-blocks, prefer-fragments)
     #[arg(long = "fix")]
     pub fix: bool,
 
