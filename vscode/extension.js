@@ -101,6 +101,18 @@ function activate(context) {
     ConfigWebview.createOrShow(context.extensionUri);
   }));
 
+  context.subscriptions.push(vscode.commands.registerCommand('react-auditor.disableRule', (ruleId) => {
+    const config = vscode.workspace.getConfiguration('reactAuditor');
+    const wsFolders = vscode.workspace.workspaceFolders;
+    if (!wsFolders) return;
+    const rcPath = path.join(wsFolders[0].uri.fsPath, '.rauditrc.toml');
+    if (!fs.existsSync(rcPath)) {
+      fs.writeFileSync(rcPath, '# React Auditor Configuration\n');
+    }
+    fs.appendFileSync(rcPath, `\n"${ruleId}" = "off"\n`);
+    vscode.window.showInformationMessage(`Rule "${ruleId}" disabled in .rauditrc.toml`);
+  }));
+
   context.subscriptions.push(vscode.commands.registerCommand('react-auditor.fixFile', async (uri) => {
     const filePath = uri ? uri.fsPath : vscode.window.activeTextEditor?.document.uri.fsPath;
     if (!filePath) return;

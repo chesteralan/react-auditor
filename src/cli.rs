@@ -1,4 +1,4 @@
-use clap::Parser;
+use clap::{Parser, Subcommand};
 
 #[derive(Parser, Debug)]
 #[command(
@@ -10,14 +10,21 @@ use clap::Parser;
 A blazing-fast Rust CLI powered by oxc to lint your React codebase for
 quality, correctness, security, performance, and accessibility issues.
 
-Categories (67 rules total):
+Categories (71 rules total):
   quality        Code quality & clean code (13 rules)
-  react          React best practices & hooks (17 rules)
+  react          React best practices & hooks (19 rules)
   typescript     TypeScript strictness (9 rules)
   security       Security vulnerabilities (7 rules)
   nextjs         Next.js best practices (5 rules)
   performance    Performance anti-patterns (5 rules)
   accessibility  Accessibility violations (11 rules)
+  testing        Test quality & correctness (2 rules)
+
+Presets:
+  recommended    Default severity for all rules
+  strict         Bump many rules to Error
+  nextjs         Focus on Next.js + React rules
+  all            Maximum severity for all rules
 
 Integrated with lint-staged and husky for pre-commit checks.
 
@@ -25,11 +32,13 @@ Examples:
   react-auditor                              Scan src/**/*.{js,jsx,ts,tsx}
   react-auditor src/ --format json            Scan src/ output as JSON
   react-auditor --rules react,typescript      Only React & TS rules
+  react-auditor --preset strict               Use strict preset
   react-auditor --ignore node_modules,dist    Skip node_modules and dist
   react-auditor --log audit.json              Write JSON log file
-   react-auditor --max-warnings 10             Fail on >10 warnings
+  react-auditor --max-warnings 10             Fail on >10 warnings
   react-auditor --fail-on warning             Fail on any violation
   react-auditor --fix                         Auto-fix where supported
+  react-auditor init                          Install pre-commit hook
 
 Configuration: .rauditrc.toml, .rauditrc.json, or package.json#reactAuditor"
 )]
@@ -41,9 +50,13 @@ pub struct Cli {
     #[arg(short = 'c', long = "config")]
     pub config: Option<String>,
 
-    /// Comma-separated rule categories to enable: quality, react, typescript, security, nextjs, performance, accessibility
+    /// Comma-separated rule categories to enable: quality, react, typescript, security, nextjs, performance, accessibility, testing
     #[arg(short = 'r', long = "rules")]
     pub rules: Option<String>,
+
+    /// Configuration preset: recommended (default), strict, nextjs, all
+    #[arg(long = "preset", default_value = "recommended")]
+    pub preset: String,
 
     /// Fail on severity level: error, warning (exit code 1 if any violations at or above this level)
     #[arg(long = "fail-on", default_value = "error")]
@@ -69,7 +82,7 @@ pub struct Cli {
     #[arg(long = "ignore", default_value = "")]
     pub ignore: String,
 
-    /// Auto-fix violations where supported (currently: no-var, no-console, no-empty-blocks)
+    /// Auto-fix violations where supported (currently: no-var, no-console, no-empty-blocks, prefer-fragments, prefer-function-components)
     #[arg(long = "fix")]
     pub fix: bool,
 
@@ -84,4 +97,13 @@ pub struct Cli {
     /// Generate rule documentation in docs/rules/
     #[arg(long = "docs")]
     pub docs: bool,
+
+    #[command(subcommand)]
+    pub command: Option<Commands>,
+}
+
+#[derive(Subcommand, Debug)]
+pub enum Commands {
+    /// Install a pre-commit git hook that runs react-auditor on staged files
+    Init,
 }

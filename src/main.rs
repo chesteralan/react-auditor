@@ -4,14 +4,22 @@ use clap::Parser;
 use globset::Glob;
 use ignore::WalkBuilder;
 
-use react_auditor::cli::Cli;
+use react_auditor::cli::{Cli, Commands};
 use react_auditor::config::Config;
 use react_auditor::formatters;
+use react_auditor::presets::Preset;
 use react_auditor::rules::Severity;
 use react_auditor::scanner::Scanner;
 
 fn main() -> anyhow::Result<()> {
     let cli = Cli::parse();
+
+    match &cli.command {
+        Some(Commands::Init) => {
+            return react_auditor::init::install_pre_commit_hook();
+        }
+        None => {}
+    }
 
     if cli.docs {
         react_auditor::docs::generate_docs();
@@ -19,6 +27,19 @@ fn main() -> anyhow::Result<()> {
     }
 
     let config = Config::load(cli.config.as_ref().map(Path::new))?;
+
+    let preset: Preset = cli.preset.parse().unwrap_or(Preset::Recommended);
+
+    let mut severity_overrides = preset.severity_overrides();
+    severity_overrides.extend(config.rules.clone());
+
+    let category_filter = if cli.rules.is_some() {
+        cli.rules
+            .as_ref()
+            .map(|r| r.split(',').map(|s| s.trim().to_string()).collect())
+    } else {
+        preset.category_filter()
+    };
 
     let files = if cli.files.is_empty() {
         let mut f: Vec<String> = vec!["src/**/*.{js,jsx,ts,tsx}".to_string()];
@@ -33,11 +54,6 @@ fn main() -> anyhow::Result<()> {
         cli.files.clone()
     };
 
-    let category_filter = cli
-        .rules
-        .as_ref()
-        .map(|r| r.split(',').map(|s| s.trim().to_string()).collect());
-
     let ignore_patterns: Vec<String> = if cli.ignore.is_empty() {
         Vec::new()
     } else {
@@ -48,12 +64,7 @@ fn main() -> anyhow::Result<()> {
             .collect()
     };
 
-    let mut scanner = Scanner::new(
-        files,
-        config.rules.clone(),
-        category_filter,
-        ignore_patterns,
-    );
+    let mut scanner = Scanner::new(files, severity_overrides, category_filter, ignore_patterns);
     scanner.use_cache = !cli.no_cache;
     scanner.file_type_overrides = config.file_types.clone();
 

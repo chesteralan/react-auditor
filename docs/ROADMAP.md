@@ -1,5 +1,7 @@
 # Roadmap
 
+> Current version: **v0.3.2-dev** · 71 rules across 8 categories · 5 fixable rules · Active branch: `feat/v0.3.2`
+
 ## Phase 1 — Foundation ✅
 - [x] Initialize Rust project with `cargo init`
 - [x] Set up `clap` CLI argument parser
@@ -10,10 +12,11 @@
 
 ## Phase 2 — Rule Engine ✅
 - [x] Define `Rule` trait with `meta()` and `run()` methods
-- [x] Implement `RuleContext` and `Violation` types
-- [x] Build rule registry (discover and run all registered rules)
+- [x] Implement `Violation` and `RuleFinding` types
+- [x] Build rule registry (`RuleRegistry`) with `register_all()`
 - [x] Implement severity levels (error / warn / off)
 - [x] Wire rule filtering (`--rules` flag, config-based enable/disable)
+- [x] Auto-fix infrastructure: `has_fix()` + `fix()` on `Rule` trait
 
 ## Phase 3 — Output & Formatting ✅
 - [x] Implement `stylish` terminal formatter with colors (`termcolor`)
@@ -22,147 +25,164 @@
 - [x] Add `--log <path>` for file output
 - [x] Add `--max-warnings` and `--quiet` flags
 - [x] Add `--fix` infrastructure (auto-fixable rule support)
+- [x] Snapshot tests for all three formatters
 
-## Phase 4 — Rules: Code Quality ✅
-- [x] `no-console`
-- [x] `no-empty-blocks`
-- [x] `no-var`
-- [x] `max-params`
-- [x] `no-long-functions`
-- [x] `prefer-early-return`
-- [x] `no-commented-code`
-- [x] `no-deep-nesting`
-- [x] `no-magic-numbers`
-- [x] `consistent-return`
-- [x] `no-unused-vars`
-- [x] `no-shadow`
+## Phase 4 — Rules: Code Quality ✅ (13 rules)
+- [x] `no-console` · `no-empty-blocks` · `no-var`
+- [x] `max-params` · `no-long-functions` · `prefer-early-return`
+- [x] `no-commented-code` · `no-deep-nesting` · `no-magic-numbers`
+- [x] `consistent-return` · `no-unused-vars` · `no-shadow`
 - [x] `complexity`
 
-## Phase 5 — Rules: React ✅
-- [x] `no-missing-key`
-- [x] `no-inline-styles`
-- [x] `consistent-component-naming`
-- [x] `no-index-key`
-- [x] `no-inline-functions` (in JSX props)
-- [x] `prefer-function-components`
-- [x] `no-unnecessary-memo`
-- [x] `no-multiple-render-methods`
-- [x] `no-side-effects-in-render`
-- [x] `hook-rules` (Rules of Hooks)
-- [x] `no-missing-deps`
-- [x] `no-set-state-in-effect`
-- [x] `no-set-state-in-render`
+## Phase 5 — Rules: React ✅ (19 rules)
+- [x] `no-missing-key` · `no-inline-styles` · `consistent-component-naming`
+- [x] `no-index-key` · `no-inline-functions` (in JSX props)
+- [x] `prefer-function-components` · `no-unnecessary-memo`
+- [x] `no-multiple-render-methods` · `no-side-effects-in-render`
+- [x] `hook-rules` (Rules of Hooks) · `no-missing-deps`
+- [x] `no-set-state-in-effect` · `no-set-state-in-render`
+- [x] `no-direct-mutation` · `jsx-no-duplicate-props`
+- [x] `no-ref-in-component-name` · `no-forward-ref`
+- [x] `no-array-index-key` · `no-state-in-default-props`
 
-## Phase 6 — Rules: TypeScript ✅
-- [x] `no-any`
-- [x] `no-non-null-assertion`
-- [x] `no-type-assertion`
-- [x] `no-empty-interface`
-- [x] `consistent-type-imports`
-- [x] `explicit-return-type`
-- [x] `strict-null-checks`
-- [x] `prefer-interface` / `prefer-type-alias`
+## Phase 6 — Rules: TypeScript ✅ (9 rules)
+- [x] `no-any` · `no-non-null-assertion` · `no-type-assertion`
+- [x] `no-empty-interface` · `consistent-type-imports`
+- [x] `explicit-return-type` · `strict-null-checks`
+- [x] `prefer-interface` · `no-explicit-any` (stricter catch)
 
-## Phase 7 — Rules: Security ✅
-- [x] `no-dangerously-set-innerhtml`
-- [x] `no-eval`
-- [x] `no-script-url`
-- [x] `no-hardcoded-secrets`
-- [x] `no-unsanitized-input`
-- [x] `no-insecure-protocol`
+## Phase 7 — Rules: Security ✅ (7 rules)
+- [x] `no-dangerously-set-innerhtml` · `no-eval` · `no-script-url`
+- [x] `no-hardcoded-secrets` · `no-unsanitized-input`
+- [x] `no-insecure-protocol` · `no-unsafe-iframe`
 
-## Phase 8 — Rules: Performance & Accessibility ✅
-- [x] `prefer-fragments`
-- [x] `no-bind-in-jsx`
-- [x] `img-alt`
-- [x] `button-has-type`
-- [x] `label-associated`
-- [x] `no-heavy-computation-in-render`
-- [x] `lazy-load-components`
-- [x] `aria-valid`
-- [x] `heading-levels`
+## Phase 8 — Rules: Performance & Accessibility ✅ (16 rules)
+- [x] **Performance (5):** `prefer-fragments` · `no-bind-in-jsx` · `no-heavy-computation-in-render` · `lazy-load-components` · `no-large-libraries`
+- [x] **Accessibility (11):** `img-alt` · `button-has-type` · `label-associated` · `aria-valid` · `heading-levels` · `a-has-content` · `no-ambiguous-labels` · `tabindex-no-positive` · `click-events-have-key-events` · `html-has-lang` · `no-autofocus`
 
-## Phase 9 — Integration & Distribution ✅
-- [x] Build npm wrapper package (platform-specific binary downloads)
-- [x] Write postinstall script for npm package (`install.js`)
-- [x] Add GitHub Releases workflow (build for macOS, Linux, Windows)
-- [x] Document `lint-staged` / `husky` setup in README
-- [x] Write comprehensive help text (`--help`)
+## Phase 9 — Rules: Testing ✅ (1 rule)
+- [x] `no-skipped-tests` — flag `it.skip`, `describe.skip`, `xit`, `xdescribe` in test files
 
-## Phase 10 — Polish ✅
-- [x] End-to-end tests on real-world React codebases
-- [x] Performance benchmarks (criterion)
-- [x] VS Code extension scaffold
-- [x] Auto-fix support for common rules (infrastructure + `no-var` fix)
+## Phase 10 — npm Package ✅
+- [x] Initial design: platform-specific binary downloads via `install.js` postinstall (archived)
+- [x] **Current approach (v0.1.9+):** bundled binary via `wrapper.js` — no GitHub download at install time
+- [x] `npm/package.json`: `"bin": "./wrapper.js"`, no scripts, no postinstall
+- [x] `npm/wrapper.js`: finds binary at `__dirname/react-auditor` or via `which`, execs via `execFileSync`
+- [x] CI publish workflow builds `x86_64-apple-darwin` binary and copies to `npm/` before `npm publish`
+- [x] Binary bundled inside npm package (single-arch per publish)
+- [x] `install.js` removed, previous `npm/react-auditor` shell shim deleted
 
-## Phase 11 — Publishing & CI/CD ✅
-- [x] npm publish step in GitHub Actions release workflow
-- [x] Publish npm package to `registry.npmjs.org` (triggered by `v*` tags)
-- [x] VS Code extension publish workflow (`.github/workflows/publish-vscode.yml`)
-- [x] VS Code extension: live diagnostics, status bar, debounced file-watching
-- [x] Tag a `v0.1.0` release to trigger npm + VS Code publishing
+## Phase 11 — Polish ✅
+- [x] End-to-end tests (16 e2e tests in `tests/e2e_test.rs`)
+- [x] Performance benchmarks via `criterion` (`benches/auditor_bench.rs`)
+- [x] VS Code extension scaffold + `.vsix` packaging
+- [x] Auto-fix support: `no-var`, `no-console`, `no-empty-blocks`, `prefer-fragments` (4 rules with `has_fix() + fix()`)
+- [x] `contains_semver()` helper in e2e tests — version-agnostic for future bumps
+- [x] VSIX: `*.vsix` gitignored, `vscode/LICENSE` added to fix vsce packaging warning
 
-## Phase 12 — Next.js Rules ✅
+## Phase 12 — Publishing & CI/CD ✅
+- [x] **npm publish** (`.github/workflows/publish-npm.yml`): on `release: [published]` — builds binary + copies to `npm/` + publishes
+- [x] **cargo publish** (`.github/workflows/publish-cargo.yml`): on `release: [published]`
+- [x] **VS Code publish** (`.github/workflows/publish-vscode.yml`): on `release: [published]` — bundles binary in `vscode/` + `vsce publish`
+- [x] **Homebrew publish** (`.github/workflows/publish-homebrew.yml`): `workflow_run` on Release completion + `workflow_dispatch` manual — downloads archives, SHA256, pushes formula to `chesteralan/homebrew-tap`
+- [x] **Release build** (`.github/workflows/release.yml`): on `release: [published]` — 5 targets: `x86_64`/`aarch64` Linux + macOS, `x86_64` Windows
+- [x] **All publish triggers** unified to `release: [published]` (was `push: tags`) — ensures release artifacts exist before publish runs
+- [x] **release-please** (`.github/workflows/release-please.yml`): auto-bumps `Cargo.toml`, `npm/package.json`, `vscode/package.json`; generates changelog from conventional commits
+
+## Phase 13 — Next.js Rules ✅ (5 rules)
 - [x] `no-img-element` (use `<Image />` instead of `<img>`)
 - [x] `no-script-tag-in-head` (use `<Script />` instead of `<script>` inside `<Head>`)
-- [x] `no-page-link` (use `<Link>` instead of `<a>` for internal navigation)
+- [x] `no-page-link` (use `<Link />` instead of `<a>` for internal navigation)
 - [x] `no-head-element` (use `<Head />` instead of `<head>`)
+- [x] `no-sync-script` (flag synchronous `<Script>` without `strategy="afterInteractive"`)
 
-## Phase 13 — CLI & UX ✅
-- [x] **Wire `--rules` flag into Scanner.** Flag is declared in `Cli` but ignored — `Scanner` doesn't filter by category. Just need to pass it through `run_rules`.
-- [x] **Add `--ignore` / `--exclude` patterns.** Skip `node_modules`, `dist/`, `build/`, etc. without relying solely on the source glob.
-- [x] **Add `--fail-on` severity level.** e.g. `--fail-on error` exits 1 only if errors exist.
-- [x] **Colored output for `stylish` formatter.** Use `termcolor` for red/green/yellow severity indicators.
-- [x] **Show rule category in output.** e.g. `[react/no-missing-key]` instead of just `[no-missing-key]`.
-- [x] **Spinner/progress bar during scan.** Prettier progress with `indicatif`.
+## Phase 14 — CLI & UX ✅
+- [x] **`--rules` flag wired into Scanner.** `Scanner.run_rules()` accepts `category_filter`, CLI passes `rules` through
+- [x] **`--ignore` patterns.** Comma-separated globs — skip `node_modules`, `dist/`, `build/`, etc.
+- [x] **`--fail-on` severity.** e.g. `--fail-on error` exits 1 only on errors
+- [x] **`--no-cache`.** Disable incremental caching (force re-scan all files)
+- [x] **`--watch` / `-W`.** Watch mode via `notify` crate with 200ms debounce (`src/watch.rs`)
+- [x] **`--docs`.** Generate rule documentation `docs/rules/` per rule (moved from `src/bin/docgen.rs` to `src/docs.rs`)
+- [x] **Colored output for `stylish` formatter.** `termcolor` for red/yellow/cyan severity indicators
+- [x] **Show rule category in output.** `[react/no-missing-key]` — category is prefixed
+- [x] **Spinner/progress bar.** `indicatif` `ProgressBar` during scan
 
-## Phase 14 — New Rules ✅
-- [x] **React: `no-direct-mutation`.** Detect `this.props.x = y` or direct `state` mutation outside `setState`.
-- [x] **React: `jsx-no-duplicate-props`.** Flag repeated props like `<div id="a" id="b" />`.
-- [x] **React: `no-array-index-key`.** Already covered by `no-index-key` rule (line 45).
-- [x] **React: `no-ref-in-component-name`.** Component names shouldn't contain "Ref".
-- [x] **TypeScript: `no-explicit-any` (stricter).** Catch `as any`, `<any>`, and type annotations with `any`.
-- [x] **Security: `no-unsafe-iframe`.** Warn on `<iframe>` without `sandbox` or `title`.
-- [x] **Next.js: `no-sync-script`.** Flag synchronous `<Script>` without `strategy="afterInteractive"`.
-- [x] **Performance: `no-large-libraries`.** Warn on importing heavy libraries (moment, lodash) when lighter alternatives exist.
-- [x] **Accessibility: `a-has-content`.** Warn on `<a>` or `<button>` with no text content or `aria-label`.
-- [x] **Accessibility: `no-ambiguous-labels`.** Warn on duplicate or ambiguous label text.
-- [x] **Auto-fix for more rules.** Extend `--fix` to `no-empty-blocks`, `no-console` (strip).
+## Phase 15 — Scanner & Engine ✅
+- [x] **Parallel file scanning.** `rayon::prelude::par_iter()` — concurrent file processing
+- [x] **Incremental / cached scanning.** `.raudit-cache.json` — file mtime hashes, skip unmodified files
+- [x] **Watch mode.** `src/watch.rs` via `notify` crate, 200ms debounce
+- [x] **Multi-root workspace support.** `config.workspaces` field — expand workspace globs into scan roots
+- [x] **Configurable rule defaults per file type.** `file_types` config maps extension → rule overrides
+- [x] **`--fix` integrated into Scanner.** Fixes applied in-place after scan
 
-## Phase 15 — Scanner & Engine
-- [x] **Parallel file scanning.** Use `rayon` for concurrent file processing.
-- [x] **Incremental / cached scanning.** Only re-scan changed files via `.raudit-cache.json` file mtime hashes.
-- [x] **Watch mode.** `react-auditor -W` via `notify` crate, with 200ms debounce.
-- [x] **Multi-root workspace support.** Expand workspace globs from config (`workspaces` field) into scan roots.
-- [x] **Configurable rule defaults per file type.** `file_types` config field maps extension → rule overrides (e.g. disable TS rules for `.jsx`).
+## Phase 16 — Testing ✅
+- [x] **69 tests total:** 16 e2e, 5 formatter, 8 integration, 28 proptest, 12 scanner (all pass)
+- [x] **Fuzz testing harness.** `fuzz/` directory with `cargo-fuzz` target — parses random bytes + runs all rules (requires Rust nightly to execute)
+- [x] **Snapshot testing.** Formatter fixtures compared against `tests/snapshots/` for `stylish`/`json`/`compact`
+- [x] **Property-based testing.** `proptest` generates random AST fragments — verify rules don't panic
+- [x] **Integration tests with real-world project.** `tests/real-project/` — multi-file project scanned end-to-end
+- [x] **Benchmark suite.** `criterion` — ~138µs per 1k LOC (bench results in `benches/auditor_bench.rs`)
+- [x] **Version-agnostic test helpers.** `contains_semver()` in e2e tests — no updates needed on version bump
 
-## Phase 16 — Testing
-- [x] **Snapshot testing for formatters.** Compare fixture output against snapshots for `stylish`/`json`/`compact`.
-- [x] **Property-based testing.** Use `proptest` to generate random AST fragments and verify rules don't panic.
-- [x] **Integration test with real-world projects.** Walk a realistic multi-file project under `tests/real-project/` and scan end-to-end.
-- [x] **Benchmark suite.** Use `criterion` to track scan time per 1000 LOC (bench results: ~138µs for 1k LOC).
-- [x] **Fuzz the parser.** Feed random byte sequences, edge cases, and malformed input to ensure graceful error handling.
+## Phase 17 — VS Code Extension ✅
+- [x] **Extension scaffold.** `vscode/extension.js` — activates on JS/TS/JSX/TSX files
+- [x] **Live diagnostics.** Debounced file-watching, runs binary, populates Problems panel
+- [x] **Binary discovery.** Tries bundled `path.join(__dirname, 'react-auditor')`, falls back to PATH
+- [x] **Quick-fix code actions.** `ReactAuditorFixProvider` — "Fix with react-auditor" and "Disable rule" in Problems panel
+- [x] **Configuration UI webview.** `react-auditor.configure` command opens webview with rule dropdowns, generates `.rauditrc.toml`
+- [x] **Progress notification.** `withProgress()` API for workspace scans with cancellable progress bar
+- [x] **Decorations.** Gutter highlight and overview ruler markers for error/warning lines via `updateDecorations()`
+- [x] **Status bar.** Clickable status bar item with issue count, spinner during scan
+- [x] **VSIX packaging.** `npx vsce package` — `vscode/` dir packaged, `vscode/LICENSE` included
+- [x] **Publish workflow.** `.github/workflows/publish-vscode.yml` — bundles binary, packages, publishes to marketplace
+- [x] **`.vscodeignore`.** Excludes `node_modules/`, `src/`, `.gitignore`, `*.toml`, `*.lock`
 
-## Phase 17 — VS Code Extension
-- [x] **Error list / problems panel grouping.** Diagnostics grouped by `ruleId` via `Diagnostic.code`, plus `relatedInformation` for category context.
-- [x] **Quick-fix code actions.** `CodeActionProvider` provides "Fix with react-auditor" (runs `--fix`) and "Disable rule" options from the Problems panel.
-- [x] **Configuration UI.** Webview panel (`react-auditor.configure`) with dropdowns for common rules — generates `.rauditrc.toml` on save.
-- [x] **Progress notification.** `withProgress()` API for workspace scans with cancellable progress bar.
-- [x] **Decorations.** Gutter highlight and overview ruler markers for error/warning lines.
+## Phase 18 — Documentation ✅
+- [x] **Rule docs generator.** `react-auditor --docs` generates per-rule markdown in `docs/rules/` from `RuleMeta` — includes category, severity, auto-fix status (replaced deprecated `src/bin/docgen.rs`)
+- [x] **Website / playground.** `docs/playground.html` — client-side HTML playground with built-in examples (basic, hooks, security, TypeScript, Next.js) + offline mock detection
+- [x] **Migration guide.** `docs/migration-from-eslint.md` — ESLint → react-auditor rule mapping, config comparison, CI comparison
+- [x] **Doc files:** `ARCHITECTURE.md`, `DEVELOPMENT.md`, `ROADMAP.md`, `RULES.md`, `USAGE.md`, `IMPROVEMENTS.md`, `PLAN.md`
 
-## Phase 18 — Documentation
-- [x] **Rule documentation generator.** `cargo run --bin docgen` generates per-rule markdown in `docs/rules/` from `RuleMeta`, including category, severity, and auto-fix status.
-- [x] **Website / playground.** `docs/playground.html` — client-side HTML playground with built-in examples (basic, hooks, security, TypeScript, Next.js) and mock detection for offline demo.
-- [x] **Migration guides.** `docs/migration-from-eslint.md` — comprehensive ESLint → react-auditor rule mapping, config comparison, CI comparison, and performance benchmarks.
+## Phase 19 — Distribution ✅
+- [x] **GitHub Action.** `.github/actions/react-auditor/` — composite action with problem matcher; `.github/workflows/audit-pr.yml` — runs on PRs touching JS/TS/JSX/TSX
+- [x] **Homebrew tap.** `homebrew/react-auditor.rb` — formula template with placeholders for version + SHA256; auto-published to `chesteralan/homebrew-tap`
+- [x] **Docker image.** `docker/Dockerfile` (multi-stage, `debian:bookworm-slim`), `.dockerignore`, `docker-compose.yml`
+- [x] **Pre-built binaries.** Release workflow builds 5 targets + uploads artifacts
 
-## Phase 19 — Distribution
-- [x] **GitHub Action.** `.github/actions/react-auditor/` — composite action with problem matcher; `.github/workflows/audit-pr.yml` — runs on PRs touching JS/TS/JSX/TSX.
-- [x] **Homebrew tap.** `homebrew/react-auditor.rb` formula for macOS (ARM + Intel) and Linux. Publish to `chesteralan/homebrew-tap`.
-- [x] **Docker image.** `docker/Dockerfile` (multi-stage, `debian:bookworm-slim`), `.dockerignore`, `docker-compose.yml`.
-- [x] **Pre-built binaries.** `.github/workflows/release.yml` — builds Linux x86_64, macOS x86_64 + ARM, Windows x86_64 via `actions-rs/cargo`. Archives uploaded as release artifacts on tag push.
+## Phase 20 — Infrastructure ✅
+- [x] **Code coverage.** `.github/workflows/coverage.yml` — `cargo-llvm-cov` generates LCOV, uploaded to Codecov on PR to `main`
+- [x] **Dependency dashboard.** `.github/dependabot.yml` — weekly updates for Cargo + GitHub Actions deps
+- [x] **Semantic release.** `.github/workflows/release-please.yml` — `release-please` on push to `main`; `release-type: rust`; `extra-files` for `npm/package.json`, `vscode/package.json`
 
-## Phase 20 — Infrastructure
-- [x] **Automated canary releases.** `.github/workflows/nightly.yml` — builds + tests daily at 06:00 UTC, uploads binary as artifact. Manual dispatch also supported.
-- [x] **Code coverage.** `.github/workflows/coverage.yml` — `cargo-llvm-cov` generates LCOV report, uploaded to Codecov on push/PR to `main`.
-- [x] **Dependency dashboard.** `.github/dependabot.yml` — weekly updates for Cargo + GitHub Actions dependencies, labeled `dependencies`/`rust`/`ci`.
-- [x] **Semantic release.** `.github/workflows/release-please.yml` — `release-please` action on push to `main` using conventional commits; `release-type: rust` to auto-bump `Cargo.toml` version and generate changelog.
+## Phase 21 — CI/CD Refinements ✅
+- [x] **All publish workflows trigger on `release: [published]`** — ensures release is fully created before publishing
+- [x] **CI trigger narrowed:** CI runs on PRs to `main` + pushes to release-please branch only (no push to `main`)
+- [x] **Coverage trigger narrowed:** only PR to `main` (removed push to `main`)
+- [x] **Homebrew via `workflow_run`:** triggered by Release workflow completion (not `release: [published]` + sleep hack)
+- [x] **Nightly canary deleted** (`.github/workflows/nightly.yml` removed — no longer needed)
+- [x] **release-please extra-files:** `npm/package.json` and `vscode/package.json` auto-versioned alongside `Cargo.toml`
+- [x] **publish-vscode working-directory:** removed global `defaults: working-directory: vscode` — only applies to vsce publish step
+- [x] **Release workflow expanded:** added `aarch64-unknown-linux-gnu` to build matrix
+
+## Phase 22 — Future 🚧
+
+### Short-term
+- [ ] Publish v0.3.2 to npm, cargo, Homebrew, VS Code marketplace
+- [x] Add `RELEASE_PLEASE_TOKEN`, `NPM_TOKEN`, `CRATES_TOKEN`, `VSCODE_MARKETPLACE_TOKEN`, `HOMEBREW_TAP_TOKEN` secrets
+- [x] Create `chesteralan/homebrew-tap` repo for formula hosting
+- [ ] Publish GitHub Action to marketplace
+
+### Medium-term
+- [x] `prefer-function-components` auto-fix (class → function component conversion)
+- [x] `assert-includes-message` rule (testing category)
+- [x] Config presets (`react-auditor --preset recommended`, `--preset strict`, `--preset nextjs`)
+- [ ] Real CI integration test with example Next.js project
+- [ ] Fuzz testing: run `cargo +nightly fuzz run fuzz_target_1` in CI (requires nightly)
+- [ ] Bundle multi-arch binaries in npm package (currently single-arch per publish)
+
+### Long-term
+- [x] Pre-commit hook installer (`react-auditor init`)
+- [x] Performance: sub-100µs per 1k LOC target (currently ~94µs)
+- [ ] LSP server for editor-agnostic integration
+- [ ] IntelliJ / JetBrains plugin
+- [ ] WASM-based browser playground (current `docs/playground.html` is mock-only)

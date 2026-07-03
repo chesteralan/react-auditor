@@ -1,15 +1,19 @@
 name: Publish npm Package
 
 on:
-  release:
-    types: [published]
+  workflow_run:
+    workflows: ["Release"]
+    types: [completed]
+  workflow_dispatch:
 
 jobs:
   publish:
+    if: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
     permissions:
       contents: read
       id-token: write
+      actions: read
     environment: npm
 
     steps:
@@ -20,14 +24,57 @@ jobs:
           node-version: 22
           registry-url: https://registry.npmjs.org
 
-      - name: Install Rust toolchain
-        uses: dtolnay/rust-toolchain@stable
+      - name: Download all release artifacts
+        uses: actions/download-artifact@v8
+        with:
+          pattern: react-auditor-*
+          path: artifacts
+          merge-multiple: true
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          run-id: ${{ github.event.workflow_run.id }}
 
-      - name: Build release binary
-        run: cargo build --release
+      - name: Extract and rename binaries
+        shell: bash
+        run: |
+          declare -A PLATFORM_MAP=(
+            ["x86_64-unknown-linux-gnu"]="linux-x64"
+            ["aarch64-unknown-linux-gnu"]="linux-arm64"
+            ["x86_64-apple-darwin"]="darwin-x64"
+            ["aarch64-apple-darwin"]="darwin-arm64"
+            ["x86_64-pc-windows-msvc"]="win32-x64"
+          )
 
-      - name: Copy binary into npm package
-        run: cp target/release/react-auditor npm/
+          for target in "${!PLATFORM_MAP[@]}"; do
+            plat="${PLATFORM_MAP[$target]}"
+            extract_dir="/tmp/extract-$target"
+            mkdir -p "$extract_dir"
+            archive=$(ls artifacts/react-auditor-${target}-* 2>/dev/null | head -1)
+            if [ -z "$archive" ]; then
+              echo "No archive found for $target"
+              continue
+            fi
+            echo "Extracting $archive"
+            if [[ "$archive" == *.zip ]]; then
+              unzip -o "$archive" react-auditor.exe -d "$extract_dir"
+              cp "$extract_dir/react-auditor.exe" "npm/react-auditor-${plat}.exe"
+            else
+              tar xzf "$archive" -C "$extract_dir"
+              cp "$extract_dir/react-auditor" "npm/react-auditor-${plat}"
+            fi
+          done
+
+          chmod +x npm/react-auditor-* 2>/dev/null || true
+          ls -la npm/react-auditor-*
+
+      - name: Verify at least one binary exists
+        run: |
+          count=$(ls -1 npm/react-auditor-* 2>/dev/null | wc -l)
+          if [ "$count" -eq 0 ]; then
+            echo "No binaries were extracted!"
+            ls -la artifacts/
+            exit 1
+          fi
+          echo "Found $count platform binaries"
 
       - name: Publish to npmjs
         working-directory: npm

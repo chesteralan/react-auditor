@@ -1,6 +1,7 @@
 pub mod consistent_component_naming;
 pub mod effect_deps_complete;
 pub mod hook_rules;
+pub mod no_array_index_key;
 pub mod no_direct_mutation;
 pub mod no_duplicate_props;
 pub mod no_forward_ref;
@@ -13,5 +14,6 @@ pub mod no_ref_in_component_name;
 pub mod no_set_state_in_effect;
 pub mod no_set_state_in_render;
 pub mod no_side_effects_in_render;
+pub mod no_state_in_default_props;
 pub mod no_unnecessary_memo;
 pub mod prefer_function_components;

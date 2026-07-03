@@ -5,6 +5,10 @@
   "bin": {
     "react-auditor": "./wrapper.js"
   },
+  "files": [
+    "wrapper.js",
+    "react-auditor-*"
+  ],
   "scripts": {},
   "repository": {
     "type": "git",
