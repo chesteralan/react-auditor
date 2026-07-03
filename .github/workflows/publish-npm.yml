@@ -4,12 +4,6 @@ on:
   workflow_run:
     workflows: ["Release"]
     types: [completed]
-  workflow_dispatch:
-    inputs:
-      version:
-        description: "Version to publish (e.g., 0.3.2)"
-        required: true
-
 jobs:
   publish:
     runs-on: ubuntu-latest
@@ -25,19 +19,14 @@ jobs:
       - name: Determine version
         id: version
         run: |
-          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
-            echo "tag=v${{ inputs.version }}" >> "$GITHUB_OUTPUT"
-            echo "version=${{ inputs.version }}" >> "$GITHUB_OUTPUT"
-          else
-            mkdir -p tag-artifact
-            gh run download "${{ github.event.workflow_run.id }}" \
-              --name release-tag \
-              --dir tag-artifact \
-              --repo "${{ github.repository }}"
-            TAG=$(cat tag-artifact/RELEASE_TAG)
-            echo "tag=$TAG" >> "$GITHUB_OUTPUT"
-            echo "version=${TAG#v}" >> "$GITHUB_OUTPUT"
-          fi
+          mkdir -p tag-artifact
+          gh run download "${{ github.event.workflow_run.id }}" \
+            --name release-tag \
+            --dir tag-artifact \
+            --repo "${{ github.repository }}"
+          TAG=$(cat tag-artifact/RELEASE_TAG)
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+          echo "version=${TAG#v}" >> "$GITHUB_OUTPUT"
         env:
           GH_TOKEN: ${{ github.token }}
 
@@ -47,7 +36,6 @@ jobs:
           registry-url: https://registry.npmjs.org
 
       - name: Download all release artifacts
-        if: ${{ github.event_name == 'workflow_run' }}
         uses: actions/download-artifact@v8
         with:
           pattern: react-auditor-*
@@ -55,22 +43,6 @@ jobs:
           merge-multiple: true
           github-token: ${{ secrets.GITHUB_TOKEN }}
           run-id: ${{ github.event.workflow_run.id }}
-
-      - name: Download release binaries from GitHub
-        if: ${{ github.event_name == 'workflow_dispatch' }}
-        env:
-          TAG: ${{ steps.version.outputs.tag }}
-        run: |
-          mkdir -p artifacts
-          for target in x86_64-unknown-linux-gnu aarch64-unknown-linux-gnu \
-                         x86_64-apple-darwin aarch64-apple-darwin \
-                         x86_64-pc-windows-msvc; do
-            ext="tar.gz"
-            [ "$target" = "x86_64-pc-windows-msvc" ] && ext="zip"
-            URL="https://github.com/${{ github.repository }}/releases/download/$TAG/react-auditor-${target}-$TAG.${ext}"
-            echo "Downloading $URL"
-            curl -sSfL "$URL" -o "artifacts/react-auditor-${target}-$TAG.${ext}"
-          done
 
       - name: Extract and rename binaries
         shell: bash

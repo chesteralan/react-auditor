@@ -4,12 +4,6 @@ on:
   workflow_run:
     workflows: ["Release"]
     types: [completed]
-  workflow_dispatch:
-    inputs:
-      version:
-        description: "Version to publish (e.g., 0.1.7)"
-        required: true
-
 jobs:
   publish:
     runs-on: ubuntu-latest
@@ -20,20 +14,14 @@ jobs:
       - name: Determine version
         id: version
         run: |
-          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
-            echo "version=${{ inputs.version }}" >> "$GITHUB_OUTPUT"
-            echo "tag=v${{ inputs.version }}" >> "$GITHUB_OUTPUT"
-          else
-            # Read tag from the Release workflow's artifact
-            mkdir -p tag-artifact
-            gh run download "${{ github.event.workflow_run.id }}" \
-              --name release-tag \
-              --dir tag-artifact \
-              --repo "${{ github.repository }}"
-            TAG=$(cat tag-artifact/RELEASE_TAG)
-            echo "tag=$TAG" >> "$GITHUB_OUTPUT"
-            echo "version=${TAG#v}" >> "$GITHUB_OUTPUT"
-          fi
+          mkdir -p tag-artifact
+          gh run download "${{ github.event.workflow_run.id }}" \
+            --name release-tag \
+            --dir tag-artifact \
+            --repo "${{ github.repository }}"
+          TAG=$(cat tag-artifact/RELEASE_TAG)
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+          echo "version=${TAG#v}" >> "$GITHUB_OUTPUT"
         env:
           GH_TOKEN: ${{ github.token }}
 
