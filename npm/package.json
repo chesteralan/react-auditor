@@ -1,6 +1,6 @@
 {
   "name": "react-auditor",
-  "version": "0.3.1",
+  "version": "0.5.0",
   "description": "A blazing-fast Rust CLI to scan JS/TS/React code for best practices, quality, and security issues",
   "bin": {
     "react-auditor": "./wrapper.js"
