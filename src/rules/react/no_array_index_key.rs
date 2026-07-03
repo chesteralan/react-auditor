@@ -47,17 +47,17 @@ impl<'a> Visit<'a> for ArrayIndexKeyCollector<'a> {
                 }
                 if let Some(val) = &attr.value
                     && let oxc_ast::ast::JSXAttributeValue::ExpressionContainer(container) = val
+                    && matches!(&container.expression, oxc_ast::ast::JSXExpression::Identifier(ident) if is_index_name(ident.name.as_str()))
                 {
-                    if matches!(&container.expression, oxc_ast::ast::JSXExpression::Identifier(ident) if is_index_name(ident.name.as_str())) {
-                        let start = attr.span.start as usize;
-                        let col = start - self.source[..start].rfind('\n').map(|i| i + 1).unwrap_or(0);
-                        let line = self.source[..start].lines().count().max(1);
-                        self.findings.push(RuleFinding {
-                            line,
-                            column: col + 1,
-                            message: "Avoid using array index as `key` — prefer a stable unique ID".to_string(),
-                        });
-                    }
+                    let start = attr.span.start as usize;
+                    let col = start - self.source[..start].rfind('\n').map(|i| i + 1).unwrap_or(0);
+                    let line = self.source[..start].lines().count().max(1);
+                    self.findings.push(RuleFinding {
+                        line,
+                        column: col + 1,
+                        message: "Avoid using array index as `key` — prefer a stable unique ID"
+                            .to_string(),
+                    });
                 }
             }
         }

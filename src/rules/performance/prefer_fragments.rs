@@ -58,18 +58,28 @@ fn find_matching_closing_div(source: &str, start: usize) -> Option<usize> {
     let mut depth = 1u32;
     let mut i = start;
     while i + 5 < bytes.len() {
-        if bytes[i] == b'<' && bytes[i + 1] == b'/' && bytes[i + 2] == b'd'
-            && bytes[i + 3] == b'i' && bytes[i + 4] == b'v' && bytes[i + 5] == b'>'
+        if bytes[i] == b'<'
+            && bytes[i + 1] == b'/'
+            && bytes[i + 2] == b'd'
+            && bytes[i + 3] == b'i'
+            && bytes[i + 4] == b'v'
+            && bytes[i + 5] == b'>'
         {
             depth -= 1;
             if depth == 0 {
                 return Some(i);
             }
             i += 6;
-        } else if bytes[i] == b'<' && bytes[i + 1] != b'/'
-            && i + 4 < bytes.len() && bytes[i + 1] == b'd'
-            && bytes[i + 2] == b'i' && bytes[i + 3] == b'v'
-            && (bytes[i + 4] == b'>' || bytes[i + 4] == b' ' || bytes[i + 4] == b'\t' || bytes[i + 4] == b'\n')
+        } else if bytes[i] == b'<'
+            && bytes[i + 1] != b'/'
+            && i + 4 < bytes.len()
+            && bytes[i + 1] == b'd'
+            && bytes[i + 2] == b'i'
+            && bytes[i + 3] == b'v'
+            && (bytes[i + 4] == b'>'
+                || bytes[i + 4] == b' '
+                || bytes[i + 4] == b'\t'
+                || bytes[i + 4] == b'\n')
         {
             depth += 1;
             let tag_close = source[i..].find('>')?;

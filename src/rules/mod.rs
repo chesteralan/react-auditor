@@ -172,8 +172,9 @@ impl RuleRegistry {
             .push(Box::new(react::no_forward_ref::NoForwardRef));
         self.rules
             .push(Box::new(react::no_array_index_key::NoArrayIndexKey));
-        self.rules
-            .push(Box::new(react::no_state_in_default_props::NoStateInDefaultProps));
+        self.rules.push(Box::new(
+            react::no_state_in_default_props::NoStateInDefaultProps,
+        ));
         // ── Phase 6: TypeScript ──
         self.rules.push(Box::new(typescript::no_any::NoAny));
         self.rules.push(Box::new(
@@ -261,6 +262,9 @@ impl RuleRegistry {
         // ── Testing ──
         self.rules
             .push(Box::new(testing::no_skipped_tests::NoSkippedTests));
+        self.rules.push(Box::new(
+            testing::assert_includes_message::AssertIncludesMessage,
+        ));
     }
 
     pub fn run_rules(

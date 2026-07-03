@@ -7,12 +7,12 @@ use ignore::WalkBuilder;
 use indicatif::{ProgressBar, ProgressStyle};
 use oxc_allocator::Allocator;
 use oxc_parser::Parser;
-use oxc_semantic::SemanticBuilder;
+use oxc_semantic::{Semantic, SemanticBuilder};
 use oxc_span::SourceType;
 use rayon::prelude::*;
 
 use crate::cache::Cache;
-use crate::rules::{RuleRegistry, Violation};
+use crate::rules::{RuleRegistry, Severity, Violation};
 
 #[derive(Debug, Clone)]
 pub struct ScanResult {
@@ -46,6 +46,21 @@ impl Scanner {
             file_type_overrides: HashMap::new(),
             ignore_patterns,
         }
+    }
+
+    fn semantic_is_needed(&self) -> bool {
+        let needed_ids = ["no-shadow", "no-unused-vars"];
+        needed_ids.iter().any(|id| {
+            self.severity_overrides
+                .get(*id)
+                .map(|s| s.parse::<Severity>().unwrap_or(Severity::Off).is_on())
+                .unwrap_or_else(|| {
+                    self.registry
+                        .get_rule(id)
+                        .map(|r| r.meta().default_severity.is_on())
+                        .unwrap_or(false)
+                })
+        })
     }
 
     fn is_ignored(&self, path: &Path) -> bool {
@@ -143,6 +158,7 @@ impl Scanner {
                     }
                 };
 
+                let needs_semantic = self.semantic_is_needed();
                 let source_type = SourceType::from_path(path).unwrap_or_default();
                 let allocator = Allocator::default();
                 let ret = Parser::new(&allocator, &content, source_type).parse();
@@ -155,7 +171,11 @@ impl Scanner {
                 }
 
                 let program = allocator.alloc(ret.program);
-                let semantic = SemanticBuilder::new().build(program);
+                let semantic = if needs_semantic {
+                    SemanticBuilder::new().build(program).semantic
+                } else {
+                    Semantic::default()
+                };
 
                 let overrides = if merged_map.is_empty() {
                     &self.severity_overrides
@@ -166,7 +186,7 @@ impl Scanner {
 
                 let violations = self.registry.run_rules(
                     program,
-                    &semantic.semantic,
+                    &semantic,
                     &content,
                     path_str,
                     overrides,
@@ -246,8 +266,13 @@ impl Scanner {
                     return None;
                 }
 
+                let needs_semantic = self.semantic_is_needed();
                 let program = allocator.alloc(ret.program);
-                let semantic = SemanticBuilder::new().build(program);
+                let semantic = if needs_semantic {
+                    SemanticBuilder::new().build(program).semantic
+                } else {
+                    Semantic::default()
+                };
 
                 let overrides = if merged_map.is_empty() {
                     &self.severity_overrides
@@ -258,7 +283,7 @@ impl Scanner {
 
                 let violations = self.registry.run_rules(
                     program,
-                    &semantic.semantic,
+                    &semantic,
                     &content,
                     path_str,
                     overrides,

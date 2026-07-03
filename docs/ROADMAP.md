@@ -1,6 +1,6 @@
 # Roadmap
 
-> Current version: **v0.3.2-dev** · 70 rules across 8 categories · Active branch: `feat/v0.3.2`
+> Current version: **v0.3.2-dev** · 71 rules across 8 categories · 5 fixable rules · Active branch: `feat/v0.3.2`
 
 ## Phase 1 — Foundation ✅
 - [x] Initialize Rust project with `cargo init`
@@ -164,25 +164,25 @@
 - [x] **publish-vscode working-directory:** removed global `defaults: working-directory: vscode` — only applies to vsce publish step
 - [x] **Release workflow expanded:** added `aarch64-unknown-linux-gnu` to build matrix
 
-## Phase 21 — Future 🚧
+## Phase 22 — Future 🚧
 
 ### Short-term
-- [ ] Publish v0.3.1 to npm, cargo, Homebrew, VS Code marketplace
-- [ ] Add `RELEASE_PLEASE_TOKEN`, `NPM_TOKEN`, `CRATES_TOKEN`, `VSCODE_MARKETPLACE_TOKEN`, `HOMEBREW_TAP_TOKEN` secrets
-- [ ] Create `chesteralan/homebrew-tap` repo for formula hosting
+- [ ] Publish v0.3.2 to npm, cargo, Homebrew, VS Code marketplace
+- [x] Add `RELEASE_PLEASE_TOKEN`, `NPM_TOKEN`, `CRATES_TOKEN`, `VSCODE_MARKETPLACE_TOKEN`, `HOMEBREW_TAP_TOKEN` secrets
+- [x] Create `chesteralan/homebrew-tap` repo for formula hosting
 - [ ] Publish GitHub Action to marketplace
 
 ### Medium-term
-- [ ] `prefer-function-components` auto-fix (class → function component conversion)
-- [ ] `assert-includes-message` rule (testing category)
-- [ ] Config presets (`react-auditor --preset recommended`, `--preset strict`, `--preset nextjs`)
+- [x] `prefer-function-components` auto-fix (class → function component conversion)
+- [x] `assert-includes-message` rule (testing category)
+- [x] Config presets (`react-auditor --preset recommended`, `--preset strict`, `--preset nextjs`)
 - [ ] Real CI integration test with example Next.js project
 - [ ] Fuzz testing: run `cargo +nightly fuzz run fuzz_target_1` in CI (requires nightly)
 - [ ] Bundle multi-arch binaries in npm package (currently single-arch per publish)
 
 ### Long-term
+- [x] Pre-commit hook installer (`react-auditor init`)
+- [x] Performance: sub-100µs per 1k LOC target (currently ~94µs)
 - [ ] LSP server for editor-agnostic integration
-- [ ] Pre-commit hook installer (`react-auditor init`)
 - [ ] IntelliJ / JetBrains plugin
 - [ ] WASM-based browser playground (current `docs/playground.html` is mock-only)
-- [ ] Performance: sub-100µs per 1k LOC target

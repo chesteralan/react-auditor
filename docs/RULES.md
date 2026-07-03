@@ -1,6 +1,6 @@
 # Rules Catalog
 
-All 70 rules the scanner checks against, organized by category. Rules with a ðŸ”§ icon support `--fix`.
+All 71 rules the scanner checks against, organized by category. Rules with a ðŸ”§ icon support `--fix`.
 
 ---
 
@@ -31,7 +31,7 @@ All 70 rules the scanner checks against, organized by category. Rules with a ðŸ”
 | `consistent-component-naming` | warn | Component names should be PascalCase, hooks camelCase |
 | `no-index-key` | warn | Prefer stable IDs over array index as key |
 | `no-inline-functions` | warn | Avoid inline function definitions in JSX props |
-| `prefer-function-components` | warn | Prefer function components over class components |
+| `prefer-function-components` ðŸ”§ | warn | Prefer function components over class components |
 | `no-unnecessary-memo` | warn | Avoid useMemo/useCallback for trivial computations |
 | `no-multiple-render-methods` | warn | Component should not have multiple render methods |
 | `no-side-effects-in-render` | error | No side effects during render |
@@ -108,11 +108,12 @@ All 70 rules the scanner checks against, organized by category. Rules with a ðŸ”
 | `html-has-lang` | error | `<html>` element should have a `lang` attribute |
 | `no-autofocus` | warn | Avoid `autoFocus` for accessibility concerns |
 
-## Testing (1 rule)
+## Testing (2 rules)
 
 | Rule ID | Severity | Description |
 |---------|----------|-------------|
 | `no-skipped-tests` | warn | Flag `it.skip`, `describe.skip`, `xit`, `xdescribe` in test files |
+| `assert-includes-message` | warn | Assertions should include a descriptive message |
 
 ---
 
