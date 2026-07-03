@@ -71,6 +71,14 @@ jobs:
           pattern: react-auditor-*
           merge-multiple: true
 
+      - name: Save release tag for downstream workflows
+        run: echo "${{ github.ref_name }}" > RELEASE_TAG
+
+      - uses: actions/upload-artifact@v7
+        with:
+          name: release-tag
+          path: RELEASE_TAG
+
       - uses: softprops/action-gh-release@v3
         with:
           files: react-auditor-*
