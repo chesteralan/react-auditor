@@ -1,9 +1,6 @@
 name: CI
 
 on:
-  push:
-    branches:
-      - release-please--branches--main--components--react-auditor
   pull_request:
     branches: [main]
 
@@ -12,6 +9,7 @@ env:
 
 jobs:
   build-and-test:
+    if: ${{ github.head_ref != 'release-please--branches--main--components--react-auditor' }}
     runs-on: ubuntu-latest
 
     steps:
