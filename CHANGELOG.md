@@ -3,6 +3,15 @@
 
 # Changelog
 
+## [0.4.0](https://github.com/chesteralan/react-auditor/compare/v0.3.1...v0.4.0) (2026-07-03)
+
+
+### Features
+
+* bundle all 5 platform binaries in npm package ([b19f8d1](https://github.com/chesteralan/react-auditor/commit/b19f8d148e6ed1963c304ac4f5949449d1e9a20f))
+* new rules, auto-fix, fuzz harness, testing category ([99051ac](https://github.com/chesteralan/react-auditor/commit/99051acf15f1194ee395ac2c0e992cbb9c57c2bf))
+* prefer-function-components auto-fix, assert-includes-message rule, config presets, init cmd, perf ([4b4fa42](https://github.com/chesteralan/react-auditor/commit/4b4fa42582a29871f5828b04396ff0e8609188e3))
+
 ## [0.1.11](https://github.com/chesteralan/react-auditor/compare/v0.1.10...v0.1.11) (2026-07-03)
 
 
