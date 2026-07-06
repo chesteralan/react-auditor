@@ -29,6 +29,11 @@ impl Rule for NoUnusedVars {
                 continue;
             }
 
+            // Skip TypeScript type-only declarations (interfaces, type aliases)
+            if flags.is_interface() || flags.is_type_alias() {
+                continue;
+            }
+
             let is_function = flags.contains(oxc_syntax::symbol::SymbolFlags::Function);
 
             let mut refs = semantic.symbol_references(symbol_id);
