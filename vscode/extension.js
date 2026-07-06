@@ -118,21 +118,29 @@ function activate(context) {
     if (!filePath) return;
 
     const config = vscode.workspace.getConfiguration('reactAuditor');
-  const binaryPath = config.get('binaryPath', path.join(__dirname, 'react-auditor'));
+    const binaryPath = config.get('binaryPath', 'react-auditor');
 
     statusBarItem.text = '$(sync~spin) React Auditor: fixing...';
     try {
       const { stdout } = await execFileAsync(binaryPath, [
         filePath, '--fix', '--format', 'json',
       ], { timeout: 30000, maxBuffer: 10 * 1024 * 1024 });
-      const msg = stdout.trim() || 'Fixes applied. Re-scan to verify.';
-      vscode.window.showInformationMessage(`React Auditor: ${msg}`);
+      const msg = (stdout || '').trim();
+      if (msg) {
+        vscode.window.showInformationMessage(`React Auditor: ${msg}`);
+      }
       // Re-scan after fix
       if (vscode.window.activeTextEditor?.document.uri.fsPath === filePath) {
         await runAuditor(vscode.window.activeTextEditor.document);
       }
     } catch (err) {
-      vscode.window.showErrorMessage(`React Auditor fix failed: ${err.message}`);
+      // The fix command may still have applied fixes before exiting non-zero.
+      // Try to show its output before surfacing the error.
+      const msg = (err.stdout || err.stderr || '').toString().trim() || 'Fixes applied. Re-scan to verify.';
+      vscode.window.showInformationMessage(`React Auditor: ${msg}`);
+      if (vscode.window.activeTextEditor?.document.uri.fsPath === filePath) {
+        await runAuditor(vscode.window.activeTextEditor.document);
+      }
     } finally {
       statusBarItem.text = '$(check) React Auditor';
     }
@@ -401,11 +409,41 @@ function cancel() {
 </html>`;
 }
 
+// ── Helpers ──
+
+function parseResults(document, results) {
+  const diagnostics = [];
+  for (const v of results) {
+    const startCol = Math.max(0, (v.column || 1) - 1);
+    const range = new vscode.Range(
+      v.line - 1, startCol,
+      v.line - 1, startCol + 40
+    );
+    const severity = SEVERITY_MAP[v.severity] || vscode.DiagnosticSeverity.Warning;
+    const cat = v.category || '';
+    const diagnostic = new vscode.Diagnostic(
+      range,
+      cat ? `[${cat}/${v.ruleId}] ${v.message}` : `[${v.ruleId}] ${v.message}`,
+      severity
+    );
+    diagnostic.source = 'react-auditor';
+    diagnostic.code = v.ruleId;
+    diagnostic.relatedInformation = [
+      new vscode.DiagnosticRelatedInformation(
+        new vscode.Location(document.uri, range),
+        cat ? `Category: ${cat}` : `${v.ruleId}`
+      ),
+    ];
+    diagnostics.push(diagnostic);
+  }
+  return diagnostics;
+}
+
 // ── Main auditor runner ──
 
 async function runAuditor(document) {
   const config = vscode.workspace.getConfiguration('reactAuditor');
-    const binaryPath = config.get('binaryPath', path.join(__dirname, 'react-auditor'));
+  const binaryPath = config.get('binaryPath', 'react-auditor');
     const filePath = document.uri.fsPath;
 
   if (!filePath) return;
@@ -418,32 +456,7 @@ async function runAuditor(document) {
     ], { timeout: 30000, maxBuffer: 10 * 1024 * 1024 });
 
     const results = JSON.parse(stdout);
-    const diagnostics = [];
-
-    for (const fileResult of results) {
-      for (const v of fileResult.violations) {
-        const startCol = Math.max(0, (v.column || 1) - 1);
-        const range = new vscode.Range(
-          v.line - 1, startCol,
-          v.line - 1, startCol + 40
-        );
-        const severity = SEVERITY_MAP[v.severity] || vscode.DiagnosticSeverity.Warning;
-        const diagnostic = new vscode.Diagnostic(
-          range,
-          `[${v.category}/${v.ruleId}] ${v.message}`,
-          severity
-        );
-        diagnostic.source = 'react-auditor';
-        diagnostic.code = v.ruleId;
-        diagnostic.relatedInformation = [
-          new vscode.DiagnosticRelatedInformation(
-            new vscode.Location(document.uri, range),
-            `Category: ${v.category}`
-          ),
-        ];
-        diagnostics.push(diagnostic);
-      }
-    }
+    const diagnostics = parseResults(document, results);
 
     diagnosticCollection.set(document.uri, diagnostics);
 
@@ -461,6 +474,25 @@ async function runAuditor(document) {
       updateDecorations(editor);
     }
   } catch (err) {
+    // The binary exits with code 1 when violations are found, but still
+    // writes valid JSON to stdout. Try to parse it before falling back
+    // to error display.
+    if (err.stdout) {
+      try {
+        const results = JSON.parse(err.stdout.toString());
+        if (Array.isArray(results) && results.some(r => r.file || r.violations?.length)) {
+          diagnosticCollection.set(document.uri, parseResults(document, results));
+          const count = diagnosticCollection.get(document.uri)?.length || 0;
+          statusBarItem.text = count === 0
+            ? '$(pass) React Auditor'
+            : `$(warning) React Auditor: ${count}`;
+          return;
+        }
+      } catch (_) {
+        // stdout wasn't valid JSON — fall through to error
+      }
+    }
+
     if (err.code === 'ENOENT') {
       statusBarItem.text = '$(alert) React Auditor: not found';
       statusBarItem.tooltip = 'binary not found — install with cargo or npm';
