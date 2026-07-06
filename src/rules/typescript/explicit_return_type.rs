@@ -1,5 +1,5 @@
 use oxc_ast::ast::Program;
-use oxc_ast_visit::Visit;
+use oxc_ast_visit::{Visit, walk};
 use oxc_semantic::Semantic;
 use oxc_syntax::scope::ScopeFlags;
 
@@ -23,6 +23,7 @@ impl Rule for ExplicitReturnType {
         let mut collector = ReturnTypeCollector {
             findings: Vec::new(),
             source: source_text,
+            in_call_args: 0,
         };
         collector.visit_program(program);
         collector.findings
@@ -32,9 +33,16 @@ impl Rule for ExplicitReturnType {
 struct ReturnTypeCollector<'a> {
     findings: Vec<RuleFinding>,
     source: &'a str,
+    in_call_args: usize,
 }
 
 impl<'a> Visit<'a> for ReturnTypeCollector<'a> {
+    fn visit_call_expression(&mut self, expr: &oxc_ast::ast::CallExpression<'a>) {
+        self.in_call_args += 1;
+        walk::walk_call_expression(self, expr);
+        self.in_call_args -= 1;
+    }
+
     fn visit_function(&mut self, func: &oxc_ast::ast::Function<'a>, _flags: ScopeFlags) {
         if func.return_type.is_none() && func.body.is_some() {
             let name = func
@@ -57,6 +65,11 @@ impl<'a> Visit<'a> for ReturnTypeCollector<'a> {
         &mut self,
         func: &oxc_ast::ast::ArrowFunctionExpression<'a>,
     ) {
+        // Skip callbacks — arrow functions passed as arguments to call expressions
+        if self.in_call_args > 0 {
+            return;
+        }
+
         if func.return_type.is_none() {
             let start = func.span.start as usize;
             let line = self.source[..start].lines().count().max(1);
