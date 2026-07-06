@@ -3,3 +3,5 @@ src/
 .gitignore
 *.toml
 *.lock
+react-auditor
+*.vsix
