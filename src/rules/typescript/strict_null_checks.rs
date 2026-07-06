@@ -46,8 +46,36 @@ impl<'a> NullCheckCollector<'a> {
     }
 }
 
+/// Well-known global identifiers that are never null or undefined.
+const SAFE_GLOBALS: &[&str] = &[
+    "Object", "Array", "Function", "String", "Number", "Boolean", "Symbol", "BigInt",
+    "JSON", "Math", "Reflect", "RegExp", "Promise", "Map", "Set", "WeakMap", "WeakSet",
+    "Date", "Error", "TypeError", "SyntaxError", "ReferenceError", "RangeError", "URIError",
+    "console", "globalThis", "Intl", "Proxy", "ArrayBuffer", "SharedArrayBuffer", "DataView",
+    "Atomics", "BigInt64Array", "BigUint64Array", "Float32Array", "Float64Array",
+    "Int8Array", "Int16Array", "Int32Array", "Uint8Array", "Uint8ClampedArray",
+    "Uint16Array", "Uint32Array", "global", "process", "Buffer",
+];
+
+fn is_safe_global(expr: &oxc_ast::ast::Expression) -> bool {
+    if let oxc_ast::ast::Expression::Identifier(ident) = expr {
+        SAFE_GLOBALS.contains(&ident.name.as_str())
+    } else {
+        false
+    }
+}
+
 impl<'a> Visit<'a> for NullCheckCollector<'a> {
     fn visit_member_expression(&mut self, expr: &MemberExpression<'a>) {
+        let is_safe = match expr {
+            MemberExpression::StaticMemberExpression(m) => is_safe_global(&m.object),
+            MemberExpression::ComputedMemberExpression(m) => is_safe_global(&m.object),
+            MemberExpression::PrivateFieldExpression(_) => false,
+        };
+        if is_safe {
+            return;
+        }
+
         if let MemberExpression::ComputedMemberExpression(computed) = expr
             && !computed.optional
         {
@@ -84,6 +112,15 @@ impl<'a> Visit<'a> for NullCheckCollector<'a> {
             return;
         }
         if let Some(member) = expr.callee.as_member_expression() {
+            let is_safe = match member {
+                MemberExpression::StaticMemberExpression(m) => is_safe_global(&m.object),
+                MemberExpression::ComputedMemberExpression(m) => is_safe_global(&m.object),
+                MemberExpression::PrivateFieldExpression(_) => false,
+            };
+            if is_safe {
+                return;
+            }
+
             let optional = match member {
                 MemberExpression::ComputedMemberExpression(c) => c.optional,
                 MemberExpression::StaticMemberExpression(s) => s.optional,
