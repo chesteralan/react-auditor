@@ -413,29 +413,28 @@ function cancel() {
 
 function parseResults(document, results) {
   const diagnostics = [];
-  for (const fileResult of results) {
-    for (const v of fileResult.violations) {
-      const startCol = Math.max(0, (v.column || 1) - 1);
-      const range = new vscode.Range(
-        v.line - 1, startCol,
-        v.line - 1, startCol + 40
-      );
-      const severity = SEVERITY_MAP[v.severity] || vscode.DiagnosticSeverity.Warning;
-      const diagnostic = new vscode.Diagnostic(
-        range,
-        `[${v.category}/${v.ruleId}] ${v.message}`,
-        severity
-      );
-      diagnostic.source = 'react-auditor';
-      diagnostic.code = v.ruleId;
-      diagnostic.relatedInformation = [
-        new vscode.DiagnosticRelatedInformation(
-          new vscode.Location(document.uri, range),
-          `Category: ${v.category}`
-        ),
-      ];
-      diagnostics.push(diagnostic);
-    }
+  for (const v of results) {
+    const startCol = Math.max(0, (v.column || 1) - 1);
+    const range = new vscode.Range(
+      v.line - 1, startCol,
+      v.line - 1, startCol + 40
+    );
+    const severity = SEVERITY_MAP[v.severity] || vscode.DiagnosticSeverity.Warning;
+    const cat = v.category || '';
+    const diagnostic = new vscode.Diagnostic(
+      range,
+      cat ? `[${cat}/${v.ruleId}] ${v.message}` : `[${v.ruleId}] ${v.message}`,
+      severity
+    );
+    diagnostic.source = 'react-auditor';
+    diagnostic.code = v.ruleId;
+    diagnostic.relatedInformation = [
+      new vscode.DiagnosticRelatedInformation(
+        new vscode.Location(document.uri, range),
+        cat ? `Category: ${cat}` : `${v.ruleId}`
+      ),
+    ];
+    diagnostics.push(diagnostic);
   }
   return diagnostics;
 }

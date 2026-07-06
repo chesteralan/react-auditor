@@ -15,6 +15,7 @@ impl Formatter for JsonFormatter {
                         "line": v.line,
                         "column": v.column,
                         "ruleId": v.rule_id,
+                        "category": v.category,
                         "message": v.message,
                         "severity": match v.severity {
                             Severity::Error => "error",
