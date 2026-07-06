@@ -1,6 +1,6 @@
 [package]
 name = "react-auditor"
-version = "0.5.1"
+version = "0.5.2"
 edition = "2024"
 default-run = "react-auditor"
 description = "A blazing-fast Rust CLI to scan JS/TS/React code for best practices, quality, and security issues."

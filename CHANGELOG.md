@@ -3,6 +3,17 @@
 
 # Changelog
 
+## [0.5.2](https://github.com/chesteralan/react-auditor/compare/react-auditor-v0.5.1...react-auditor-v0.5.2) (2026-07-06)
+
+
+### Bug Fixes
+
+* parse flat JSON format in vscode ext, add category to JSON output ([c5ab0d0](https://github.com/chesteralan/react-auditor/commit/c5ab0d01f7f9be75aff2fe49b5f196eabc4670ab))
+* vscode error ([6be37e8](https://github.com/chesteralan/react-auditor/commit/6be37e880a29a6671594810013f54cde39d7c348))
+* vscode error ([6be37e8](https://github.com/chesteralan/react-auditor/commit/6be37e880a29a6671594810013f54cde39d7c348))
+* **vscode:** parse violations from err.stdout on non-zero exit ([c659416](https://github.com/chesteralan/react-auditor/commit/c659416c1adbbed2e10587fc2961ced0f72d1c17))
+* **vscode:** un-bundle binary, use PATH, shrink VSIX to 42KB ([b64732f](https://github.com/chesteralan/react-auditor/commit/b64732fc2caac3af0d5ebe1691dadd99e4f2b8d2))
+
 ## [0.5.1](https://github.com/chesteralan/react-auditor/compare/react-auditor-v0.5.0...react-auditor-v0.5.1) (2026-07-03)
 
 
