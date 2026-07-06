@@ -80,7 +80,11 @@ impl Scanner {
 
     fn walk_files(&self, root: &Path) -> Vec<String> {
         let mut files = Vec::new();
-        for result in WalkBuilder::new(root).standard_filters(true).require_git(false).build() {
+        for result in WalkBuilder::new(root)
+            .standard_filters(true)
+            .require_git(false)
+            .build()
+        {
             if let Ok(entry) = result
                 && entry.file_type().map(|t| t.is_file()).unwrap_or(false)
                 && let Some(ext) = entry.path().extension().and_then(|e| e.to_str())
@@ -330,7 +334,11 @@ impl Scanner {
                         .with_context(|| format!("Invalid glob pattern: {pattern}"))?
                         .compile_matcher();
 
-                    for entry in WalkBuilder::new(".").standard_filters(true).require_git(false).build() {
+                    for entry in WalkBuilder::new(".")
+                        .standard_filters(true)
+                        .require_git(false)
+                        .build()
+                    {
                         if let Ok(entry) = entry
                             && entry.file_type().map(|t| t.is_file()).unwrap_or(false)
                             && glob_pattern.is_match(entry.path())

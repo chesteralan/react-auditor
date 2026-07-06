@@ -1,6 +1,7 @@
 use std::collections::HashMap;
+use std::hint::black_box;
 
-use criterion::{Criterion, black_box, criterion_group, criterion_main};
+use criterion::{Criterion, criterion_group, criterion_main};
 
 use react_auditor::scanner::Scanner;
 

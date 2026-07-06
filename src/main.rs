@@ -34,7 +34,12 @@ fn main() -> anyhow::Result<()> {
 
     let config = Config::load(cli.config.as_ref().map(Path::new))?;
 
-    let preset: Preset = cli.preset.parse().unwrap_or(Preset::Recommended);
+    let preset: Preset = cli
+        .preset
+        .as_deref()
+        .unwrap_or("recommended")
+        .parse()
+        .unwrap_or(Preset::Recommended);
 
     let mut severity_overrides = preset.severity_overrides();
     severity_overrides.extend(config.rules.clone());
@@ -60,10 +65,11 @@ fn main() -> anyhow::Result<()> {
         cli.files.clone()
     };
 
-    let ignore_patterns: Vec<String> = if cli.ignore.is_empty() {
+    let ignore_raw = cli.ignore.clone().unwrap_or_default();
+    let ignore_patterns: Vec<String> = if ignore_raw.is_empty() {
         Vec::new()
     } else {
-        cli.ignore
+        ignore_raw
             .split(',')
             .map(|s| s.trim().to_string())
             .filter(|s| !s.is_empty())
@@ -132,10 +138,11 @@ fn print_results(
         }
     }
 
-    let format_name = if cli.format == "stylish" && !config.format.is_empty() {
+    let cli_format = cli.format.as_deref().unwrap_or("stylish");
+    let format_name = if cli_format == "stylish" && !config.format.is_empty() {
         &config.format
     } else {
-        &cli.format
+        cli_format
     };
 
     let formatter = formatters::get_formatter(format_name);
@@ -154,8 +161,9 @@ fn print_results(
         .map(|max| warning_count as u32 > max)
         .unwrap_or(false);
 
-    let fail_on_error = cli.fail_on == "error" && error_count > 0;
-    let fail_on_warning = cli.fail_on == "warning" && total_violations > 0;
+    let fail_on = cli.fail_on.as_deref().unwrap_or("error");
+    let fail_on_error = fail_on == "error" && error_count > 0;
+    let fail_on_warning = fail_on == "warning" && total_violations > 0;
 
     if total_violations == 0 {
         println!("No issues found");

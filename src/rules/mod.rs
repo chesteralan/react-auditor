@@ -355,7 +355,10 @@ impl RuleRegistry {
                 Severity::Warning => "warning",
                 Severity::Off => "off",
             };
-            buf.push_str(&format!("\"{}\" = \"{}\"   # {}\n", meta.id, sev, meta.description));
+            buf.push_str(&format!(
+                "\"{}\" = \"{}\"   # {}\n",
+                meta.id, sev, meta.description
+            ));
         }
 
         buf
