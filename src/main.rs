@@ -26,6 +26,12 @@ fn main() -> anyhow::Result<()> {
         return Ok(());
     }
 
+    if cli.generate_config {
+        let registry = react_auditor::rules::RuleRegistry::new();
+        print!("{}", registry.generate_config());
+        return Ok(());
+    }
+
     let config = Config::load(cli.config.as_ref().map(Path::new))?;
 
     let preset: Preset = cli.preset.parse().unwrap_or(Preset::Recommended);

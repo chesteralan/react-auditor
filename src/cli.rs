@@ -39,8 +39,7 @@ Examples:
   react-auditor --fail-on warning             Fail on any violation
   react-auditor --fix                         Auto-fix where supported
   react-auditor init                          Install pre-commit hook
-
-Configuration: .rauditrc.toml, .rauditrc.json, or package.json#reactAuditor"
+  react-auditor --generate-config > .rauditrc.toml   Create default config
 )]
 pub struct Cli {
     /// File paths or glob patterns to scan (default: src/**/*.{js,jsx,ts,tsx})
@@ -97,6 +96,10 @@ pub struct Cli {
     /// Generate rule documentation in docs/rules/
     #[arg(long = "docs")]
     pub docs: bool,
+
+    /// Generate a default config file (.rauditrc.toml) to stdout
+    #[arg(long = "generate-config")]
+    pub generate_config: bool,
 
     #[command(subcommand)]
     pub command: Option<Commands>,

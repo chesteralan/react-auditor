@@ -324,6 +324,50 @@ impl RuleRegistry {
             .find(|r| r.meta().id == rule_id)
             .map(|v| v.as_ref())
     }
+
+    /// Generate a default `.rauditrc.toml` config file with all rules listed.
+    pub fn generate_config(&self) -> String {
+        let mut buf = String::new();
+        buf.push_str("# react-auditor default configuration\n");
+        buf.push_str("# Adjust severity: \"error\", \"warning\", \"off\"\n");
+        buf.push_str("\n# ── General ──\n");
+        buf.push_str("# format = \"stylish\"\n");
+        buf.push_str("# ignore = \"node_modules,dist,build\"\n");
+        buf.push_str("# log = \"audit.json\"\n");
+        buf.push_str("# max_warnings = 10\n\n");
+
+        let mut metas: Vec<&RuleMeta> = self.rules.iter().map(|r| r.meta()).collect();
+        metas.sort_by_key(|m| (m.category, m.id));
+
+        let mut current_category = "";
+        for meta in &metas {
+            if meta.category != current_category {
+                if !current_category.is_empty() {
+                    buf.push('\n');
+                }
+                let title = format!("─ {} ─", capitalize(meta.category));
+                let padded = format!(" {:─^70} ", title);
+                buf.push_str(&format!("#{padded}\n"));
+                current_category = meta.category;
+            }
+            let sev = match meta.default_severity {
+                Severity::Error => "error",
+                Severity::Warning => "warning",
+                Severity::Off => "off",
+            };
+            buf.push_str(&format!("\"{}\" = \"{}\"   # {}\n", meta.id, sev, meta.description));
+        }
+
+        buf
+    }
+}
+
+fn capitalize(s: &str) -> String {
+    let mut c = s.chars();
+    match c.next() {
+        None => String::new(),
+        Some(f) => f.to_uppercase().collect::<String>() + c.as_str(),
+    }
 }
 
 pub fn line_col_to_offset(source: &str, line: usize, col: usize) -> Option<usize> {
