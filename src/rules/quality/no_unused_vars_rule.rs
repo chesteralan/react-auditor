@@ -29,8 +29,8 @@ impl Rule for NoUnusedVars {
                 continue;
             }
 
-            // Skip TypeScript type-only declarations (interfaces, type aliases)
-            if flags.is_interface() || flags.is_type_alias() {
+            // Skip TypeScript type-only declarations (interfaces, type aliases, type parameters)
+            if flags.is_interface() || flags.is_type_alias() || flags.is_type_parameter() {
                 continue;
             }
 
