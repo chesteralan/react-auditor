@@ -1,4 +1,4 @@
-use oxc_ast::ast::{AssignmentOperator, CallExpression, MemberExpression, Program};
+use oxc_ast::ast::{AssignmentOperator, CallExpression, Expression, MemberExpression, Program};
 use oxc_ast_visit::Visit;
 use oxc_semantic::Semantic;
 use oxc_span::GetSpan;
@@ -96,41 +96,88 @@ const SAFE_GLOBALS: &[&str] = &[
     "Buffer",
 ];
 
-fn is_safe_global(expr: &oxc_ast::ast::Expression) -> bool {
-    if let oxc_ast::ast::Expression::Identifier(ident) = expr {
-        SAFE_GLOBALS.contains(&ident.name.as_str())
-    } else {
-        false
+/// Returns `true` when the expression is provably non-null at runtime.
+fn is_safe_expression(expr: &Expression) -> bool {
+    match expr {
+        // Literals are never null/undefined
+        Expression::StringLiteral(_)
+        | Expression::NumericLiteral(_)
+        | Expression::BooleanLiteral(_)
+        | Expression::BigIntLiteral(_)
+        | Expression::RegExpLiteral(_)
+        | Expression::TemplateLiteral(_)
+        | Expression::ArrayExpression(_)
+        | Expression::ObjectExpression(_)
+        | Expression::FunctionExpression(_)
+        | Expression::ArrowFunctionExpression(_)
+        | Expression::ClassExpression(_) => true,
+
+        // `this` and `super` are never null
+        Expression::ThisExpression(_) | Expression::Super(_) => true,
+
+        // `new Foo()` always produces an object, never null
+        Expression::NewExpression(_) => true,
+
+        // `x!` — user already asserted non-null
+        Expression::TSNonNullExpression(_) => true,
+
+        // Well-known globals (Object, Array, Math, console, etc.)
+        Expression::Identifier(ident) => SAFE_GLOBALS.contains(&ident.name.as_str()),
+
+        // Unwrap type-only wrappers
+        Expression::TSAsExpression(e) => is_safe_expression(&e.expression),
+        Expression::TSSatisfiesExpression(e) => is_safe_expression(&e.expression),
+        Expression::TSTypeAssertion(e) => is_safe_expression(&e.expression),
+        Expression::TSInstantiationExpression(e) => is_safe_expression(&e.expression),
+        Expression::ParenthesizedExpression(e) => is_safe_expression(&e.expression),
+
+        // JSX elements are always objects
+        Expression::JSXElement(_) | Expression::JSXFragment(_) => true,
+
+        // PrivateIn and MetaProperty are always defined
+        Expression::PrivateInExpression(_) | Expression::MetaProperty(_) => true,
+
+        _ => false,
     }
 }
 
 impl<'a> Visit<'a> for NullCheckCollector<'a> {
     fn visit_member_expression(&mut self, expr: &MemberExpression<'a>) {
-        let is_safe = match expr {
-            MemberExpression::StaticMemberExpression(m) => is_safe_global(&m.object),
-            MemberExpression::ComputedMemberExpression(m) => is_safe_global(&m.object),
-            MemberExpression::PrivateFieldExpression(_) => false,
+        let (object, optional) = match expr {
+            MemberExpression::StaticMemberExpression(m) => (Some(&m.object), m.optional),
+            MemberExpression::ComputedMemberExpression(m) => (Some(&m.object), m.optional),
+            MemberExpression::PrivateFieldExpression(p) => (None, p.optional),
         };
-        if is_safe {
+        if let Some(obj) = object
+            && is_safe_expression(obj)
+        {
             return;
         }
-
-        if let MemberExpression::ComputedMemberExpression(computed) = expr
-            && !computed.optional
-        {
-            self.add_finding(
-                expr.span().start as usize,
-                "Potential null access on computed member — consider optional chaining `?.[]`"
-                    .to_string(),
-            );
+        if optional {
+            return;
         }
-        if let MemberExpression::StaticMemberExpression(static_member) = expr
-            && !static_member.optional
-        {
-            self.add_finding(
-                expr.span().start as usize,
-                "Potential null access on property — consider optional chaining `?.`".to_string(),
-            );
+        match expr {
+            MemberExpression::ComputedMemberExpression(_) => {
+                self.add_finding(
+                    expr.span().start as usize,
+                    "Potential null access on computed member — consider optional chaining `?.[]`"
+                        .to_string(),
+                );
+            }
+            MemberExpression::StaticMemberExpression(_) => {
+                self.add_finding(
+                    expr.span().start as usize,
+                    "Potential null access on property — consider optional chaining `?.`"
+                        .to_string(),
+                );
+            }
+            MemberExpression::PrivateFieldExpression(_) => {
+                self.add_finding(
+                    expr.span().start as usize,
+                    "Potential null access on private field — consider optional chaining `?.`"
+                        .to_string(),
+                );
+            }
         }
     }
 
@@ -151,21 +198,17 @@ impl<'a> Visit<'a> for NullCheckCollector<'a> {
             return;
         }
         if let Some(member) = expr.callee.as_member_expression() {
-            let is_safe = match member {
-                MemberExpression::StaticMemberExpression(m) => is_safe_global(&m.object),
-                MemberExpression::ComputedMemberExpression(m) => is_safe_global(&m.object),
-                MemberExpression::PrivateFieldExpression(_) => false,
+            let (object, member_optional) = match member {
+                MemberExpression::StaticMemberExpression(m) => (Some(&m.object), m.optional),
+                MemberExpression::ComputedMemberExpression(m) => (Some(&m.object), m.optional),
+                MemberExpression::PrivateFieldExpression(p) => (None, p.optional),
             };
-            if is_safe {
+            if let Some(obj) = object
+                && is_safe_expression(obj)
+            {
                 return;
             }
-
-            let optional = match member {
-                MemberExpression::ComputedMemberExpression(c) => c.optional,
-                MemberExpression::StaticMemberExpression(s) => s.optional,
-                MemberExpression::PrivateFieldExpression(_) => false,
-            };
-            if !optional {
+            if !member_optional {
                 self.add_finding(
                     expr.span.start as usize,
                     "Unsafe method call — consider optional chaining `?.()`".to_string(),
