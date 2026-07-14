@@ -11,7 +11,7 @@ clap = { version = "4", features = ["derive"] }
 oxc_parser = "0.138"
 oxc_allocator = "0.139"
 oxc_ast = "0.139"
-oxc_ast_visit = "0.138"
+oxc_ast_visit = "0.140"
 oxc_semantic = "0.140"
 oxc_span = "0.140"
 oxc_syntax = "0.139"
