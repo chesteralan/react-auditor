@@ -1329,7 +1329,7 @@ dependencies = [
  "ignore",
  "indicatif",
  "notify",
- "oxc_allocator 0.138.0",
+ "oxc_allocator 0.139.0",
  "oxc_ast 0.139.0",
  "oxc_ast_visit",
  "oxc_parser",
