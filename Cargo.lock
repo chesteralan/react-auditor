@@ -1363,7 +1363,7 @@ dependencies = [
  "oxc_parser",
  "oxc_semantic",
  "oxc_span 0.138.0",
- "oxc_syntax 0.138.0",
+ "oxc_syntax 0.139.0",
  "proptest",
  "rayon",
  "serde",
