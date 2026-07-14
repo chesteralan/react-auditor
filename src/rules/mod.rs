@@ -132,6 +132,17 @@ impl RuleRegistry {
             .push(Box::new(quality::no_unused_vars_rule::NoUnusedVars));
         self.rules.push(Box::new(quality::no_shadow::NoShadow));
         self.rules.push(Box::new(quality::complexity::Complexity));
+        self.rules
+            .push(Box::new(quality::no_boolean_param::NoBooleanParam));
+        self.rules
+            .push(Box::new(quality::no_empty_catch::NoEmptyCatch));
+        self.rules
+            .push(Box::new(quality::no_global_mutation::NoGlobalMutation));
+        self.rules.push(Box::new(
+            quality::prefer_default_params::PreferDefaultParams,
+        ));
+        self.rules
+            .push(Box::new(quality::prefer_object_spread::PreferObjectSpread));
         // ── Phase 5: React ──
         self.rules
             .push(Box::new(react::no_missing_key::NoMissingKey));
